@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@microsoft/eslint-plugin-sdl": "^0.1.8",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "express-fileupload": "^1.2.1"

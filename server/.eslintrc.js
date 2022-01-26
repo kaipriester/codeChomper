@@ -9,5 +9,7 @@ module.exports = {
         "sourceType": "module"
     },
     "rules": {
-    }
+        "no-eval": 2
+    },
+    "plugins": ['@microsoft/eslint-plugin-sdl']
 };
