@@ -1,21 +1,8 @@
 import React from 'react';
 import {
-  Progress,
-  Grid,
-  Image,
-  Button,
-  Checkbox,
-  Statistic,
-  Form,
-  Dropdown,
   Icon,
   Menu,
-  Segment,
-  Header,
-  Card,
-  Label,
   Input,
-  Modal,
 } from 'semantic-ui-react';
 
 function Sidebar() {

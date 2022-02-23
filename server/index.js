@@ -26,14 +26,17 @@ app.post('/upload', async (req, res) => {
 
   const fileLocation = `${'testFiles/'}${filename}`;
 
+//make a folder called extracted
   if (!fs.existsSync('extracted')) {
     fs.mkdirSync('extracted');
   }
-
+  
+//extract files into this folder
   file.mv(fileLocation, async (err) => {
     const zip = new AdmZip(fileLocation);
     zip.extractAllTo('./extracted', true);
 
+    //setup ESLINT and run them on all the files in this folder.
     const eslint = new ESLint();
     const results = await eslint.lintFiles(["./extracted/**/*.js"]);
     // TODO: replacing the file path with a static path (/Users/pabloestrada/filename.js -> filename.js)
@@ -41,6 +44,8 @@ app.post('/upload', async (req, res) => {
 
     // TODO: delete extracted folder
     res.json(responseData)
+    responseData
+    // TODO: figure out what to do with the errors
   });
 })
 

@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import React, { useState } from 'react';
 import {
@@ -8,17 +7,15 @@ import {
   Button,
   Statistic,
   Form,
-  Dropdown,
   Icon,
-  Menu,
   Header,
   Card,
   Modal,
 } from 'semantic-ui-react';
 import axios from 'axios';
 import moment from 'moment';
-import TopBar from './TopBar';
-import Sidebar from './Sidebar';
+import TopBar from './components/TopBar';
+import Sidebar from './components/Sidebar';
 
 function App() {
   const [file, setFile] = useState();

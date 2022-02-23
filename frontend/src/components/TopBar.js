@@ -1,17 +1,8 @@
 import React from 'react';
 import {
-  Progress,
-  Grid,
-  Image,
-  Button,
-  Statistic,
-  Form,
   Dropdown,
   Icon,
   Menu,
-  Header,
-  Card,
-  Modal,
 } from 'semantic-ui-react';
 
 function TopBar() {
