@@ -22,8 +22,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/upload', async (req, res) => {
-  const file = req.files.file;
+  // check that file is submitted
+  try {
+    const file = req.files.file;
+  } catch (err) {
+    if (err.name == 'TypeError') {
+      return res.status(400).send('Error: no file submitted');
+    }
+  }
+  
   const filename = file.name;
+
+  // submitted file must be a zip or error is thrown
+  if ((String(file.mimetype)) != 'application/zip') {
+    return res.status(400).send('Error: not zip file');
+  }
 
   const fileLocation = `${'testFiles/'}${filename}`;
 
@@ -34,8 +47,8 @@ app.post('/upload', async (req, res) => {
   
 //extract files into this folder
   file.mv(fileLocation, async (err) => {
-    
-    /*watch out grace is working here lol*/
+
+    // extraction from zip files
     const zip = new AdmZip(fileLocation);
     zip.extractAllTo('./extracted', true);
 
