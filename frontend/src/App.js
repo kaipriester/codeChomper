@@ -7,6 +7,8 @@ import moment from 'moment';
 import TopBar from './components/TopBar';
 import Sidebar from './components/Sidebar';
 import UploadPage from './pages/UploadPage';
+import MainPage from './pages/MainPage';
+import ViewMorePage from './pages/ViewMorePage';
 
 function App() {
   return (
@@ -16,8 +18,9 @@ function App() {
       </Grid.Column>
       <Grid.Column width={13} style={{ paddingLeft: 0 }}>
         <TopBar />
-
+        {/* <MainPage /> */}
         <UploadPage />
+        {/* <ViewMorePage /> */}
       </Grid.Column>
       {/* <Modal
         basic
