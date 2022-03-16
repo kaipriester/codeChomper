@@ -22,10 +22,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/upload', async (req, res) => {
-  // check that file is submitted
+  var file;
+  var filename;
+
+  // check that a file is submitted
   try {
-    const file = req.files.file;
-    const filename = file.name;
+    file = req.files.file;
+    filename = file.name;
   } catch (err) {
     if (err.name == 'TypeError') {
       return res.status(400).json('Error: no file submitted');
@@ -39,17 +42,19 @@ app.post('/upload', async (req, res) => {
 
   const fileLocation = `${'testFiles/'}${filename}`;
 
-//make a folder called extracted
+  //make a folder called extracted
   if (!fs.existsSync('extracted')) {
     fs.mkdirSync('extracted');
   }
   
-//extract files into this folder
+  //extract files into this folder
   file.mv(fileLocation, async (err) => {
 
     // extraction from zip files
     const zip = new AdmZip(fileLocation);
     zip.extractAllTo('./extracted', true);
+
+    // MORE COMPLEX ZIP LOGIC- need to account for submitted zip files, grouping people, invalid files
 
     //setup ESLINT and run them on all the files in this folder.
     const eslint = new ESLint();
