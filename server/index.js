@@ -55,13 +55,13 @@ app.post('/upload', async (req, res) => {
     const eslint = new ESLint();
     const results = await eslint.lintFiles(["./extracted/**/*.js"]);
 
+    // TODO: figure out what to do with the errors - Aaron has claimed this
+     console.log(results);
+
     //const responseData = results.map(result => ({ filePath: result.filePath.replace("/Users/pabloestrada/Desktop/JSAnalyze/server/extracted/", ""), errorCount: result.errorCount, messages: result.messages }))
     const responseData = results.map(result => ({ filePath: result.filePath.substring(result.filePath.lastIndexOf("/")+1), errorCount: result.errorCount, messages: result.messages }))
     fsExtra.emptyDirSync('./extracted');
     res.json(responseData)
-
-    // TODO: figure out what to do with the errors - Aaron has claimed this
-    console.log(results);
 
   });
 })
