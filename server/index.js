@@ -25,17 +25,16 @@ app.post('/upload', async (req, res) => {
   // check that file is submitted
   try {
     const file = req.files.file;
+    const filename = file.name;
   } catch (err) {
     if (err.name == 'TypeError') {
-      return res.status(400).send('Error: no file submitted');
+      return res.status(400).json('Error: no file submitted');
     }
   }
-  
-  const filename = file.name;
 
   // submitted file must be a zip or error is thrown
   if ((String(file.mimetype)) != 'application/zip') {
-    return res.status(400).send('Error: not zip file');
+    return res.status(400).json('Error: not zip file');
   }
 
   const fileLocation = `${'testFiles/'}${filename}`;
