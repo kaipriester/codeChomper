@@ -6,6 +6,7 @@ const AdmZip = require("adm-zip");
 const { ESLint } = require("eslint");
 const fs = require('fs');
 const fsExtra = require('fs-extra');
+const path = require('path');
 
 const app = express()
 const port = 8080
@@ -50,11 +51,20 @@ app.post('/upload', async (req, res) => {
   //extract files into this folder
   file.mv(fileLocation, async (err) => {
 
-    // extraction from zip files
+    // extract all student submissions from main zip file
     const zip = new AdmZip(fileLocation);
     zip.extractAllTo('./extracted', true);
 
-    // MORE COMPLEX ZIP LOGIC- need to account for submitted zip files, grouping people, invalid files
+
+    // extract from any nested zip files
+    filenames = fs.readdirSync('./extracted');
+    filenames.forEach(file => {
+      if (path.extname(file) == ".zip") {
+        //TODO: any extra name processing - grace
+        const zip1 = new AdmZip('./extracted/' + file);
+        zip1.extractAllTo('./extracted', true);
+      }
+    });
 
     //setup ESLINT and run them on all the files in this folder.
     const eslint = new ESLint();
