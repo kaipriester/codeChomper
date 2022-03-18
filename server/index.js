@@ -6,6 +6,7 @@ const AdmZip = require("adm-zip");
 const { ESLint } = require("eslint");
 const fs = require('fs');
 const fsExtra = require('fs-extra');
+const path = require('path');
 
 const app = express()
 const port = 8080
@@ -22,22 +23,48 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/upload', async (req, res) => {
-  const file = req.files.file;
-  const filename = file.name;
+  var file;
+  var filename;
+
+  // check that a file is submitted
+  try {
+    file = req.files.file;
+    filename = file.name;
+  } catch (err) {
+    if (err.name == 'TypeError') {
+      return res.status(400).json('Error: no file submitted');
+    }
+  }
+
+  // submitted file must be a zip or error is thrown
+  if ((String(file.mimetype)) != 'application/zip') {
+    return res.status(400).json('Error: not zip file');
+  }
 
   const fileLocation = `${'testFiles/'}${filename}`;
 
-//make a folder called extracted
+  //make a folder called extracted
   if (!fs.existsSync('extracted')) {
     fs.mkdirSync('extracted');
   }
   
-//extract files into this folder
+  //extract files into this folder
   file.mv(fileLocation, async (err) => {
-    
-    /*watch out grace is working here lol*/
+
+    // extract all student submissions from main zip file
     const zip = new AdmZip(fileLocation);
     zip.extractAllTo('./extracted', true);
+
+
+    // extract from any nested zip files
+    filenames = fs.readdirSync('./extracted');
+    filenames.forEach(file => {
+      if (path.extname(file) == ".zip") {
+        //TODO: any extra name processing - grace
+        const zip1 = new AdmZip('./extracted/' + file);
+        zip1.extractAllTo('./extracted', true);
+      }
+    });
 
     //setup ESLINT and run them on all the files in this folder.
     const eslint = new ESLint();
