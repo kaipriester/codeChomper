@@ -1,9 +1,5 @@
-import React from 'react';
-import {
-  Dropdown,
-  Icon,
-  Menu,
-} from 'semantic-ui-react';
+import React from "react";
+import { Dropdown, Icon, Menu } from "semantic-ui-react";
 
 function TopBar() {
   return (

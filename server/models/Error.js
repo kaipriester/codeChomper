@@ -1,0 +1,15 @@
+const mongoose = require("mongoose");
+
+const Schema = new mongoose.Schema({
+	ErrorType: Number,
+	Severity: Number,
+	Message: String,
+	Line: Number,
+	Column: Number,
+	NodeType: String,
+	MessageId: String,
+	EndLine: Number,
+	EndColumn: Number,
+});
+
+exports.Model = mongoose.model("Error", Schema);
