@@ -1,36 +1,24 @@
 import React from "react";
 import { Dropdown, Icon, Menu } from "semantic-ui-react";
 
-function TopBar() {
-  return (
-    <div>
-      <Menu inverted attached="top">
-        <Dropdown item icon="wrench" simple>
-          <Dropdown.Menu>
-            <Dropdown.Item>
-              <Icon name="dropdown" />
-              <span className="text">New</span>
-
-              <Dropdown.Menu>
-                <Dropdown.Item>Document</Dropdown.Item>
-                <Dropdown.Item>Image</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown.Item>
-            <Dropdown.Item>Open</Dropdown.Item>
-            <Dropdown.Item>Save...</Dropdown.Item>
-            <Dropdown.Item>Edit Permissions</Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Header>Export</Dropdown.Header>
-            <Dropdown.Item>Share</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-
-        <Menu.Menu position="right">
-          <Menu.Item name="logout" active />
-        </Menu.Menu>
-      </Menu>
-    </div>
-  );
+function TopBar(props) {
+    console.log(`props: ${props}`);
+    const { updateRouteHandler } = props;
+    console.log(updateRouteHandler);
+    const logout = () => {
+        //Remove Users Cookies to remove their login Credentials
+        updateRouteHandler("LogIn")
+    }
+    return (
+        <div>
+            <Menu inverted attached="top">
+                <Menu.Menu position="right">
+                    <Menu.Item name="logout" active /*onClick={() => updateRouteHandler("BugListPage") }*/>
+                    </Menu.Item>
+                </Menu.Menu>
+            </Menu>
+        </div>
+    
 }
 
 export default TopBar;
