@@ -29,15 +29,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 database.connect();
 
-function getStudentIDFromRelPath(path) {
+function getStudentIDFromRelPath(path, map) {
 	var cut = path.indexOf("_");
-	if (cut != -1) {
-		cut = cut > path.indexOf("/") ? path.indexOf("/") : path.indexOf(">");
-	} else {
+	var cut2 = path.indexOf("/");
+	if (cut == -1) {
 		cut = path.indexOf("/");
+	} else if (cut2 == -1) {
+		cut = path.indexOf("_");
+	} else {
+		cut = Math.min(cut, cut2);
 	}
-
-	return path.substring(0, cut);
+	return map.get(path.substring(0, cut));
 }
 
 app.post("/upload", async (req, res) => {
@@ -66,7 +68,6 @@ app.post("/upload", async (req, res) => {
 		const fileNamesInZipFolder = fs.readdirSync("./extracted");
 		const studentNames = new Set();
 
-		console.log(fileNamesInZipFolder);
 		fileNamesInZipFolder.forEach((file) => {
 			const currentStudentName = file.substring(0, file.indexOf("_"));
 
@@ -95,43 +96,42 @@ app.post("/upload", async (req, res) => {
 		// Setup ESLINT and run them on all the files in this folder.
 		const eslint = new ESLint();
 		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
-
+		const today = new Date();
+		//console.log(results) *LAST SEEN- RESULTS OVER SEVERAL MILLION WHY???*
+        //const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 		const zipFileRecord = await DAO.addZipFile(
 			zipFileName,
 			results.length,
-			new Date()
+			today
 		);
 
-		// [1,2,3] => [10, 12, 13]
-		// ['widlcomes', 'asdsad', '123'] => [12323, 12321, 123123]
-
-		// map
 		const studentIDsByName = new Map();
-		studentNames.forEach((studentName) =>
+		await Promise.all([...studentNames].map(async (studentName) =>
 			studentIDsByName.set(
 				studentName,
-				DAO.addStudent(studentName, zipFileRecord._id)
+				(await DAO.addStudent(studentName, zipFileRecord._id))._id
 			)
-		);
+		));
 
-		console.log(studentNames);
-		results.forEach((result) => {
+		results.forEach(async (result) => {
 			const relativePath = getRelativePath(result.filePath);
 
-			const errors = result.messages.map((message) =>
-				DAO.addError(
-					convertErrorIDToType(message.ruleId),
-					message.severity,
-					message.message,
-					message.line,
-					message.column,
-					message.nodeType,
-					message.messageId,
-					message.endLine,
-					message.endColumn
+			const errors = await Promise.all(
+				result.messages.map((message) =>
+					DAO.addError(
+						convertErrorIDToType(message.ruleId),
+						message.severity,
+						message.message,
+						message.line,
+						message.column,
+						message.nodeType,
+						message.messageId,
+						message.endLine,
+						message.endColumn
+					)
 				)
 			);
-			const file = DAO.addFile(
+			const fileRecord = await DAO.addFile(
 				relativePath,
 				result.errorCount,
 				result.fatalErrorCount,
@@ -141,15 +141,15 @@ app.post("/upload", async (req, res) => {
 				result.source,
 				errors
 			);
-
-			// getStudentObjectId(relativePath) // estradapablo/project/noCaller.js
-			DAO.addFilesToStudent(
-				getStudentIDFromRelPath(relativePath),
-				file._id
+			DAO.addFileToStudent(
+				getStudentIDFromRelPath(relativePath, studentIDsByName),
+				fileRecord._id
 			);
 		});
 
-		// console.log(JSON.stringify(results[0]));
+
+        await DAO.addStudentsToZipFile(zipFileRecord._id, Array.from(studentIDsByName.values()))
+        await DAO.updateZipFile(errors.length, 2);
 
 		const responseData = results.map((result) => ({
 			filePath: result.filePath.substring(
@@ -159,8 +159,6 @@ app.post("/upload", async (req, res) => {
 			messages: result.messages,
 		}));
 
-		// AARON INSERTS INTO DATABASE DAO.updateStudent(info);
-
 		fsExtra.emptyDirSync("./extracted");
 		res.json(responseData);
 	});
@@ -169,10 +167,10 @@ app.post("/upload", async (req, res) => {
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
 	const response = {
-		graphData: DAO.getAllZipFiles(),
-		zipFileData: DAO.getAllZipFiles(),
+		graphData: {},//TODO
+		zipFileData: await DAO.getAllZipFiles(),
 	};
-	return response;
+	res.json(response)
 
 	// also return information to build graphs- GRACE working on it!!
 	// grace has ~ideas~
@@ -181,13 +179,19 @@ app.get("/overview/zipfiles", async (req, res) => {
 });
 
 // overview page- view more data fom invidual zip files
-app.get("/overview/studentfiles", async (req, res) => {});
+app.get("/overview/studentfiles", async (req, res) => {
+	const response = {
+		graphData: {},//TODO
+		zipFileData: await DAO.getAllStudentFiles(req.query.zipFileID),
+	};
+	res.json(response)
+});
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
 
-const getRelativePath = async (absolutePath) => {
+const getRelativePath = (absolutePath) => {
 	const extractedFolderName = "extracted/";
 	return absolutePath.substring(
 		absolutePath.indexOf(extractedFolderName) + extractedFolderName.length

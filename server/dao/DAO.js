@@ -13,7 +13,7 @@ exports.getFile = async (id) => {
 	return File.find();
 };
 exports.addStudent = async (Name, ZipFolderID) => {
-	return await Student.create({ Name, ZipFolderID, Files: [] })._id;
+	return await Student.create({ Name, ZipFolderID, Files: [] });
 };
 exports.addZipFile = async (Name, Date, FileCount) => {
 	return await ZipFile.create({ Name, Date, FileCount });
@@ -21,7 +21,6 @@ exports.addZipFile = async (Name, Date, FileCount) => {
 
 exports.addError = async (
 	ErrorType,
-	RuleId,
 	Severity,
 	Message,
 	Line,
@@ -31,9 +30,8 @@ exports.addError = async (
 	EndLine,
 	EndColumn
 ) => {
-	return await Error.create({
+	const error = await Error.create({
 		ErrorType,
-		RuleId,
 		Severity,
 		Message,
 		Line,
@@ -42,7 +40,8 @@ exports.addError = async (
 		MessageId,
 		EndLine,
 		EndColumn,
-	})._id;
+	});
+	return error._id;
 };
 
 exports.addFile = async (
@@ -64,17 +63,17 @@ exports.addFile = async (
 		FixableWarningCount,
 		Source,
 		Errors,
-	})._id;
+	});
 };
 
 exports.addFileToStudent = async (StudentId, FileID) => {
 	// (await ZipFile.findById(StudentId)).Files.push(FileID).save();
 
-	return await ZipFile.updateOne(
-		{ _id: { StudentId } },
+	return await Student.updateOne(
+		{ _id: StudentId },
 		{
 			$push: {
-				Files: { FileID },
+				Files: FileID,
 			},
 		}
 	);
@@ -82,14 +81,26 @@ exports.addFileToStudent = async (StudentId, FileID) => {
 exports.addStudentsToZipFile = async (ZipFileId, Students) => {
 	//https://docs.mongodb.com/mongodb-shell/crud/update/
 	return await ZipFile.updateOne(
-		{ _id: { ZipFileId } },
+		{ _id:  ZipFileId  },
 		{
 			$set: {
-				Students: { Students },
+				Students: Students ,
 			},
 		}
 	);
 };
+
+exports.updateZipFile = async (ZipFileID, ErrorCount, SeverityScore) => {
+    await ZipFile.findById(ZipFileID).updateOne({ ErrorCount, SeverityScore })
+}
+
 exports.getAllZipFiles = async () => {
-	return ZipFile.find({});
+	// return await ZipFile.find({}).populate({
+        // path: "Students",
+        // populate: { path: "Files", model: 'File', populate: { path: "Errors", model: "Error" } }
+    // });
+    return await ZipFile.find({}).exec();
 };
+exports.getAllStudentFiles= async () => {
+	return await Student.find({}).exec();
+}

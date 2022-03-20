@@ -6,7 +6,7 @@ const Schema = new mongoose.Schema({
 	ErrorCount: Number,
 	SeverityScore: Number,
 	FileCount: Number,
-	Student: [
+	Students: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Student",

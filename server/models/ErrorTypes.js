@@ -1,4 +1,4 @@
-const ErrorList = {}
+const ErrorList = {};
 ErrorList[0] = {
 	Name: "no caller",
 	Description:
@@ -168,10 +168,13 @@ ErrorList[23] = {
 };
 //If it returns -1 then it is a normal ESLINT Error and not a Security Error
 exports.convertRuleIDToErrorType = (ErrorID) => {
-    for(const [key, value] of Object.entries(ErrorList)){
-        if((""+value) == ErrorID.replace("-", " ")){
-            return key;
-        }
-    }
-    return -1;
-}
+	if (!ErrorID) {
+		return -1;
+	}
+	for (const [key, value] of Object.entries(ErrorList)) {
+		if ("" + value == ErrorID.replace("-", " ")) {
+			return key;
+		}
+	}
+	return -1;
+};

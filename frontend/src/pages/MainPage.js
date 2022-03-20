@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Grid,
@@ -16,14 +16,22 @@ import {
 } from "semantic-ui-react";
 import { Range } from 'react-range';
 import moment from "moment";
+import { getZipFileMetadata } from '../client/API.js'
 
 function UploadPage() {
-  const [files, setFiles] = useState([1, 2, 3, 4, 5]);
+  const [files, setFiles] = useState([]);
 
   const panes = [
     { menuItem: "Zip folders", render: () => getStudentFilesCards() },
     { menuItem: "Graphs", render: () => <></> },
   ];
+
+  useEffect(async () => {
+    const results = await getZipFileMetadata();
+    // results.map(result => 
+    //     { name: result.Name, date: result.Date, fileCount } 
+    // )
+  }, [])
 
   const getStudentFilesCards = () => {
     return (
