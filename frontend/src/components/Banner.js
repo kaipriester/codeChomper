@@ -1,14 +1,7 @@
 import React from "react";
-import { Dropdown, Icon, Menu } from "semantic-ui-react";
-
-function TopBar(props) {
-    console.log(`props: ${props}`);
-    const { updateRouteHandler } = props;
-    console.log(updateRouteHandler);
-    const logout = (updateRouteHandler) => {
-        //Remove Users Cookies to remove their login Credentials
-        updateRouteHandler("LogIn")
-    };
+import { Menu } from "semantic-ui-react";
+//TODO move the banner component here and add it to the main page and have it recieve either the current page or the info to put in the banner IE the ICON/ Text to display
+function Banner() {
     return (
         <div>
             <Menu inverted attached="top">

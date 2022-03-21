@@ -4,6 +4,31 @@ import { Grid, Card, Form, Button, Icon, Segment, Header, Table } from "semantic
 
 function BugsPage() {
     //TODO: END GAME add Checkboxs to columns that allow the user to turn on and off the displaying of those detections
+    const getTableRows = () => {
+        return (
+            <div>
+                {Array.from({ length: 12 }).map((_, index) => (
+                    <tr>
+                        <Table bordered hover>
+                            <td>
+                                <tr>
+                                    Name: No Calle
+                                </tr>
+                                <tr>
+                                    Severity: 10
+                                </tr>
+                                <tr>
+                                    Type: Cross Site Scripting
+                                </tr>
+                            </td>
+                        </Table>
+                        <td>Description: Wow this is a description of the thing that is destroying your security. You should really consider fixing this problem as soon as possible.</td>
+                    </tr>
+                ))}
+            </div>
+        );
+    }
+
     return (
         <Grid style={{ padding: "1.5vw" }}>
             <Grid.Row>
@@ -20,30 +45,12 @@ function BugsPage() {
                 <Table striped bordered hover>
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Detection Name</th>
+                            <th>Info</th>
                             <th>Description</th>
-                            <th>Username</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td colSpan={2}>Larry the Bird</td>
-                            <td>@twitter</td>
-                        </tr>
+                        {getTableRows()}
                     </tbody>
                 </Table>
             </Grid.Row>

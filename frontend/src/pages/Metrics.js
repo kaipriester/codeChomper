@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Grid, Icon, Segment, Header } from "semantic-ui-react";
-
+import ChartsPage from "../components/ChartsPage";
 function MetricsPage() {
-
     return (
         <Grid style={{ padding: "1.5vw" }}>
             <Grid.Row>
