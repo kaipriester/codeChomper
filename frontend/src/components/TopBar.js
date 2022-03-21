@@ -18,7 +18,7 @@ function TopBar(props) {
                 </Menu.Menu>
             </Menu>
         </div>
-    
+    );
 }
 
 export default TopBar;

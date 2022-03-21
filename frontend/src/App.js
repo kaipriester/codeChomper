@@ -41,7 +41,7 @@ function App() {
                 {currentRoute != "LogIn" && <Sidebar updateRouteHandler={setCurrentRoute} />}
             </Grid.Column>
             <Grid.Column width={13} style={{ paddingLeft: 0 }}>
-                {currentRoute != "LogIn" && <TopBar />}
+                {currentRoute != "LogIn" && <TopBar updateRouteHandler={setCurrentRoute} />}
                 {getCurrentRoute()}
             </Grid.Column>
         </Grid>
