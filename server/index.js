@@ -88,7 +88,7 @@ app.post("/upload", async (req, res) => {
 				innerZipFileExtractor.extractAllTo(
 					"./extracted/" + file.substring(0, file.indexOf("_")),
 					true
-			);
+				);
 				fsExtra.remove("./extracted/" + file);
 			}
 		});
@@ -99,16 +99,20 @@ app.post("/upload", async (req, res) => {
 		const zipFileRecord = await DAO.addZipFile(
 			zipFileName,
 			new Date(),
-            results.length,
+			results.length
 		);
 
 		const studentIDsByName = new Map();
-		await Promise.all([...studentNames].map(async (studentName) =>
-			studentIDsByName.set(
-				studentName,
-				(await DAO.addStudent(studentName, zipFileRecord._id))._id
+		await Promise.all(
+			[...studentNames].map(async (studentName) =>
+				studentIDsByName.set(
+					studentName,
+					(
+						await DAO.addStudent(studentName, zipFileRecord._id)
+					)._id
+				)
 			)
-		));
+		);
 
 		results.forEach(async (result) => {
 			const relativePath = getRelativePath(result.filePath);
@@ -144,9 +148,11 @@ app.post("/upload", async (req, res) => {
 			);
 		});
 
-
-        await DAO.addStudentsToZipFile(zipFileRecord._id, Array.from(studentIDsByName.values()))
-        await DAO.updateZipFile(zipFileRecord._id, results.length, 2);
+		await DAO.addStudentsToZipFile(
+			zipFileRecord._id,
+			Array.from(studentIDsByName.values())
+		);
+		await DAO.updateZipFile(zipFileRecord._id, results.length, 2);
 
 		const responseData = results.map((result) => ({
 			filePath: result.filePath.substring(
@@ -164,10 +170,10 @@ app.post("/upload", async (req, res) => {
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
 	const response = {
-		graphData: {},//TODO
+		graphData: {}, //TODO
 		zipFileData: await DAO.getAllZipFiles(),
 	};
-	res.json(response)
+	res.json(response);
 
 	// also return information to build graphs- GRACE working on it!!
 	// grace has ~ideas~
@@ -177,7 +183,7 @@ app.get("/overview/zipfiles", async (req, res) => {
 
 // overview page- view more data fom invidual zip files
 app.get("/studentfiles", async (req, res) => {
-	res.json(await DAO.getZipFile(req.query.id))
+	res.json(await DAO.getZipFile(req.query.id));
 });
 
 app.listen(port, () => {

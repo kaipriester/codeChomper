@@ -81,29 +81,33 @@ exports.addFileToStudent = async (StudentId, FileID) => {
 exports.addStudentsToZipFile = async (ZipFileId, Students) => {
 	//https://docs.mongodb.com/mongodb-shell/crud/update/
 	return await ZipFile.updateOne(
-		{ _id:  ZipFileId  },
+		{ _id: ZipFileId },
 		{
 			$set: {
-				Students: Students ,
+				Students: Students,
 			},
 		}
 	);
 };
 
 exports.updateZipFile = async (ZipFileID, ErrorCount, SeverityScore) => {
-    await ZipFile.findById(ZipFileID).updateOne({ ErrorCount, SeverityScore })
-}
+	await ZipFile.findById(ZipFileID).updateOne({ ErrorCount, SeverityScore });
+};
 
 exports.getZipFile = async (id) => {
 	return await ZipFile.findById(id).populate({
-        path: "Students",
-        populate: { path: "Files", model: 'File', populate: { path: "Errors", model: "Error" } }
-    });
-}
+		path: "Students",
+		populate: {
+			path: "Files",
+			model: "File",
+			populate: { path: "Errors", model: "Error" },
+		},
+	});
+};
 
 exports.getAllZipFiles = async () => {
-    return await ZipFile.find({}).exec();
+	return await ZipFile.find({}).exec();
 };
-exports.getAllStudentFiles= async () => {
+exports.getAllStudentFiles = async () => {
 	return await Student.find({}).exec();
-}
+};
