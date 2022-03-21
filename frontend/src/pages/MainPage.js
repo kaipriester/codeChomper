@@ -18,7 +18,8 @@ import { Range } from 'react-range';
 import moment from "moment";
 import { getZipFileMetadata } from '../client/API.js'
 
-function MainPage() {
+function MainPage(props) {
+    const { updateRouteHandler, updateZipFileHandler } = props
     const [files, setFiles] = useState([]);
 
     const panes = [
@@ -27,12 +28,19 @@ function MainPage() {
     ];
 
     useEffect(async () => {
-        const results = await getZipFileMetadata();
-        // results.map(result => 
-        //     { name: result.Name, date: result.Date, fileCount } 
-        // )
-    }, [])
+        const results = (await getZipFileMetadata()).data.zipFileData;
+        console.log(results)
+        setFiles(results.map(result => 
+            {
+                return { id: result._id, name: result.Name, date: result.Date, fileCount: result.FileCount, errorCount: result.ErrorCount, severityScore: result.SeverityScore } 
+            }
+        ))
 
+    }, [])
+    const getDate = (obj) => {
+        obj=obj.substring(0, obj.indexOf("T"))
+        return obj.substring(obj.indexOf("-")+1, obj.length)+'-'+obj.substring(0, obj.indexOf("-"))
+    }
     const getStudentFilesCards = () => {
         return (
             <Card.Group>
@@ -44,17 +52,17 @@ function MainPage() {
                                 size="mini"
                                 src="https://i.ibb.co/vxd7Rwc/abc-123-programmer-software-developer-generated.jpg"
                             />
-                            <Card.Header>{"studentfiles.zip"}</Card.Header>
-                            <Card.Meta>Ran on {moment().format("D MMM, YYYY")}</Card.Meta>
+                            <Card.Header>{file.name}</Card.Header>
+                            <Card.Meta>Ran on {getDate(file.date)}</Card.Meta>
                             <Card.Description textAlign="center">
-                                <Statistic label="number of files" value={"2"} />
-                                <Statistic label="detections" value={"4"} />
-                                <Statistic label="severity score" value={"9"} />
+                                <Statistic label="number of files" value={file.fileCount} />
+                                <Statistic label="detections" value={file.errorCount} />
+                                <Statistic label="severity score" value={file.severityScore} />
                             </Card.Description>
                         </Card.Content>
                         <Card.Content extra>
                             <div className="ui two buttons">
-                                <Button basic color="primary" onClick={() => { }}>
+                                <Button basic color="primary" onClick={() => updateZipFileHandler(file.id)}>
                                     view more
                                 </Button>
                             </div>

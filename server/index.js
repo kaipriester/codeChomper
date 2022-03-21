@@ -88,7 +88,7 @@ app.post("/upload", async (req, res) => {
 				innerZipFileExtractor.extractAllTo(
 					"./extracted/" + file.substring(0, file.indexOf("_")),
 					true
-				);
+			);
 				fsExtra.remove("./extracted/" + file);
 			}
 		});
@@ -96,13 +96,10 @@ app.post("/upload", async (req, res) => {
 		// Setup ESLINT and run them on all the files in this folder.
 		const eslint = new ESLint();
 		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
-		const today = new Date();
-		//console.log(results) *LAST SEEN- RESULTS OVER SEVERAL MILLION WHY???*
-        //const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 		const zipFileRecord = await DAO.addZipFile(
 			zipFileName,
-			results.length,
-			today
+			new Date(),
+            results.length,
 		);
 
 		const studentIDsByName = new Map();
@@ -149,7 +146,7 @@ app.post("/upload", async (req, res) => {
 
 
         await DAO.addStudentsToZipFile(zipFileRecord._id, Array.from(studentIDsByName.values()))
-        await DAO.updateZipFile(errors.length, 2);
+        await DAO.updateZipFile(zipFileRecord._id, results.length, 2);
 
 		const responseData = results.map((result) => ({
 			filePath: result.filePath.substring(
@@ -179,12 +176,8 @@ app.get("/overview/zipfiles", async (req, res) => {
 });
 
 // overview page- view more data fom invidual zip files
-app.get("/overview/studentfiles", async (req, res) => {
-	const response = {
-		graphData: {},//TODO
-		zipFileData: await DAO.getAllStudentFiles(req.query.zipFileID),
-	};
-	res.json(response)
+app.get("/studentfiles", async (req, res) => {
+	res.json(await DAO.getZipFile(req.query.id))
 });
 
 app.listen(port, () => {

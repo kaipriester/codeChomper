@@ -13,11 +13,16 @@ import LogIn from "./pages/LogIn";
 
 function App() {
     const [currentRoute, setCurrentRoute] = useState("LogIn");
+    const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
 
     const getCurrentRoute = () => {
+        if (currentZipFileId !== "undefined") {
+            return <ViewMorePage id={currentZipFileId} />
+        }
+
         switch (currentRoute) {
             case "main":
-                return <MainPage />;
+                return <MainPage updateRouteHandler={setCurrentRoute} updateZipFileHandler={setCurrentZipFileId} />;
                 break;
             case "upload":
                 return <UploadPage />;

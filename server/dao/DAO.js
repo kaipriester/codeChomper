@@ -6,9 +6,9 @@ const Error = require("../models/Error.js").Model;
 exports.getStudent = async (id) => {
 	return Student.find();
 };
-exports.getZipFile = async (id) => {
-	return ZipFile.find();
-};
+// exports.getZipFile = async (id) => {
+// 	return ZipFile.find();
+// };
 exports.getFile = async (id) => {
 	return File.find();
 };
@@ -94,11 +94,14 @@ exports.updateZipFile = async (ZipFileID, ErrorCount, SeverityScore) => {
     await ZipFile.findById(ZipFileID).updateOne({ ErrorCount, SeverityScore })
 }
 
+exports.getZipFile = async (id) => {
+	return await ZipFile.findById(id).populate({
+        path: "Students",
+        populate: { path: "Files", model: 'File', populate: { path: "Errors", model: "Error" } }
+    });
+}
+
 exports.getAllZipFiles = async () => {
-	// return await ZipFile.find({}).populate({
-        // path: "Students",
-        // populate: { path: "Files", model: 'File', populate: { path: "Errors", model: "Error" } }
-    // });
     return await ZipFile.find({}).exec();
 };
 exports.getAllStudentFiles= async () => {
