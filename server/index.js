@@ -8,7 +8,7 @@ const fsExtra = require("fs-extra");
 const path = require("path");
 const { ESLint } = require("eslint");
 
-const database = require("./Database/Database.js");
+const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
 const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;

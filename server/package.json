@@ -23,5 +23,8 @@
   },
   "devDependencies": {
     "eslint": "^8.6.0"
+  },
+  "nodemonConfig": {
+    "ignore": ["./extracted", "./testFiles"]
   }
 }
