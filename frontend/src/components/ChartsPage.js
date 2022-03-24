@@ -1,6 +1,24 @@
 import React from "react";
 import { Radar } from "react-chartjs-2";
 import { MDBContainer } from "mdbreact";
+import {
+	Chart as ChartJS,
+	RadialLinearScale,
+	PointElement,
+	LineElement,
+	Filler,
+	Tooltip,
+	Legend,
+  } from 'chart.js';
+
+ChartJS.register(
+	RadialLinearScale,
+	PointElement,
+	LineElement,
+	Filler,
+	Tooltip,
+	Legend
+);
 
 class ChartsPage extends React.Component {
 	state = {
