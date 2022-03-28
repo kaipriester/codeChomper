@@ -18,6 +18,7 @@ import {
 } from "semantic-ui-react";
 import moment from "moment";
 import { getZipFile } from "../client/API.js";
+import ChartsPage from "../components/ChartsPage";
 
 function ViewMorePage(props) {
 	const { id } = props;
@@ -107,7 +108,7 @@ function ViewMorePage(props) {
 				</Card.Group>
 			),
 		},
-		{ menuItem: "Graphs", render: () => <></> },
+		{ menuItem: "Graphs", render: () => <ChartsPage/> },
 	];
 
 	const getDate = (obj) => {
