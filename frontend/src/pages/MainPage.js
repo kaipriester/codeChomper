@@ -16,19 +16,10 @@ import {
 } from "semantic-ui-react";
 import { Range } from "react-range";
 import moment from "moment";
-<<<<<<< HEAD
-import { getZipFileMetadata } from '../client/API.js'
-//TODO: IF there are no Files uploaded add a card to upload Student Code
-//TODO: Add Trash Can to cards to delete Student Code (Must give a popup to confirm delete)
-function MainPage() {
-    const [files, setFiles] = useState([]);
-=======
 import { getZipFileMetadata } from "../client/API.js";
-
 function MainPage(props) {
 	const { updateRouteHandler, updateZipFileHandler } = props;
 	const [files, setFiles] = useState([]);
->>>>>>> 7e87e82b922618d85f3c3f245862b53bd72369ba
 
 	const panes = [
 		{ menuItem: "Zip folders", render: () => getStudentFilesCards() },
