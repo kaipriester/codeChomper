@@ -20,7 +20,12 @@ function BugsPage() {
 		const [bugInformation, setBugInformation] = useState("");
 
 	
-
+		function  updateBugInfo(param) {													// How do I call this after every table row? 
+			axios.get("http://localhost:5000/",  { crossdomain: true }).then(response => {
+			  setText(response.data.text);
+			  setAuthor(response.data.author);
+			});
+		  }
 
 		useEffect(async () => {
 			const results = (await getErrorTypes(0)).data; //need to iterate through this 
