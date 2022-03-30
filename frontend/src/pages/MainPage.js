@@ -17,7 +17,8 @@ import {
 import { Range } from 'react-range';
 import moment from "moment";
 import { getZipFileMetadata } from '../client/API.js'
-
+//TODO: IF there are no Files uploaded add a card to upload Student Code
+//TODO: Add Trash Can to cards to delete Student Code (Must give a popup to confirm delete)
 function MainPage() {
     const [files, setFiles] = useState([]);
 
