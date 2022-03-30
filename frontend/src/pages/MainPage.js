@@ -17,7 +17,6 @@ import {
 import { Range } from "react-range";
 import moment from "moment";
 import { getZipFileMetadata } from "../client/API.js";
-
 function MainPage(props) {
 	const { updateRouteHandler, updateZipFileHandler } = props;
 	const [files, setFiles] = useState([]);

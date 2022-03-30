@@ -1,4 +1,10 @@
 const ErrorList = {};
+ErrorList[-1] = {
+	Name: "Error",
+	Description:
+		"This Error is not a Security error, perhaps there is a syntax error.",
+		Severity: 0, //4
+};
 ErrorList[0] = {
 	Name: "no caller",
 	Description:
