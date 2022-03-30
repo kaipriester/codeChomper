@@ -21,7 +21,7 @@ function MetricsPage() {
 			<Grid.Row>
 				TODO Someone needs to make this page
 				{
-					//<ChartsPage/>
+					<ChartsPage/>
 				}
 			</Grid.Row>
 		</Grid>
