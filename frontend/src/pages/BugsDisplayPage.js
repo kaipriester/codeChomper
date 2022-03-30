@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
 	Grid,
@@ -11,30 +11,49 @@ import {
 	Table,
 } from "semantic-ui-react";
 
+import { JoshuaTest, getZipFile, ErrorTypes, getErrorTypes } from "../client/API.js";
+
 function BugsPage() {
+
+
+
+		const [bugInformation, setBugInformation] = useState("");
+
+	
+
+
+		useEffect(async () => {
+			const results = (await getErrorTypes(0)).data; //need to iterate through this 
+			console.log(results);
+			setBugInformation(results);
+			console.log(file);
+		}, []);
+
+
+
 	//TODO: END GAME add Checkboxs to columns that allow the user to turn on and off the displaying of those detections
 	const getTableRows = () => {
 		return (
+		
 			<div>
-				{Array.from({ length: 12 }).map((_, index) => (
+				{Array.from({ length: 24 }).map((_, index) => (
 					<tr>
 						<Table bordered hover>
 							<td>
-								<tr>Name: No Calle</tr>
-								<tr>Severity: 10</tr>
-								<tr>Type: Cross Site Scripting</tr>
+								<tr>Name: {bugInformation.Name} </tr>
+								<tr>Severity: {bugInformation.Severity} </tr>
+								<tr>Type: </tr>
 							</td>
 						</Table>
 						<td>
-							Description: Wow this is a description of the thing
-							that is destroying your security. You should really
-							consider fixing this problem as soon as possible.
+							Description: {bugInformation.Description}
 						</td>
 					</tr>
 				))}
-			</div>
+			</div>		
 		);
 	};
+
 
 	return (
 		<Grid style={{ padding: "1.5vw" }}>

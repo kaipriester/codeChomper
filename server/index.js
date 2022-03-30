@@ -13,6 +13,8 @@ const DAO = require("./dao/DAO.js");
 const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 
+const ErrorTypeDetail = require("./models/ErrorTypes.js");
+
 const app = express();
 const port = 8080;
 
@@ -185,6 +187,12 @@ app.get("/overview/zipfiles", async (req, res) => {
 app.get("/studentfiles", async (req, res) => {
 	res.json(await DAO.getZipFile(req.query.id));
 });
+
+
+app.get("/ErrorTypes", async (req, res) => {
+	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+});
+
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
