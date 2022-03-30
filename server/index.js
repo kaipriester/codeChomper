@@ -8,7 +8,7 @@ const fsExtra = require("fs-extra");
 const path = require("path");
 const { ESLint } = require("eslint");
 
-const database = require("./Database/Database.js");
+const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
 const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
@@ -96,22 +96,23 @@ app.post("/upload", async (req, res) => {
 		// Setup ESLINT and run them on all the files in this folder.
 		const eslint = new ESLint();
 		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
-		const today = new Date();
-		//console.log(results) *LAST SEEN- RESULTS OVER SEVERAL MILLION WHY???*
-        //const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 		const zipFileRecord = await DAO.addZipFile(
 			zipFileName,
-			results.length,
-			today
+			new Date(),
+			results.length
 		);
 
 		const studentIDsByName = new Map();
-		await Promise.all([...studentNames].map(async (studentName) =>
-			studentIDsByName.set(
-				studentName,
-				(await DAO.addStudent(studentName, zipFileRecord._id))._id
+		await Promise.all(
+			[...studentNames].map(async (studentName) =>
+				studentIDsByName.set(
+					studentName,
+					(
+						await DAO.addStudent(studentName, zipFileRecord._id)
+					)._id
+				)
 			)
-		));
+		);
 
 		results.forEach(async (result) => {
 			const relativePath = getRelativePath(result.filePath);
@@ -147,9 +148,11 @@ app.post("/upload", async (req, res) => {
 			);
 		});
 
-
-        await DAO.addStudentsToZipFile(zipFileRecord._id, Array.from(studentIDsByName.values()))
-        await DAO.updateZipFile(errors.length, 2);
+		await DAO.addStudentsToZipFile(
+			zipFileRecord._id,
+			Array.from(studentIDsByName.values())
+		);
+		await DAO.updateZipFile(zipFileRecord._id, results.length, 2);
 
 		const responseData = results.map((result) => ({
 			filePath: result.filePath.substring(
@@ -167,10 +170,10 @@ app.post("/upload", async (req, res) => {
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
 	const response = {
-		graphData: {},//TODO
+		graphData: {}, //TODO
 		zipFileData: await DAO.getAllZipFiles(),
 	};
-	res.json(response)
+	res.json(response);
 
 	// also return information to build graphs- GRACE working on it!!
 	// grace has ~ideas~
@@ -179,12 +182,8 @@ app.get("/overview/zipfiles", async (req, res) => {
 });
 
 // overview page- view more data fom invidual zip files
-app.get("/overview/studentfiles", async (req, res) => {
-	const response = {
-		graphData: {},//TODO
-		zipFileData: await DAO.getAllStudentFiles(req.query.zipFileID),
-	};
-	res.json(response)
+app.get("/studentfiles", async (req, res) => {
+	res.json(await DAO.getZipFile(req.query.id));
 });
 
 app.listen(port, () => {

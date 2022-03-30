@@ -12,40 +12,53 @@ import MetricsPage from "./pages/Metrics";
 import LogIn from "./pages/LogIn";
 
 function App() {
-    const [currentRoute, setCurrentRoute] = useState("LogIn");
+	const [currentRoute, setCurrentRoute] = useState("LogIn");
+	const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
 
-    const getCurrentRoute = () => {
-        switch (currentRoute) {
-            case "main":
-                return <MainPage />;
-                break;
-            case "upload":
-                return <UploadPage />;
-                break;
-            case "BugListPage":
-                return <BugListPage />;
-                break;
-            case "MetricsPage":
-                return <MetricsPage />;
-                break;
-            case "LogIn":
-                return <LogIn updateRouteHandler={setCurrentRoute} />;
-                break;
-        }
-    };
+	const getCurrentRoute = () => {
+		if (currentZipFileId !== "undefined") {
+			return <ViewMorePage id={currentZipFileId} />;
+		}
 
-    return (
-        <Grid>
+		switch (currentRoute) {
+			case "main":
+				return (
+					<MainPage
+						updateRouteHandler={setCurrentRoute}
+						updateZipFileHandler={setCurrentZipFileId}
+					/>
+				);
+				break;
+			case "upload":
+				return <UploadPage />;
+				break;
+			case "BugListPage":
+				return <BugListPage />;
+				break;
+			case "MetricsPage":
+				return <MetricsPage />;
+				break;
+			case "LogIn":
+				return <LogIn updateRouteHandler={setCurrentRoute} />;
+				break;
+		}
+	};
 
-            <Grid.Column width={3} style={{ paddingRight: 0 }}>
-                {currentRoute != "LogIn" && <Sidebar updateRouteHandler={setCurrentRoute} />}
-            </Grid.Column>
-            <Grid.Column width={13} style={{ paddingLeft: 0 }}>
-                {currentRoute != "LogIn" && <TopBar updateRouteHandler={setCurrentRoute} />}
-                {getCurrentRoute()}
-            </Grid.Column>
-        </Grid>
-    );
+	return (
+		<Grid>
+			<Grid.Column width={3} style={{ paddingRight: 0 }}>
+				{currentRoute != "LogIn" && (
+					<Sidebar updateRouteHandler={setCurrentRoute} />
+				)}
+			</Grid.Column>
+			<Grid.Column width={13} style={{ paddingLeft: 0 }}>
+				{currentRoute != "LogIn" && (
+					<TopBar updateRouteHandler={setCurrentRoute} />
+				)}
+				{getCurrentRoute()}
+			</Grid.Column>
+		</Grid>
+	);
 }
 
 export default App;

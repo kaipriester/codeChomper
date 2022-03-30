@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@microsoft/eslint-plugin-sdl": "^0.1.8",
+    "adm-zip": "^0.5.9",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "express-fileupload": "^1.2.1",
@@ -23,5 +24,11 @@
   },
   "devDependencies": {
     "eslint": "^8.6.0"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "./extracted",
+      "./testFiles"
+    ]
   }
 }
