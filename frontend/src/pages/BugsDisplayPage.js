@@ -11,27 +11,39 @@ import {
 	Table,
 } from "semantic-ui-react";
 
-import { JoshuaTest, getZipFile, ErrorTypes, getErrorTypes } from "../client/API.js";
+import { getErrorTypes, getErrorTypesNum } from "../client/API.js";
 
 function BugsPage() {
 
 
 
-		const [bugInformation, setBugInformation] = useState("");
 
+		const [nameArray,setNameArray] = useState([]);
+		const [severityArray,setSeverityArray] = useState([]);
+		const [descriptionArray,setDescriptionArray] = useState([]);
 	
-		function  updateBugInfo(param) {													// How do I call this after every table row? 
-			axios.get("http://localhost:5000/",  { crossdomain: true }).then(response => {
-			  setText(response.data.text);
-			  setAuthor(response.data.author);
-			});
+
+		  
+		  function ArrayAdder(name,severity, description)    // Delete this later
+		  {
+			setNameArray(nameArray => [...nameArray,name] );
+			setSeverityArray(severityArray => [...severityArray,severity] );
+			setDescriptionArray(descriptionArray => [...descriptionArray,description] );
 		  }
 
+	
+
+
+
 		useEffect(async () => {
-			const results = (await getErrorTypes(0)).data; //need to iterate through this 
+
+			var counter = (await getErrorTypesNum());
+			console.log(counter.data);
+			for (let i = 0; i < counter.data; i++) {
+				const results = (await getErrorTypes(i)).data;
+				ArrayAdder(results.Name,results.Severity,results.Description);
+			  }
 			console.log(results);
-			setBugInformation(results);
-			console.log(file);
 		}, []);
 
 
@@ -45,13 +57,13 @@ function BugsPage() {
 					<tr>
 						<Table bordered hover>
 							<td>
-								<tr>Name: {bugInformation.Name} </tr>
-								<tr>Severity: {bugInformation.Severity} </tr>
+								<tr>Name: {nameArray[index]} </tr>
+								<tr>Severity: {severityArray[index]} </tr>
 								<tr>Type: </tr>
 							</td>
 						</Table>
 						<td>
-							Description: {bugInformation.Description}
+							Description: {descriptionArray[index]}
 						</td>
 					</tr>
 				))}

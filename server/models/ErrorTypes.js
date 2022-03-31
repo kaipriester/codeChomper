@@ -1,3 +1,5 @@
+
+
 const ErrorList = {};
 ErrorList[0] = {
 	Name: "no caller",
@@ -183,3 +185,9 @@ exports.ReturnErrorTypeInformation = (ErrorID) => {
 	return ErrorList[ErrorID];
 	//return JSON.stringify({"Name" : ErrorList[1].Name});
 };
+
+exports.getErrorTypesNum = () =>
+{
+	
+	return Object.keys(ErrorList).length;
+}

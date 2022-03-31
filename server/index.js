@@ -15,6 +15,7 @@ const convertErrorIDToType =
 
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
+
 const app = express();
 const port = 8080;
 
@@ -191,6 +192,11 @@ app.get("/studentfiles", async (req, res) => {
 
 app.get("/ErrorTypes", async (req, res) => {
 	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+});
+
+
+app.get("/ErrorTypesNum", async (req, res) => {
+	res.json(ErrorTypeDetail.getErrorTypesNum());
 });
 
 
