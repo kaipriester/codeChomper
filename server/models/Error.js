@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = new mongoose.Schema({
 	ErrorType: Number,
+    RuleID: Number,
 	Severity: Number,
 	Message: String,
 	Line: Number,
