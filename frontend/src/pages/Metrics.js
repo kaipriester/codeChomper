@@ -19,8 +19,9 @@ function MetricsPage() {
 				</Segment>
 			</Grid.Row>
 			<Grid.Row>
-				TODO Someone needs to make this page
-				{<ChartsPage />}
+				{
+					<ChartsPage/>
+				}
 			</Grid.Row>
 		</Grid>
 	);
