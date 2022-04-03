@@ -12,7 +12,7 @@ import MetricsPage from "./pages/Metrics";
 import LogIn from "./pages/LogIn";
 
 function App() {
-	const [currentRoute, setCurrentRoute] = useState("LogIn");
+	const [currentRoute, setCurrentRoute] = useState("main");
 	const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
 
 	const getCurrentRoute = () => {
@@ -48,7 +48,7 @@ function App() {
 		<Grid>
 			<Grid.Column width={3} style={{ paddingRight: 0 }}>
 				{currentRoute != "LogIn" && (
-					<Sidebar updateRouteHandler={setCurrentRoute} />
+					<Sidebar updateZipFileHandler={setCurrentZipFileId} updateRouteHandler={setCurrentRoute} style={{width: '100%'}} />
 				)}
 			</Grid.Column>
 			<Grid.Column width={13} style={{ paddingLeft: 0 }}>
