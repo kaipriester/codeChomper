@@ -1,7 +1,6 @@
 import React from "react";
 import { Radar, Pie } from "react-chartjs-2";
-import { MDBContainer, MDBCol, MDBRow, MDBBtn } from "mdbreact";
-import { Grid, Card } from "semantic-ui-react";
+import { Card, List } from "semantic-ui-react";
 import {
 	Chart as ChartJS,
 	RadialLinearScale,
@@ -121,9 +120,9 @@ class ChartsPage extends React.Component {
 				<Card>
 					<Card.Header>Students with Most Vulnerabilities</Card.Header>
 					<Card.Content>
-						<ol>
-							<li>wilcoxgrace</li>
-						</ol>
+						<List ordered>
+							<List.Item>wilcoxgrace</List.Item>
+						</List>
 					</Card.Content>
 				</Card>
 				<Card>
