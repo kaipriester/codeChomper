@@ -22,6 +22,7 @@ exports.addZipFile = async (Name, Date, FileCount) => {
 
 exports.addError = async (
 	ErrorType,
+    RuleID,
 	Severity,
 	Message,
 	Line,
@@ -116,8 +117,9 @@ exports.getZipFile = async (id) => {
 	zipFile.Students.forEach((student, i) => {
 		student.Files.forEach((file, j) => {
 			file.Errors.forEach((error, k) => {
+                console.log(error)
 				const updatedError = {
-					ErrorType: ErrorList[error["Severity"]],
+					ErrorType: ErrorList[error["ErrorType"]],
 					Line: error.Line,
 					Column: error.Column,
 					NodeType: error.NodeType,
@@ -125,7 +127,7 @@ exports.getZipFile = async (id) => {
 					EndLine: error.EndLine,
 					EndColumn: error.EndColumn,
 				};
-				console.log(updatedError);
+				// console.log(updatedError);
 
 				zipFile.Students[i].Files[j].Errors[k] = updatedError;
 			});

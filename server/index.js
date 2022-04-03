@@ -12,7 +12,7 @@ const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
 const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
-const ErrorTypes = require("./models/ErrorTypes.js").E;
+const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 
 const app = express();
 const port = 8080;
@@ -47,20 +47,20 @@ function getStudentIDFromRelPath(path, map) {
 //@param if count is -1 then we will not factor in a dynamic quantity into the severity score
 //This function calculates the severity score, we get the 3 largest severity score values average them out and give it a 75% weight, we further give a 25% weight to quantity of Errors/total elements
 function getSeverityScore(severityScores, count) {
-	severityScores = severityScores.filter(num => num==0);
+	severityScores = severityScores.filter(num => num!=0);
 	severityScores.sort();
 	severityScores.reverse();
 	a = 1;
 	b = 1;
 	c = 1;
 	if (severityScores.length > 0) {
-		a = max(severityScores[0],a);
+		a = Math.max(severityScores[0],a);
 	}
 	if (severityScores.length > 1) {
-		b = max(severityScores[1],b);
+		b = Math.max(severityScores[1],b);
 	}
 	if (severityScores.length > 2) {
-		c = max(severityScores[2],c);
+		c = Math.max(severityScores[2],c);
 	}
 	if (count != -1) {
 		quantity = 20 * (severityScores.length / count);
@@ -198,16 +198,20 @@ app.post("/upload", async (req, res) => {
 		})
 
 		//Go tThrough ESlint detected errors
-		results.forEach(async (result) => {
+		await Promise.all(results.map(async (result) => {
 			const relativePath = getRelativePath(result.filePath);
 			const severityScores = [];
+
 
 			//add Errors to database
 			const errors = await Promise.all(
 				result.messages.map((message) => {
-					severityScores.push(message.severity);
+                    const currentErrorType = convertErrorIDToType(message.ruleId);
+                    console.log(`error ${JSON.stringify(ErrorTypes[currentErrorType])} for ${relativePath}`)
+					severityScores.push(ErrorTypes[currentErrorType]['Severity']);
 					return DAO.addError(
-						convertErrorIDToType(message.ruleId),
+						currentErrorType,
+                        message.ruleId,
 						message.severity,
 						message.message,
 						message.line,
@@ -222,7 +226,9 @@ app.post("/upload", async (req, res) => {
 
 			//TODO TEST THIS FUNCTION
 			//gets the severity score of current file
-			fileSeverity = getSeverityScore(severityScores, -1);
+            console.log(`severity scoresssssss (( ${severityScores}  )) `)
+			const fileSeverity = getSeverityScore(severityScores, -1);
+			console.log(`***** ${fileSeverity}`);
 			
 			//Stores file on the database
 			const fileRecord = await DAO.addFile(
@@ -245,9 +251,9 @@ app.post("/upload", async (req, res) => {
 
 			//adding files severity scores to the student so we can calculate the students severity score
 			listOfSeverityScoreFilesOwnedByStudents.get(currentStudentID).push(fileSeverity);
+            console.log(listOfSeverityScoreFilesOwnedByStudents)
 			DAO.addFileToStudent(currentStudentID, fileRecord._id);
-
-		});//Out of ESLINT Loop
+		}));//Out of ESLINT Loop
 
 		//add the list of the students to the zip file on database
 		await DAO.addStudentsToZipFile(
@@ -257,10 +263,12 @@ app.post("/upload", async (req, res) => {
 		
 		//Where we store the results to then further calculate the classes severity score
 		const ListOfStudentSeverityScores =[];
-
+		console.log(`listOfSeverityScoreFilesOwnedByStudents`)
+        console.log(listOfSeverityScoreFilesOwnedByStudents)
 		//go through students and calculate and add their severity scores
 		for (const [key, value] of listOfSeverityScoreFilesOwnedByStudents.entries(listOfSeverityScoreFilesOwnedByStudents)) {
 			temp = getSeverityScore(value);
+			//let average = value.reduce((a, b) => a + b) / value.length;
 			ListOfStudentSeverityScores.push(temp)
 			await DAO.updateStudent(key,temp);
 		}
@@ -270,7 +278,7 @@ app.post("/upload", async (req, res) => {
 			ListOfStudentSeverityScores.push(ListOfStudentSeverityScores[Math.floor(ListOfStudentSeverityScores.length/2)]);
 		}
 
-		let average = ListOfStudentSeverityScores.reduce((a, b) => a + b) / ListOfStudentSeverityScores.length;
+		let average = Math.ceil(ListOfStudentSeverityScores.reduce((a, b) => a + b) / ListOfStudentSeverityScores.length);
 		//adds the error count and severity score
 		await DAO.updateZipFile(zipFileRecord._id, results.length, average);
 
