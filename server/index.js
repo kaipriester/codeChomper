@@ -76,6 +76,35 @@ function getSeverityScore(severityScores, count) {
 	return Math.ceil(((a + b + c) / 3) * 0.75 + quantity * 0.25);
 }
 
+function getSeverityScoreStudent(severityScores, count) {
+	severityScores = severityScores.filter(num => num!=0);
+	severityScores.sort();
+	severityScores.reverse();
+	a = 1;
+	b = 1;
+	c = 1;
+	if (severityScores.length > 0) {
+		a = Math.max(severityScores[0],a);
+	}
+	if (severityScores.length > 1) {
+		b = Math.max(severityScores[1],b);
+	}
+	if (severityScores.length > 2) {
+		c = Math.max(severityScores[2],c);
+	}
+	if (count != -1) {
+		quantity = 20 * (severityScores.length / count);
+		return Math.ceil(
+			//may be length or size or both who knows until we test //TODO TEST THIS
+			((a + b + c) / 3) * 0.75 + severityScores.length * 0.25
+		);
+	}
+	quantity = severityScores.length + 1;  
+	if (quantity > 10) {
+		quantity = 10;
+	}
+	return Math.ceil(((a + b + c) / 3) * 0.75 + quantity * 0.25);
+}
 
 function throughDirectory(__dirname) {
     function *walkSync(dir) {
