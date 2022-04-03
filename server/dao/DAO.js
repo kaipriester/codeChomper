@@ -2,6 +2,7 @@ const Student = require("../models/Student.js").Model;
 const ZipFile = require("../models/ZipFile.js").Model;
 const File = require("../models/File.js").Model;
 const Error = require("../models/Error.js").Model;
+const ErrorList = require("../models/ErrorTypes.js").ErrorList;
 
 exports.getStudent = async (id) => {
 	return Student.find();
@@ -52,7 +53,8 @@ exports.addFile = async (
 	FixableErrorCount,
 	FixableWarningCount,
 	Source,
-	Errors
+	Errors,
+    SeverityScore
 ) => {
 	return await File.create({
 		Name,
@@ -63,6 +65,7 @@ exports.addFile = async (
 		FixableWarningCount,
 		Source,
 		Errors,
+        SeverityScore
 	});
 };
 
@@ -94,15 +97,41 @@ exports.updateZipFile = async (ZipFileID, ErrorCount, SeverityScore) => {
 	await ZipFile.findById(ZipFileID).updateOne({ ErrorCount, SeverityScore });
 };
 
+exports.updateStudent = async (StudentID, SeverityScore) => {
+	await Student.findById(StudentID).updateOne({ SeverityScore });
+};
+
 exports.getZipFile = async (id) => {
-	return await ZipFile.findById(id).populate({
-		path: "Students",
-		populate: {
-			path: "Files",
-			model: "File",
-			populate: { path: "Errors", model: "Error" },
-		},
+	const zipFile = await ZipFile.findById(id)
+		.lean()
+		.populate({
+			path: "Students",
+			populate: {
+				path: "Files",
+				model: "File",
+				populate: { path: "Errors", model: "Error" },
+			},
+		});
+
+	zipFile.Students.forEach((student, i) => {
+		student.Files.forEach((file, j) => {
+			file.Errors.forEach((error, k) => {
+				const updatedError = {
+					ErrorType: ErrorList[error["Severity"]],
+					Line: error.Line,
+					Column: error.Column,
+					NodeType: error.NodeType,
+					MessageId: error.MessageId,
+					EndLine: error.EndLine,
+					EndColumn: error.EndColumn,
+				};
+				console.log(updatedError);
+
+				zipFile.Students[i].Files[j].Errors[k] = updatedError;
+			});
+		});
 	});
+	return zipFile;
 };
 
 exports.getAllZipFiles = async () => {

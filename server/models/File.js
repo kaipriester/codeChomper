@@ -8,6 +8,7 @@ const Schema = new mongoose.Schema({
 	FixableErrorCount: Number,
 	FixableWarningCount: Number,
 	Source: String,
+    SeverityScore: Number,
 	Errors: [
 		{
 			type: mongoose.Schema.Types.ObjectId,

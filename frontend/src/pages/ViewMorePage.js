@@ -28,7 +28,6 @@ function ViewMorePage(props) {
 
 	useEffect(async () => {
 		const results = (await getZipFile(id)).data;
-		console.log(results);
 		setFile(results);
 	}, []);
 
@@ -73,7 +72,7 @@ function ViewMorePage(props) {
 									name="exclamation triangle"
 								/>
 								<span style={{ color: "red" }}>
-									2 Severity Score
+									{student.SeverityScore} Severity Score
 								</span>
 							</Card.Content>
 							<Card.Content extra>
@@ -83,14 +82,11 @@ function ViewMorePage(props) {
 										color="primary"
 										onClick={() => {
 											var allErrors = [];
-											console.log(student);
 											student.Files.forEach(
 												(currFile) => {
 													currFile.Errors.forEach(
 														(error) => {
-															allErrors.push(
-																error.Message
-															);
+															allErrors.push(error);
 														}
 													);
 												}
@@ -108,7 +104,7 @@ function ViewMorePage(props) {
 				</Card.Group>
 			),
 		},
-		{ menuItem: "Graphs", render: () => <ChartsPage/> },
+		{ menuItem: "Graphs", render: () => <ChartsPage /> },
 	];
 
 	const getDate = (obj) => {
@@ -187,12 +183,14 @@ function ViewMorePage(props) {
 					<Modal.Content>
 						<Modal.Description>
 							<List>
-								{errors.map((err) => (
+								{errors.map((err) => {
+                                    console.log(err)
+                                    return (
 									<List.Item>
 										<List.Icon name="bug" />
-										<List.Content>{err}</List.Content>
+										<List.Content>{err.ErrorType.Name} ({err.ErrorType.Description})</List.Content>
 									</List.Item>
-								))}
+								)})}
 							</List>
 						</Modal.Description>
 					</Modal.Content>
