@@ -1,6 +1,7 @@
 import React from "react";
 import { Radar, Pie } from "react-chartjs-2";
-import { MDBContainer } from "mdbreact";
+import { MDBContainer, MDBCol, MDBRow, MDBBtn } from "mdbreact";
+import { Grid, Card } from "semantic-ui-react";
 import {
 	Chart as ChartJS,
 	RadialLinearScale,
@@ -107,22 +108,37 @@ class ChartsPage extends React.Component {
 
 	render() {
 		return (
-			<MDBContainer>
-				<h3 className="mt-5">Radar chart</h3>
-				<Radar
-					data={this.state.dataRadar}
-					options={{ responsive: true }}
-				/>
-				<h3 className="mt-5">Top Students</h3>
-				<ol>
-					<li>wilcoxgrace</li>
-				</ol>
-				<h3 className='mt-5'>Severity Scores</h3>
-				<Pie data={severityData} />
-				<h3 className='mt-5'>Types of Vulnerabilities</h3>
-				<Pie data={typesData} />
-
-			</MDBContainer>
+			<Card.Group>
+				<Card>
+					<Card.Content>
+						<Card.Header>Radar Chart</Card.Header>
+						<Radar
+							data={this.state.dataRadar}
+							options={{ responsive: true }}
+						/>
+					</Card.Content>
+				</Card>
+				<Card>
+					<Card.Header>Students with Most Vulnerabilities</Card.Header>
+					<Card.Content>
+						<ol>
+							<li>wilcoxgrace</li>
+						</ol>
+					</Card.Content>
+				</Card>
+				<Card>
+					<Card.Header>Severity of Vulnerabilities</Card.Header>
+					<Card.Content>
+						<Pie data={severityData} />
+					</Card.Content>
+				</Card>
+				<Card>
+					<Card.Header>Types of Vulnerabilities</Card.Header>
+					<Card.Content>
+						<Pie data={typesData} />
+					</Card.Content>
+				</Card>
+			</Card.Group>
 		);
 	}
 }
