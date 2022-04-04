@@ -4,10 +4,10 @@ import { Icon, Menu, Input, Divider } from "semantic-ui-react";
 function Sidebar(props) {
 	const { updateRouteHandler, updateZipFileHandler } = props;
 
-    const updateRoute = (route) => {
-        updateZipFileHandler('undefined')
-        updateRouteHandler(route)
-    }
+	const updateRoute = (route) => {
+		updateZipFileHandler("undefined");
+		updateRouteHandler(route);
+	};
 
 	return (
 		<>

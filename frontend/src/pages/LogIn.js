@@ -1,15 +1,32 @@
-import React from "react";
-import { Grid } from "semantic-ui-react";
+import React, { useState } from "react";
+import { Form, Grid, Input, Button } from "semantic-ui-react";
+import { login } from "../client/API.js";
+import { useCookies } from "react-cookie";
 
 function LogIn(props) {
-	console.log(`props: ${props}`);
+	const [password, setPassword] = useState("");
+	const [cookies, setCookie] = useCookies(["user"]);
 	const { updateRouteHandler } = props;
-	console.log(updateRouteHandler);
+
+	const submitPassword = async () => {
+		const result = await login(password);
+		setCookie("password", password, { path: "/" });
+		updateRouteHandler("main");
+	};
+
 	return (
 		<Grid style={{ padding: "1.5vw" }}>
 			<Grid.Row>
-				TODO Someone needs to make this page
-				{updateRouteHandler("upload")}
+				<Form>
+					<Input
+						type="password"
+						label="password"
+						onChange={(e) => setPassword(e.target.value)}
+					></Input>
+				</Form>
+			</Grid.Row>
+			<Grid.Row>
+				<Button onClick={() => submitPassword()}>login</Button>
 			</Grid.Row>
 		</Grid>
 	);

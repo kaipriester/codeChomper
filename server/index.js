@@ -14,6 +14,9 @@ const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 
+const ErrorTypeDetail = require("./models/ErrorTypes.js");
+
+
 const app = express();
 const port = 8080;
 
@@ -47,21 +50,23 @@ function getStudentIDFromRelPath(path, map) {
 //@param if count is -1 then we will not factor in a dynamic quantity into the severity score
 //This function calculates the severity score, we get the 3 largest severity score values average them out and give it a 75% weight, we further give a 25% weight to quantity of Errors/total elements
 function getSeverityScore(severityScores, count) {
-	severityScores = severityScores.filter(num => num!=0);
+	severityScores = severityScores.filter((num) => num != 0);
 	severityScores.sort();
 	severityScores.reverse();
 	a = 1;
 	b = 1;
 	c = 1;
 	if (severityScores.length > 0) {
-		a = Math.max(severityScores[0],a);
+		a = Math.max(severityScores[0], a);
 	}
 	if (severityScores.length > 1) {
-		b = Math.max(severityScores[1],b);
+		b = Math.max(severityScores[1], b);
 	}
 	if (severityScores.length > 2) {
-		c = Math.max(severityScores[2],c);
+		c = Math.max(severityScores[2], c);
 	}
+	b = a;
+	c = a;
 	if (count != -1) {
 		quantity = 20 * (severityScores.length / count);
 		return Math.ceil(
@@ -69,7 +74,7 @@ function getSeverityScore(severityScores, count) {
 			((a + b + c) / 3) * 0.75 + severityScores.length * 0.25
 		);
 	}
-	quantity = severityScores.length + 1;  
+	quantity = severityScores.length + 1;
 	if (quantity > 10) {
 		quantity = 10;
 	}
@@ -77,20 +82,20 @@ function getSeverityScore(severityScores, count) {
 }
 
 function getSeverityScoreStudent(severityScores, count) {
-	severityScores = severityScores.filter(num => num!=0);
+	severityScores = severityScores.filter((num) => num != 0);
 	severityScores.sort();
 	severityScores.reverse();
 	a = 1;
 	b = 1;
 	c = 1;
 	if (severityScores.length > 0) {
-		a = Math.max(severityScores[0],a);
+		a = Math.max(severityScores[0], a);
 	}
 	if (severityScores.length > 1) {
-		b = Math.max(severityScores[1],b);
+		b = Math.max(severityScores[1], b);
 	}
 	if (severityScores.length > 2) {
-		c = Math.max(severityScores[2],c);
+		c = Math.max(severityScores[2], c);
 	}
 	if (count != -1) {
 		quantity = 20 * (severityScores.length / count);
@@ -99,7 +104,7 @@ function getSeverityScoreStudent(severityScores, count) {
 			((a + b + c) / 3) * 0.75 + severityScores.length * 0.25
 		);
 	}
-	quantity = severityScores.length + 1;  
+	quantity = severityScores.length + 1;
 	if (quantity > 10) {
 		quantity = 10;
 	}
@@ -107,41 +112,44 @@ function getSeverityScoreStudent(severityScores, count) {
 }
 
 function throughDirectory(__dirname) {
-    function *walkSync(dir) {
-        const files = fs.readdirSync(dir, { withFileTypes: true });
-        for (const file of files) {
-          if (file.isDirectory()) {
-            yield* walkSync(path.join(dir, file.name));
-          } else {
-            yield path.join(dir, file.name);
-          }
-        }
-      }
-      
-      const files = []
-      for (const filePath of walkSync(__dirname)) {
-        files.push(filePath);
-      }
-      return files.filter(file => path.extname(file) !== ".zip");
+	function* walkSync(dir) {
+		const files = fs.readdirSync(dir, { withFileTypes: true });
+		for (const file of files) {
+			if (file.isDirectory()) {
+				yield* walkSync(path.join(dir, file.name));
+			} else {
+				yield path.join(dir, file.name);
+			}
+		}
+	}
+
+	const files = [];
+	for (const filePath of walkSync(__dirname)) {
+		files.push(filePath);
+	}
+	return files.filter((file) => path.extname(file) !== ".zip");
 }
 
-function median(values){
-    if(values.length ===0) throw new Error("No inputs");
-  
-    values.sort(function(a,b){
-      return a-b;
-    });
-  
-    var half = Math.floor(values.length / 2);
-    
-    if (values.length % 2)
-      return values[half];
-    
-    return (values[half - 1] + values[half]) / 2.0;
-  }
+function median(values) {
+	if (values.length === 0) throw new Error("No inputs");
+
+	values.sort(function (a, b) {
+		return a - b;
+	});
+
+	var half = Math.floor(values.length / 2);
+
+	if (values.length % 2) return values[half];
+
+	return (values[half - 1] + values[half]) / 2.0;
+}
 
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
+	if (req.query.password != "seniorproject2022") {
+		res.json(false);
+		return;
+	}
 	const zipFile = req.files.file;
 	const zipFileName = zipFile.name;
 
@@ -167,11 +175,13 @@ app.post("/upload", async (req, res) => {
 		const fileNamesInZipFolder = fs.readdirSync("./extracted");
 		const studentNames = new Set();
 
-        console.log(fileNamesInZipFolder)
+		console.log(fileNamesInZipFolder);
 		fileNamesInZipFolder.forEach((file) => {
 			const currentStudentName = file.substring(0, file.indexOf("_"));
 			// Make sure its not empty before adding it to Hashset, The Set prevents repeats
-            console.log(`$$$$$$$####### current username ${currentStudentName} for ${file}`)
+			console.log(
+				`$$$$$$$####### current username ${currentStudentName} for ${file}`
+			);
 			if (currentStudentName) {
 				studentNames.add(currentStudentName);
 			}
@@ -197,16 +207,15 @@ app.post("/upload", async (req, res) => {
 		const eslint = new ESLint();
 		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
 
-        // fileNamesInZipFolder 
-        console.log(throughDirectory('./extracted'))
-        console.log(results.map(result => getRelativePath(result.filePath)))
+		// fileNamesInZipFolder
+		console.log(throughDirectory("./extracted"));
+		console.log(results.map((result) => getRelativePath(result.filePath)));
 		const zipFileRecord = await DAO.addZipFile(
 			zipFileName,
 			new Date(),
 			results.length
 		);
-       
-        
+
 		// This map is used to link student IDs with student names
 		const studentIDsByName = new Map();
 		await Promise.all(
@@ -219,95 +228,122 @@ app.post("/upload", async (req, res) => {
 				)
 			)
 		);
-		
+
 		// This map is used to keep the scores of each student in an array
 		const listOfSeverityScoreFilesOwnedByStudents = new Map();
 		studentIDsByName.forEach((value, key) => {
-		    listOfSeverityScoreFilesOwnedByStudents.set(value, [])
-		})
+			listOfSeverityScoreFilesOwnedByStudents.set(value, []);
+		});
 
 		//Go tThrough ESlint detected errors
-		await Promise.all(results.map(async (result) => {
-			const relativePath = getRelativePath(result.filePath);
-			const severityScores = [];
+		await Promise.all(
+			results.map(async (result) => {
+				const relativePath = getRelativePath(result.filePath);
+				const severityScores = [];
 
+				//add Errors to database
+				const errors = await Promise.all(
+					result.messages.map((message) => {
+						const currentErrorType = convertErrorIDToType(
+							message.ruleId
+						);
+						console.log(
+							`error ${JSON.stringify(
+								ErrorTypes[currentErrorType]
+							)} for ${relativePath}`
+						);
+						severityScores.push(
+							ErrorTypes[currentErrorType]["Severity"]
+						);
+						return DAO.addError(
+							currentErrorType,
+							message.ruleId,
+							message.severity,
+							message.message,
+							message.line,
+							message.column,
+							message.nodeType,
+							message.messageId,
+							message.endLine,
+							message.endColumn
+						);
+					})
+				);
 
-			//add Errors to database
-			const errors = await Promise.all(
-				result.messages.map((message) => {
-                    const currentErrorType = convertErrorIDToType(message.ruleId);
-                    console.log(`error ${JSON.stringify(ErrorTypes[currentErrorType])} for ${relativePath}`)
-					severityScores.push(ErrorTypes[currentErrorType]['Severity']);
-					return DAO.addError(
-						currentErrorType,
-                        message.ruleId,
-						message.severity,
-						message.message,
-						message.line,
-						message.column,
-						message.nodeType,
-						message.messageId,
-						message.endLine,
-						message.endColumn
-					);
-				})
-			);
+				//TODO TEST THIS FUNCTION
+				//gets the severity score of current file
+				console.log(`severity scoresssssss (( ${severityScores}  )) `);
+				const fileSeverity = getSeverityScore(severityScores, -1);
+				console.log(`***** ${fileSeverity}`);
 
-			//TODO TEST THIS FUNCTION
-			//gets the severity score of current file
-            console.log(`severity scoresssssss (( ${severityScores}  )) `)
-			const fileSeverity = getSeverityScore(severityScores, -1);
-			console.log(`***** ${fileSeverity}`);
-			
-			//Stores file on the database
-			const fileRecord = await DAO.addFile(
-				relativePath,
-				result.errorCount,
-				result.fatalErrorCount,
-				result.warningCount,
-				result.fixableErrorCount,
-				result.fixableWarningCount,
-				result.source,
-				errors,
-				fileSeverity
-			);
+				//Stores file on the database
+				const fileRecord = await DAO.addFile(
+					relativePath,
+					result.errorCount,
+					result.fatalErrorCount,
+					result.warningCount,
+					result.fixableErrorCount,
+					result.fixableWarningCount,
+					result.source,
+					errors,
+					fileSeverity
+				);
 
-			//Gets the current student
-			const currentStudentID = getStudentIDFromRelPath(
-				relativePath,
-				studentIDsByName
-			);
+				//Gets the current student
+				const currentStudentID = getStudentIDFromRelPath(
+					relativePath,
+					studentIDsByName
+				);
 
-			//adding files severity scores to the student so we can calculate the students severity score
-			listOfSeverityScoreFilesOwnedByStudents.get(currentStudentID).push(fileSeverity);
-            console.log(listOfSeverityScoreFilesOwnedByStudents)
-			DAO.addFileToStudent(currentStudentID, fileRecord._id);
-		}));//Out of ESLINT Loop
+				//adding files severity scores to the student so we can calculate the students severity score
+				listOfSeverityScoreFilesOwnedByStudents
+					.get(currentStudentID)
+					.push(fileSeverity);
+				console.log(listOfSeverityScoreFilesOwnedByStudents);
+				DAO.addFileToStudent(currentStudentID, fileRecord._id);
+			})
+		); //Out of ESLINT Loop
 
 		//add the list of the students to the zip file on database
 		await DAO.addStudentsToZipFile(
 			zipFileRecord._id,
 			Array.from(studentIDsByName.values())
 		);
-		
+
 		//Where we store the results to then further calculate the classes severity score
-		const ListOfStudentSeverityScores =[];
-		console.log(`listOfSeverityScoreFilesOwnedByStudents`)
-        console.log(listOfSeverityScoreFilesOwnedByStudents)
+		const ListOfStudentSeverityScores = [];
+		console.log(`listOfSeverityScoreFilesOwnedByStudents`);
+		console.log(listOfSeverityScoreFilesOwnedByStudents);
 		//go through students and calculate and add their severity scores
-		for (const [key, value] of listOfSeverityScoreFilesOwnedByStudents.entries(listOfSeverityScoreFilesOwnedByStudents)) {
+		for (const [
+			key,
+			value,
+		] of listOfSeverityScoreFilesOwnedByStudents.entries(
+			listOfSeverityScoreFilesOwnedByStudents
+		)) {
 			temp = getSeverityScore(value);
 			//let average = value.reduce((a, b) => a + b) / value.length;
-			ListOfStudentSeverityScores.push(temp)
-			await DAO.updateStudent(key,temp);
-		}
-		
-		ListOfStudentSeverityScores.sort();
-		for(i=0;i<Math.ceil(ListOfStudentSeverityScores.length/8);i++){
-			ListOfStudentSeverityScores.push(ListOfStudentSeverityScores[Math.floor(ListOfStudentSeverityScores.length/2)]);
+			ListOfStudentSeverityScores.push(temp);
+			await DAO.updateStudent(key, temp);
 		}
 
-		let average = Math.ceil(ListOfStudentSeverityScores.reduce((a, b) => a + b) / ListOfStudentSeverityScores.length);
+		ListOfStudentSeverityScores.sort();
+		for (
+			i = 0;
+			i < Math.ceil(ListOfStudentSeverityScores.length / 8);
+			i++
+		) {
+			ListOfStudentSeverityScores.push(
+				ListOfStudentSeverityScores[
+					Math.floor(ListOfStudentSeverityScores.length / 2)
+				]
+			);
+		}
+
+		let average = Math.ceil(
+			ListOfStudentSeverityScores.reduce((a, b) => a + b) /
+				ListOfStudentSeverityScores.length
+		);
 		//adds the error count and severity score
 		await DAO.updateZipFile(zipFileRecord._id, results.length, average);
 
@@ -326,6 +362,10 @@ app.post("/upload", async (req, res) => {
 
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
+	if (req.query.password != "seniorproject2022") {
+		res.json(false);
+		return;
+	}
 	const response = {
 		graphData: {}, //TODO
 		zipFileData: await DAO.getAllZipFiles(),
@@ -338,14 +378,33 @@ app.get("/overview/zipfiles", async (req, res) => {
 	// return: zip file name, date uploaded, number of files, detections, security scores
 });
 
+app.post("/login", async (req, res) => {
+	if (req.query.password == "seniorproject2022") {
+		res.json(true);
+	} else {
+		res.json(false);
+	}
+});
+
 // overview page- view more data fom invidual zip files
 app.get("/studentfiles", async (req, res) => {
+	if (req.query.password != "seniorproject2022") {
+		res.json(false);
+		return;
+	}
 	res.json(await DAO.getZipFile(req.query.id));
 });
 
-app.get("/errortypes", async (req, res) => {
-	res.json(ErrorTypes);
+
+app.get("/ErrorTypes", async (req, res) => {
+	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
 });
+
+
+app.get("/ErrorTypesNum", async (req, res) => {
+	res.json(ErrorTypeDetail.getErrorTypesNum());
+});
+
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);

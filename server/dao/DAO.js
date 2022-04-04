@@ -22,7 +22,7 @@ exports.addZipFile = async (Name, Date, FileCount) => {
 
 exports.addError = async (
 	ErrorType,
-    RuleID,
+	RuleID,
 	Severity,
 	Message,
 	Line,
@@ -55,7 +55,7 @@ exports.addFile = async (
 	FixableWarningCount,
 	Source,
 	Errors,
-    SeverityScore
+	SeverityScore
 ) => {
 	return await File.create({
 		Name,
@@ -66,7 +66,7 @@ exports.addFile = async (
 		FixableWarningCount,
 		Source,
 		Errors,
-        SeverityScore
+		SeverityScore,
 	});
 };
 
@@ -117,7 +117,7 @@ exports.getZipFile = async (id) => {
 	zipFile.Students.forEach((student, i) => {
 		student.Files.forEach((file, j) => {
 			file.Errors.forEach((error, k) => {
-                console.log(error)
+				console.log(error);
 				const updatedError = {
 					ErrorType: ErrorList[error["ErrorType"]],
 					Line: error.Line,

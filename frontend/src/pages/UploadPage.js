@@ -9,11 +9,13 @@ import {
 	Icon,
 	Header,
 } from "semantic-ui-react";
+import { useCookies } from "react-cookie";
 
 function UploadPage() {
 	const [processedFiles, setProcessedFiles] = useState([]);
 	const [file, setFile] = useState();
 	const [fileName, setFileName] = useState("");
+	const [cookies, setCookie] = useCookies(["user"]);
 
 	const saveFile = (e) => {
 		setFile(e.target.files[0]);
@@ -27,7 +29,7 @@ function UploadPage() {
 
 		try {
 			const res = await axios.post(
-				"http://localhost:8080/upload",
+				`http://localhost:8080/upload?password=${cookies.password}`,
 				formData
 			);
 			setProcessedFiles(res.data);

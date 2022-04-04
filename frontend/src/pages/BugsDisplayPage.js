@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
 	Grid,
@@ -11,30 +11,66 @@ import {
 	Table,
 } from "semantic-ui-react";
 
+import { getErrorTypes, getErrorTypesNum } from "../client/API.js";
+
 function BugsPage() {
+
+
+
+
+		const [nameArray,setNameArray] = useState([]);
+		const [severityArray,setSeverityArray] = useState([]);
+		const [descriptionArray,setDescriptionArray] = useState([]);
+	
+
+		  
+		  function ArrayAdder(name,severity, description)    // Delete this later
+		  {
+			setNameArray(nameArray => [...nameArray,name] );
+			setSeverityArray(severityArray => [...severityArray,severity] );
+			setDescriptionArray(descriptionArray => [...descriptionArray,description] );
+		  }
+
+	
+
+
+
+		useEffect(async () => {
+
+			var counter = (await getErrorTypesNum());
+			console.log(counter.data);
+			for (let i = 0; i < counter.data; i++) {
+				const results = (await getErrorTypes(i)).data;
+				ArrayAdder(results.Name,results.Severity,results.Description);
+			  }
+			console.log(results);
+		}, []);
+
+
+
 	//TODO: END GAME add Checkboxs to columns that allow the user to turn on and off the displaying of those detections
 	const getTableRows = () => {
 		return (
+		
 			<div>
-				{Array.from({ length: 12 }).map((_, index) => (
+				{Array.from({ length: 24 }).map((_, index) => (
 					<tr>
 						<Table bordered hover>
 							<td>
-								<tr>Name: No Calle</tr>
-								<tr>Severity: 10</tr>
-								<tr>Type: Cross Site Scripting</tr>
+								<tr>Name: {nameArray[index]} </tr>
+								<tr>Severity: {severityArray[index]} </tr>
+								<tr>Type: </tr>
 							</td>
 						</Table>
 						<td>
-							Description: Wow this is a description of the thing
-							that is destroying your security. You should really
-							consider fixing this problem as soon as possible.
+							Description: {descriptionArray[index]}
 						</td>
 					</tr>
 				))}
-			</div>
+			</div>		
 		);
 	};
+
 
 	return (
 		<Grid style={{ padding: "1.5vw" }}>
