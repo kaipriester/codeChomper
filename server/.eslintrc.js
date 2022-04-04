@@ -10,6 +10,7 @@ module.exports = {
 	},
 	rules: {
 		"no-eval": 2,
+		"no-unused-vars": 0,
 	},
 	plugins: ["@microsoft/eslint-plugin-sdl"],
 };

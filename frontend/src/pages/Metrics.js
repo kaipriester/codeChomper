@@ -18,12 +18,7 @@ function MetricsPage() {
 					</div>
 				</Segment>
 			</Grid.Row>
-			<Grid.Row>
-				TODO Someone needs to make this page
-				{
-					//<ChartsPage/>
-				}
-			</Grid.Row>
+			<Grid.Row>{<ChartsPage />}</Grid.Row>
 		</Grid>
 	);
 }

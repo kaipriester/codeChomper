@@ -2,9 +2,12 @@ import React from "react";
 import { Icon, Menu, Input, Divider } from "semantic-ui-react";
 
 function Sidebar(props) {
-	console.log(`props: ${props}`);
-	const { updateRouteHandler } = props;
-	console.log(updateRouteHandler);
+	const { updateRouteHandler, updateZipFileHandler } = props;
+
+	const updateRoute = (route) => {
+		updateZipFileHandler("undefined");
+		updateRouteHandler(route);
+	};
 
 	return (
 		<>
@@ -17,16 +20,13 @@ function Sidebar(props) {
 					padding: 0,
 					margin: 0,
 					width: "100%",
-					height: "100vh",
+					height: "100%",
 				}}
 			>
 				<Menu.Item
 					name="gamepad"
 					active={false}
-					onClick={() => {
-						updateRouteHandler("main");
-						console.log("TESTTT");
-					}}
+					onClick={() => updateRoute("main")}
 				>
 					<Icon name="globe" />
 					Overview
@@ -35,7 +35,7 @@ function Sidebar(props) {
 				<Menu.Item
 					name="upload"
 					active={false}
-					onClick={() => updateRouteHandler("upload")}
+					onClick={() => updateRoute("upload")}
 				>
 					<Icon name="upload" />
 					Upload Code
@@ -44,7 +44,7 @@ function Sidebar(props) {
 				<Menu.Item
 					name="bug"
 					active={false}
-					onClick={() => updateRouteHandler("BugListPage")}
+					onClick={() => updateRoute("BugListPage")}
 				>
 					<Icon name="bug" />
 					Detectable Security Issues
@@ -52,15 +52,11 @@ function Sidebar(props) {
 				<Menu.Item
 					name="video play"
 					active={false}
-					onClick={() => updateRouteHandler("MetricsPage")}
+					onClick={() => updateRoute("MetricsPage")}
 				>
 					<Icon name="chart bar" />
 					Metrics
 				</Menu.Item>
-				<Menu.Item></Menu.Item>
-				{/* <Menu.Item>
-          <Input icon="search" placeholder="Search code..." />
-        </Menu.Item> */}
 			</Menu>
 		</>
 	);

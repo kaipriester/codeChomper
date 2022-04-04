@@ -18,16 +18,25 @@ import {
 } from "semantic-ui-react";
 import moment from "moment";
 import { getZipFile } from "../client/API.js";
+import ChartsPage from "../components/ChartsPage";
+import { useCookies } from "react-cookie";
 
 function ViewMorePage(props) {
 	const { id } = props;
 	const [file, setFile] = useState({ Students: [] });
+	const [cookies, setCookie] = useCookies(["user"]);
 	const [open, setOpen] = useState(false);
 	const [errors, setErrors] = useState([]);
 
+	function getColor(value) {
+		//value from 0 to 1
+		value = value / 10;
+		var hue = ((1 - value) * 120).toString(10);
+		return ["hsl(", hue, ",100%,50%)"].join("");
+	}
+
 	useEffect(async () => {
-		const results = (await getZipFile(id)).data;
-		console.log(results);
+		const results = (await getZipFile(cookies.password, id)).data;
 		setFile(results);
 	}, []);
 
@@ -68,38 +77,49 @@ function ViewMorePage(props) {
 							</Card.Content>
 							<Card.Content extra>
 								<Icon
-									color={"red"}
+									style={{
+										color: getColor(student.SeverityScore),
+									}}
 									name="exclamation triangle"
 								/>
-								<span style={{ color: "red" }}>
-									2 Severity Score
+								<span style={{ color: "black" }}>
+									{student.SeverityScore} Severity Score
 								</span>
 							</Card.Content>
 							<Card.Content extra>
 								<div className="ui two buttons">
-									<Button
-										basic
-										color="primary"
-										onClick={() => {
-											var allErrors = [];
-											console.log(student);
-											student.Files.forEach(
-												(currFile) => {
-													currFile.Errors.forEach(
-														(error) => {
-															allErrors.push(
-																error.Message
-															);
-														}
-													);
-												}
-											);
-											setErrors(allErrors);
-											setOpen(true);
-										}}
-									>
-										view more
-									</Button>
+									{student.Files.reduce(
+										(prev, currFile) =>
+											prev + currFile.ErrorCount,
+										0
+									) !== 0 ? (
+										<Button
+											basic
+											color="primary"
+											onClick={() => {
+												var allErrors = [];
+												student.Files.forEach(
+													(currFile) => {
+														currFile.Errors.forEach(
+															(error) => {
+																allErrors.push({
+																	data: error,
+																	fileName:
+																		currFile.Name,
+																});
+															}
+														);
+													}
+												);
+												setErrors(allErrors);
+												setOpen(true);
+											}}
+										>
+											view more
+										</Button>
+									) : (
+										<></>
+									)}
 								</div>
 							</Card.Content>
 						</Card>
@@ -107,7 +127,7 @@ function ViewMorePage(props) {
 				</Card.Group>
 			),
 		},
-		{ menuItem: "Graphs", render: () => <></> },
+		{ menuItem: "Graphs", render: () => <ChartsPage /> },
 	];
 
 	const getDate = (obj) => {
@@ -182,16 +202,76 @@ function ViewMorePage(props) {
 					onOpen={() => setOpen(true)}
 					open={open}
 				>
-					<Modal.Header>Erros</Modal.Header>
+					<Modal.Header>Errors</Modal.Header>
 					<Modal.Content>
 						<Modal.Description>
 							<List>
-								{errors.map((err) => (
-									<List.Item>
-										<List.Icon name="bug" />
-										<List.Content>{err}</List.Content>
-									</List.Item>
-								))}
+								{errors.map((err) => {
+									return (
+										// <div>{JSON.stringify(err)}</div>
+										<Card.Group>
+											<Card fluid>
+												<Card.Content>
+													<Card.Header>
+														{err.data.ErrorType.Name.toLowerCase()
+															.split(" ")
+															.map(
+																(s) =>
+																	s
+																		.charAt(
+																			0
+																		)
+																		.toUpperCase() +
+																	s.substring(
+																		1
+																	)
+															)
+															.join(" ")}{" "}
+													</Card.Header>
+													<Card.Meta>
+														{err.fileName}
+													</Card.Meta>
+													<Card.Description>
+														<span
+															style={{
+																fontWeight:
+																	"bolder",
+															}}
+														>
+															Description:
+														</span>{" "}
+														{
+															err.data.ErrorType
+																.Description
+														}
+													</Card.Description>
+												</Card.Content>
+												<Card.Content extra>
+													<Icon name="file code" />
+													line {err.data.Line}, column{" "}
+													{err.data.Column}
+												</Card.Content>
+												<Card.Content extra>
+													<Icon
+														style={{
+															color: getColor(
+																err.data
+																	.ErrorType
+																	.Severity
+															),
+														}}
+														name="warning sign"
+													/>
+													severity:{" "}
+													{
+														err.data.ErrorType
+															.Severity
+													}
+												</Card.Content>
+											</Card>
+										</Card.Group>
+									);
+								})}
 							</List>
 						</Modal.Description>
 					</Modal.Content>
@@ -202,25 +282,6 @@ function ViewMorePage(props) {
 					</Modal.Actions>
 				</Modal>
 			</Grid.Row>
-
-			{/* <Grid.Row>
-        <Grid style={{ width: '100%', margin: '0' }}>
-          <Grid.Row>
-            {activeStatus && <Header>Processing Status</Header>}
-          </Grid.Row>
-          <Grid.Row>
-            {activeStatus && (
-            <Progress
-              value={status}
-              total="5"
-              progress="percent"
-              indicating
-              style={{ width: '80%' }}
-            />
-            )}
-          </Grid.Row>
-        </Grid>
-      </Grid.Row> */}
 		</Grid>
 	);
 }

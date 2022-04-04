@@ -10,6 +10,7 @@ import BugListPage from "./pages/BugsDisplayPage";
 import ViewMorePage from "./pages/ViewMorePage";
 import MetricsPage from "./pages/Metrics";
 import LogIn from "./pages/LogIn";
+import { useCookies } from "react-cookie";
 
 function App() {
 	const [currentRoute, setCurrentRoute] = useState("LogIn");
@@ -48,7 +49,11 @@ function App() {
 		<Grid>
 			<Grid.Column width={3} style={{ paddingRight: 0 }}>
 				{currentRoute != "LogIn" && (
-					<Sidebar updateRouteHandler={setCurrentRoute} />
+					<Sidebar
+						updateZipFileHandler={setCurrentZipFileId}
+						updateRouteHandler={setCurrentRoute}
+						style={{ width: "100%" }}
+					/>
 				)}
 			</Grid.Column>
 			<Grid.Column width={13} style={{ paddingLeft: 0 }}>
