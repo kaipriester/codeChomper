@@ -14,6 +14,9 @@ const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 
+const ErrorTypeDetail = require("./models/ErrorTypes.js");
+
+
 const app = express();
 const port = 8080;
 
@@ -392,13 +395,16 @@ app.get("/studentfiles", async (req, res) => {
 	res.json(await DAO.getZipFile(req.query.id));
 });
 
-app.get("/errortypes", async (req, res) => {
-	if (req.query.password != "seniorproject2022") {
-		res.json(false);
-		return;
-	}
-	res.json(ErrorTypes);
+
+app.get("/ErrorTypes", async (req, res) => {
+	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
 });
+
+
+app.get("/ErrorTypesNum", async (req, res) => {
+	res.json(ErrorTypeDetail.getErrorTypesNum());
+});
+
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
