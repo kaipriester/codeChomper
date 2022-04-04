@@ -18,18 +18,21 @@ import { Range } from "react-range";
 import moment from "moment";
 import { getZipFileMetadata } from "../client/API.js";
 import ChartsPage from "../components/ChartsPage";
+import { useCookies } from "react-cookie";
 
 function MainPage(props) {
 	const { updateRouteHandler, updateZipFileHandler } = props;
+	const [cookies, setCookie] = useCookies(["user"]);
 	const [files, setFiles] = useState([]);
 
 	const panes = [
 		{ menuItem: "Zip folders", render: () => getStudentFilesCards() },
-		{ menuItem: "Graphs", render: () => <ChartsPage/> },
+		{ menuItem: "Graphs", render: () => <ChartsPage /> },
 	];
 
 	useEffect(async () => {
-		const results = (await getZipFileMetadata()).data.zipFileData;
+		const results = (await getZipFileMetadata(cookies.password)).data
+			.zipFileData;
 		console.log(results);
 		setFiles(
 			results.map((result) => {
@@ -44,6 +47,14 @@ function MainPage(props) {
 			})
 		);
 	}, []);
+
+	function getColor(value) {
+		//value from 0 to 1
+		value = value / 10;
+		var hue = ((1 - value) * 120).toString(10);
+		return ["hsl(", hue, ",100%,50%)"].join("");
+	}
+
 	const getDate = (obj) => {
 		obj = obj.substring(0, obj.indexOf("T"));
 		return (
@@ -56,12 +67,16 @@ function MainPage(props) {
 		return (
 			<Card.Group>
 				{files.map((file) => (
-					<Card>
+					<Card
+						style={{
+							backgroundColor: `${getColor(file.SeverityScore)}`,
+						}}
+					>
 						<Card.Content>
 							<Image
 								floated="right"
 								size="mini"
-								src="https://i.ibb.co/vxd7Rwc/abc-123-programmer-software-developer-generated.jpg"
+								src="https://cdn-icons-png.flaticon.com/512/2891/2891491.png"
 							/>
 							<Card.Header>{file.name}</Card.Header>
 							<Card.Meta>Ran on {getDate(file.date)}</Card.Meta>

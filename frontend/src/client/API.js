@@ -1,11 +1,19 @@
 import axios from "axios";
 
-const getZipFileMetadata = async () => {
-	return await axios.get("http://localhost:8080/overview/zipfiles");
+const login = async (password) => {
+	return await axios.post(`http://localhost:8080/login?password=${password}`);
 };
 
-const getZipFile = async (id) => {
-	return await axios.get(`http://localhost:8080/studentfiles?id=${id}`);
+const getZipFileMetadata = async (password) => {
+	return await axios.get(
+		`http://localhost:8080/overview/zipfiles?password=${password}`
+	);
 };
 
-export { getZipFileMetadata, getZipFile };
+const getZipFile = async (password, id) => {
+	return await axios.get(
+		`http://localhost:8080/studentfiles?password=${password}&id=${id}`
+	);
+};
+
+export { getZipFileMetadata, getZipFile, login };
