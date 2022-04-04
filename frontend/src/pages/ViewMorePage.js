@@ -104,7 +104,7 @@ function ViewMorePage(props) {
 				</Card.Group>
 			),
 		},
-		{ menuItem: "Graphs", render: () => <ChartsPage /> },
+		{ menuItem: "Graphs", render: () => <ChartsPage students={file.Students} /> },
 	];
 
 	const getDate = (obj) => {

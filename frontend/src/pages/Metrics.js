@@ -19,8 +19,9 @@ function MetricsPage() {
 				</Segment>
 			</Grid.Row>
 			<Grid.Row>
+				put new charts here
 				{
-					<ChartsPage/>
+					//<ChartsPage/>
 				}
 			</Grid.Row>
 		</Grid>

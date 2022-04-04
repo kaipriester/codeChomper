@@ -25,7 +25,7 @@ function MainPage(props) {
 
 	const panes = [
 		{ menuItem: "Zip folders", render: () => getStudentFilesCards() },
-		{ menuItem: "Graphs", render: () => <ChartsPage/> },
+		{ menuItem: "Graphs", render: () => <></> },
 	];
 
 	useEffect(async () => {
