@@ -185,12 +185,12 @@ exports.convertRuleIDToErrorType = (ErrorID) => {
 };
 
 exports.ReturnErrorTypeInformation = (ErrorID) => {
-	return ErrorList[ErrorID];
+	return exports.ErrorList[ErrorID];
 	//return JSON.stringify({"Name" : ErrorList[1].Name});
 };
 
 exports.getErrorTypesNum = () =>
 {
 	
-	return Object.keys(ErrorList).length;
+	return Object.keys(exports.ErrorList).length;
 }
