@@ -24,7 +24,7 @@ ChartJS.register(
 );
 
 export const data = {
-	labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+	labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
 	datasets: [
 		{
 			label: "# of Votes",
@@ -57,17 +57,23 @@ class ChartsPage extends React.Component {
 		return (
 			<Card.Group>
 				<Card>
-					<Card.Header>Gauge Chart</Card.Header>
+					<Card.Header>Zip File Severity</Card.Header>
 					<Card.Content>
-						<GaugeChart id="gauge-chart1" />
+						<GaugeChart id="gauge-chart1"
+						nrOfLevels={9}
+						percent={this.props.file.SeverityScore / 10}
+						textColor='#345243'
+						needleColor='#8A948F'
+						formatTextValue={value => value / 10} />
 					</Card.Content>
 				</Card>
 				<Card>
 					<Card.Header>Students with Highest Severity Score</Card.Header>
 					<Card.Content>
 						<List>
-							{this.props.students
+							{this.props.file.Students
 							.sort((a, b) => b.SeverityScore - a.SeverityScore)
+							.slice(0, 5)
 							.map((student) => <List.Item>{student.Name}: {student.SeverityScore.toString()}</List.Item>)}
 						</List>
 					</Card.Content>

@@ -127,7 +127,7 @@ function ViewMorePage(props) {
 				</Card.Group>
 			),
 		},
-		{ menuItem: "Graphs", render: () => <ChartsPage students={file.Students} /> },
+		{ menuItem: "Graphs", render: () => <ChartsPage file={file} /> },
 	];
 
 	const getDate = (obj) => {
