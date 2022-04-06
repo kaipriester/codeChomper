@@ -52,6 +52,11 @@ export const data = {
 
 
 class ChartsPage extends React.Component {
+	// put radar chart in here somewhere
+
+	// most popular vulnerabilites
+
+	// severity of vulnerabilities
 
 	render() {
 		return (
@@ -85,9 +90,11 @@ class ChartsPage extends React.Component {
 					</Card.Content>
 				</Card>
 				<Card>
-					<Card.Header>Types of Vulnerabilities</Card.Header>
+					<Card.Header>Most Popular Vulnerabilities</Card.Header>
 					<Card.Content>
-						<Pie data={data} />
+						<List>
+							<List.Item>create list of vulnerabilites + their frequency</List.Item>
+						</List>
 					</Card.Content>
 				</Card>
 			</Card.Group>
