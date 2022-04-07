@@ -24,7 +24,7 @@ ChartJS.register(
 );
 
 export const data = {
-	labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+	labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
 	datasets: [
 		{
 			label: "# of Votes",
@@ -51,55 +51,53 @@ export const data = {
 };
 
 
-class ChartsPage extends React.Component {
+function ChartsPage(props) {
 	// put radar chart in here somewhere
 
 	// most popular vulnerabilites
 
 	// severity of vulnerabilities
 
-	render() {
-		return (
-			<Card.Group>
-				<Card>
-					<Card.Header>Zip File Severity</Card.Header>
-					<Card.Content>
-						<GaugeChart id="gauge-chart1"
-						nrOfLevels={9}
-						percent={this.props.file.SeverityScore / 10}
-						textColor='#345243'
-						needleColor='#8A948F'
-						formatTextValue={value => value / 10} />
-					</Card.Content>
-				</Card>
-				<Card>
-					<Card.Header>Students with Highest Severity Score</Card.Header>
-					<Card.Content>
-						<List>
-							{this.props.file.Students
-							.sort((a, b) => b.SeverityScore - a.SeverityScore)
-							.slice(0, 5)
-							.map((student) => <List.Item>{student.Name}: {student.SeverityScore.toString()}</List.Item>)}
-						</List>
-					</Card.Content>
-				</Card>
-				<Card>
-					<Card.Header>Severity of Vulnerabilities</Card.Header>
-					<Card.Content>
-						<Pie data={data} />
-					</Card.Content>
-				</Card>
-				<Card>
-					<Card.Header>Most Popular Vulnerabilities</Card.Header>
-					<Card.Content>
-						<List>
-							<List.Item>create list of vulnerabilites + their frequency</List.Item>
-						</List>
-					</Card.Content>
-				</Card>
-			</Card.Group>
-		);
-	}
+	return (
+		<Card.Group>
+			<Card>
+				<Card.Header>Zip File Severity</Card.Header>
+				<Card.Content>
+					<GaugeChart id="gauge-chart1"
+					nrOfLevels={9}
+					percent={props.file.SeverityScore / 10}
+					textColor='#345243'
+					needleColor='#8A948F'
+					formatTextValue={value => value / 10} />
+				</Card.Content>
+			</Card>
+			<Card>
+				<Card.Header>Students with Highest Severity Score</Card.Header>
+				<Card.Content>
+					<List>
+						{props.file.Students
+						.sort((a, b) => b.SeverityScore - a.SeverityScore)
+						.slice(0, 5)
+						.map((student) => <List.Item>{student.Name}: {student.SeverityScore.toString()}</List.Item>)}
+					</List>
+				</Card.Content>
+			</Card>
+			<Card>
+				<Card.Header>Severity of Vulnerabilities</Card.Header>
+				<Card.Content>
+					<Pie data={data} />
+				</Card.Content>
+			</Card>
+			<Card>
+				<Card.Header>Most Popular Vulnerabilities</Card.Header>
+				<Card.Content>
+					<List>
+						<List.Item>create list of vulnerabilites + their frequency</List.Item>
+					</List>
+				</Card.Content>
+			</Card>
+		</Card.Group>
+	);
 }
 
 export default ChartsPage;
