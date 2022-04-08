@@ -23,40 +23,50 @@ ChartJS.register(
 	ArcElement
 );
 
-export const data = {
-	labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-	datasets: [
-		{
-			label: "# of Votes",
-			data: [12, 19, 3, 5, 2, 3],
-			backgroundColor: [
-				"rgba(255, 99, 132, 0.2)",
-				"rgba(54, 162, 235, 0.2)",
-				"rgba(255, 206, 86, 0.2)",
-				"rgba(75, 192, 192, 0.2)",
-				"rgba(153, 102, 255, 0.2)",
-				"rgba(255, 159, 64, 0.2)",
-			],
-			borderColor: [
-				"rgba(255, 99, 132, 1)",
-				"rgba(54, 162, 235, 1)",
-				"rgba(255, 206, 86, 1)",
-				"rgba(75, 192, 192, 1)",
-				"rgba(153, 102, 255, 1)",
-				"rgba(255, 159, 64, 1)",
-			],
-			borderWidth: 1,
-		},
-	],
-};
+export const pieColors =  [
+	'rgba(99, 255, 195, 0.4)',
+	'rgba(99, 255, 133, 0.4)',
+	'rgba(131, 255, 99, 0.4)',
+	'rgba(131, 255, 99, 0.4)',
+	'rgba(215, 255, 99, 0.4)',
+	'rgba(247, 255, 99, 0.4)',
+	'rgba(255, 214, 99, 0.4)',
+	'rgba(255, 185, 99, 0.4)',
+	'rgba(255, 149, 99, 0.4)',
+	'rgba(255, 99, 99, 0.4)'
+];
+
+function getErrors(students) {
+	var errorList = [];
+	students.map((student) => student.Files.map((file) => file.Errors.map((error) => errorList.push(error))));
+	return errorList;
+}
 
 
 function ChartsPage(props) {
 	// put radar chart in here somewhere
 
-	// most popular vulnerabilites
+	// get list of errors from all students in zip
+	const errorList = getErrors(props.file.Students);
+	
+	// get frequency of vulnerabilities
+	var freqOfVuln = new Array(10).fill(0);
+	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity]++);
+	console.log(freqOfVuln);
 
-	// severity of vulnerabilities
+	const data = {
+		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		datasets: [
+			{
+				label: "# of Votes",
+				data: freqOfVuln,
+				backgroundColor: pieColors,
+				borderColor: pieColors,
+				borderWidth: 1,
+			},
+		],
+	};
+	
 
 	return (
 		<Card.Group>
