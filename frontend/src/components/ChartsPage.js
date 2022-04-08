@@ -149,7 +149,6 @@ function ZipChartsPage(props) {
 	var fileSevCount = 0;
 	files.forEach((file) => fileSevCount += file.severityScore);
 	var fileSevAverage = fileSevCount / files.length;
-	console.log(fileSevAverage);
 
 	return (
 		<Card.Group>
