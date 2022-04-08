@@ -64,14 +64,7 @@ function ChartsPage(props) {
 			vulns.set(error.ErrorType.Name, currNum + 1);
 		}
 	});
-
 	const sortedVulns = new Map([...vulns.entries()].sort((a, b) => b[1] - a[1]));
-	console.log(sortedVulns)
-
-	sortedVulns.forEach((value, key) => console.log(key));
-
-	//{sortedVulns.forEach((key) => <List.Item>{key}</List.Item>)}
-
 
 	const data = {
 		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
@@ -121,7 +114,13 @@ function ChartsPage(props) {
 				<Card.Header>Most Popular Vulnerabilities</Card.Header>
 				<Card.Content>
 					<List>
-						{sortedVulns.forEach((key) => <List.Item>key</List.Item>)}
+						{[...sortedVulns]
+							.slice(0,5)
+							.map(([key, value]) => (
+							<List.Item key={key} value={key}>
+								{key}: {value}
+							</List.Item>
+						))}
 					</List>
 				</Card.Content>
 			</Card>
