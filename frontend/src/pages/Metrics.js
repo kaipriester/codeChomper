@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Grid, Icon, Segment, Header } from "semantic-ui-react";
-import ChartsPage from "../components/ChartsPage";
-import { Radar } from "react-chartjs-2";
-import { MDBContainer } from "mdbreact";
+import {  ZipChartsPage } from "../components/ChartsPage";
 
 function MetricsPage() {
 	return (
@@ -19,9 +17,8 @@ function MetricsPage() {
 				</Segment>
 			</Grid.Row>
 			<Grid.Row>
-				put new charts here
 				{
-					//<ChartsPage/>
+					<ZipChartsPage />
 				}
 			</Grid.Row>
 		</Grid>

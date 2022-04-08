@@ -128,4 +128,17 @@ function ChartsPage(props) {
 	);
 }
 
-export default ChartsPage;
+function ZipChartsPage(props) {
+	return (
+		<Card.Group>
+			<Card>
+				<Card.Header>Test</Card.Header>
+			</Card>
+		</Card.Group>
+	);
+}
+
+export {
+	ChartsPage, 
+	ZipChartsPage
+};

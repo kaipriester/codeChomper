@@ -18,7 +18,7 @@ import {
 } from "semantic-ui-react";
 import moment from "moment";
 import { getZipFile } from "../client/API.js";
-import ChartsPage from "../components/ChartsPage";
+import { ChartsPage } from "../components/ChartsPage";
 import { useCookies } from "react-cookie";
 
 function ViewMorePage(props) {
