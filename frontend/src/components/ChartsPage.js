@@ -52,7 +52,26 @@ function ChartsPage(props) {
 	// get frequency of vulnerabilities
 	var freqOfVuln = new Array(10).fill(0);
 	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity]++);
-	console.log(freqOfVuln);
+
+	// get most popular vulnerabilities
+	var vulns = new Map;
+	errorList.forEach((error) => {
+		if (!vulns.has(error.ErrorType.Name)) {
+			vulns.set(error.ErrorType.Name, 1);
+		}
+		else {
+			var currNum = vulns.get(error.ErrorType.Name)
+			vulns.set(error.ErrorType.Name, currNum + 1);
+		}
+	});
+
+	const sortedVulns = new Map([...vulns.entries()].sort((a, b) => b[1] - a[1]));
+	console.log(sortedVulns)
+
+	sortedVulns.forEach((value, key) => console.log(key));
+
+	//{sortedVulns.forEach((key) => <List.Item>{key}</List.Item>)}
+
 
 	const data = {
 		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
@@ -102,7 +121,7 @@ function ChartsPage(props) {
 				<Card.Header>Most Popular Vulnerabilities</Card.Header>
 				<Card.Content>
 					<List>
-						<List.Item>create list of vulnerabilites + their frequency</List.Item>
+						{sortedVulns.forEach((key) => <List.Item>key</List.Item>)}
 					</List>
 				</Card.Content>
 			</Card>
