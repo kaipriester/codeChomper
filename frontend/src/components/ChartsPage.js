@@ -44,7 +44,7 @@ function getErrors(students) {
 
 
 function ChartsPage(props) {
-	// put radar chart in here somewhere
+	// put radar chart with severities??
 
 	// get list of errors from all students in zip
 	const errorList = getErrors(props.file.Students);
@@ -129,10 +129,38 @@ function ChartsPage(props) {
 }
 
 function ZipChartsPage(props) {
+	var freqOfVuln = new Array(10).fill(0);
+	props.files.forEach((file) => freqOfVuln[file.severityScore]++);
+	
+	const data = {
+		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		datasets: [
+			{
+				label: "# of Votes",
+				data: freqOfVuln,
+				backgroundColor: pieColors,
+				borderColor: pieColors,
+				borderWidth: 1,
+			},
+		],
+	};
+
 	return (
 		<Card.Group>
 			<Card>
-				<Card.Header>Test</Card.Header>
+				<Card.Header>Files with Highest Severity Score</Card.Header>
+				<Card.Content>
+					<List>
+						{props.files
+						.sort((a, b) => b.severityScore - a.severityScore)
+						.slice(0, 5)
+						.map((file) => <List.Item>{file.name}: {file.severityScore.toString()}</List.Item>)}
+					</List>
+				</Card.Content>
+			</Card>
+			<Card>
+				<Card.Header>Frequency of Zip File Severities</Card.Header>
+				<Pie data={data} />
 			</Card>
 		</Card.Group>
 	);
