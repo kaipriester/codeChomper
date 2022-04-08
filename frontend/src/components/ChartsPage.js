@@ -27,7 +27,7 @@ export const pieColors =  [
 	'rgba(99, 255, 195, 0.4)',
 	'rgba(99, 255, 133, 0.4)',
 	'rgba(131, 255, 99, 0.4)',
-	'rgba(131, 255, 99, 0.4)',
+	'rgba(162, 245, 39, 0.4)',
 	'rgba(215, 255, 99, 0.4)',
 	'rgba(247, 255, 99, 0.4)',
 	'rgba(255, 214, 99, 0.4)',
@@ -44,7 +44,6 @@ function getErrors(students) {
 
 
 function ChartsPage(props) {
-	// put radar chart with severities??
 
 	// get list of errors from all students in zip
 	const errorList = getErrors(props.file.Students);
@@ -129,8 +128,10 @@ function ChartsPage(props) {
 }
 
 function ZipChartsPage(props) {
+	const files = props.files;
+
 	var freqOfVuln = new Array(10).fill(0);
-	props.files.forEach((file) => freqOfVuln[file.severityScore]++);
+	files.forEach((file) => freqOfVuln[file.severityScore]++);
 	
 	const data = {
 		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
@@ -145,13 +146,29 @@ function ZipChartsPage(props) {
 		],
 	};
 
+	var fileSevCount = 0;
+	files.forEach((file) => fileSevCount += file.severityScore);
+	var fileSevAverage = fileSevCount / files.length;
+	console.log(fileSevAverage);
+
 	return (
 		<Card.Group>
+			<Card>
+				<Card.Header>Average Zip File Severity Score</Card.Header>
+				<Card.Content>
+					<GaugeChart id="gauge-chart2"
+					nrOfLevels={9}
+					percent={fileSevAverage / 10}
+					textColor='#345243'
+					needleColor='#8A948F'
+					formatTextValue={value => value / 10} />
+				</Card.Content>
+			</Card>
 			<Card>
 				<Card.Header>Files with Highest Severity Score</Card.Header>
 				<Card.Content>
 					<List>
-						{props.files
+						{files
 						.sort((a, b) => b.severityScore - a.severityScore)
 						.slice(0, 5)
 						.map((file) => <List.Item>{file.name}: {file.severityScore.toString()}</List.Item>)}
