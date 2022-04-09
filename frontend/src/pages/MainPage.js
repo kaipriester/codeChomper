@@ -17,7 +17,7 @@ import {
 import { Range } from "react-range";
 import moment from "moment";
 import { getZipFileMetadata } from "../client/API.js";
-import ChartsPage from "../components/ChartsPage";
+import { ZipChartsPage } from "../components/ChartsPage";
 import { useCookies } from "react-cookie";
 
 function MainPage(props) {
@@ -27,7 +27,7 @@ function MainPage(props) {
 
 	const panes = [
 		{ menuItem: "Zip folders", render: () => getStudentFilesCards() },
-		{ menuItem: "Graphs", render: () => <ChartsPage /> },
+		{ menuItem: "Graphs", render: () => <ZipChartsPage files={files}/> },
 	];
 
 	useEffect(async () => {

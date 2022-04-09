@@ -1,11 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Grid, Icon, Segment, Header } from "semantic-ui-react";
-import ChartsPage from "../components/ChartsPage";
-import { Radar } from "react-chartjs-2";
-import { MDBContainer } from "mdbreact";
+import {  ZipChartsPage } from "../components/ChartsPage";
+import { getZipFileMetadata } from "../client/API.js";
+import { useCookies } from "react-cookie";
 
 function MetricsPage() {
+	const [files, setFiles] = useState([]);
+	const [cookies, setCookie] = useCookies(["user"]);
+
+	useEffect(async () => {
+		const results = (await getZipFileMetadata(cookies.password)).data
+			.zipFileData;
+		console.log(results);
+		setFiles(
+			results.map((result) => {
+				return {
+					id: result._id,
+					name: result.Name,
+					date: result.Date,
+					fileCount: result.FileCount,
+					errorCount: result.ErrorCount,
+					severityScore: result.SeverityScore,
+				};
+			})
+		);
+	}, []);
+
+
 	return (
 		<Grid style={{ padding: "1.5vw" }}>
 			<Grid.Row>
@@ -18,7 +40,11 @@ function MetricsPage() {
 					</div>
 				</Segment>
 			</Grid.Row>
-			<Grid.Row>{<ChartsPage />}</Grid.Row>
+			<Grid.Row>
+				{
+					<ZipChartsPage files={files}/>
+				}
+			</Grid.Row>
 		</Grid>
 	);
 }
