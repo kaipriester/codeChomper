@@ -23,18 +23,57 @@ ChartJS.register(
 	ArcElement
 );
 
-export const pieColors = [
-	"rgba(99, 255, 195, 0.4)",
-	"rgba(99, 255, 133, 0.4)",
-	"rgba(131, 255, 99, 0.4)",
-	"rgba(162, 245, 39, 0.4)",
-	"rgba(215, 255, 99, 0.4)",
-	"rgba(247, 255, 99, 0.4)",
-	"rgba(255, 214, 99, 0.4)",
-	"rgba(255, 185, 99, 0.4)",
-	"rgba(255, 149, 99, 0.4)",
-	"rgba(255, 99, 99, 0.4)",
-];
+function getRadarData(dataArray) {
+	return {
+		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		datasets: [
+			{
+				label: 'frequency',
+				data: dataArray,
+				backgroundColor: 'rgba(255, 99, 132, 0.2)',
+				borderColor: 'rgba(255, 99, 132, 1)',
+				borderWidth: 1,
+			},
+		],
+	};
+}
+
+function getPieData(dataArray) {
+	return {
+		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		datasets: [
+			{
+				label: 'data',
+				data: dataArray,
+				backgroundColor: [
+					'rgba(99, 255, 195, 0.3)',
+					'rgba(99, 255, 133, 0.3)',
+					'rgba(131, 255, 99, 0.3)',
+					'rgba(162, 245, 39, 0.3)',
+					'rgba(215, 255, 99, 0.3)',
+					'rgba(247, 255, 99, 0.3)',
+					'rgba(255, 214, 99, 0.3)',
+					'rgba(255, 185, 99, 0.3)',
+					'rgba(255, 149, 99, 0.3)',
+					'rgba(255, 99, 99, 0.3)'
+				],
+				borderColor: [
+					'rgba(99, 255, 195, 1)',
+					'rgba(99, 255, 133, 1)',
+					'rgba(131, 255, 99, 1)',
+					'rgba(162, 245, 39, 1)',
+					'rgba(215, 255, 99, 1)',
+					'rgba(247, 255, 99, 1)',
+					'rgba(255, 214, 99, 1)',
+					'rgba(255, 185, 99, 1)',
+					'rgba(255, 149, 99, 1)',
+					'rgba(255, 99, 99, 1)'
+				],
+				borderWidth: 1,
+			},
+		],
+	};
+}
 
 function getErrors(students) {
 	var errorList = [];
@@ -49,10 +88,14 @@ function getErrors(students) {
 function ChartsPage(props) {
 	// get list of errors from all students in zip
 	const errorList = getErrors(props.file.Students);
-
-	// get frequency of vulnerabilities
+	
+	// get frequency of all vulnerabilities in zip file
 	var freqOfVuln = new Array(10).fill(0);
 	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity]++);
+
+	// get frequency of severities for each student
+	var freqOfSev = new Array(10).fill(0);
+	props.file.Students.forEach((student) => freqOfSev[student.SeverityScore]++);
 
 	// get most popular vulnerabilities
 	var vulns = new Map();
@@ -68,23 +111,10 @@ function ChartsPage(props) {
 		[...vulns.entries()].sort((a, b) => b[1] - a[1])
 	);
 
-	const data = {
-		labels: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-		datasets: [
-			{
-				label: "# of Votes",
-				data: freqOfVuln,
-				backgroundColor: pieColors,
-				borderColor: pieColors,
-				borderWidth: 1,
-			},
-		],
-	};
-
 	return (
 		<Card.Group>
 			<Card>
-				<Card.Header>Zip File Severity</Card.Header>
+				<Card.Header>Overall Zip File Severity</Card.Header>
 				<Card.Content>
 					<GaugeChart
 						id="gauge-chart1"
@@ -114,13 +144,13 @@ function ChartsPage(props) {
 				</Card.Content>
 			</Card>
 			<Card>
-				<Card.Header>Severity of Vulnerabilities</Card.Header>
+				<Card.Header>Severity Scores of All Students</Card.Header>
 				<Card.Content>
-					<Pie data={data} />
+					<Pie data={getPieData(freqOfSev)} />
 				</Card.Content>
 			</Card>
 			<Card>
-				<Card.Header>Most Popular Vulnerabilities</Card.Header>
+				<Card.Header>Most Common Vulnerabilities</Card.Header>
 				<Card.Content>
 					<List>
 						{[...sortedVulns].slice(0, 5).map(([key, value]) => (
@@ -131,6 +161,12 @@ function ChartsPage(props) {
 					</List>
 				</Card.Content>
 			</Card>
+			<Card>
+				<Card.Header>Frequency of Severities in All Files</Card.Header>
+				<Card.Content>
+					<Radar data={getRadarData(freqOfVuln)}/>
+				</Card.Content>
+			</Card>
 		</Card.Group>
 	);
 }
@@ -138,26 +174,11 @@ function ChartsPage(props) {
 function ZipChartsPage(props) {
 	const files = props.files;
 
-	if (files.length == 0) {
-		return <div>no file!</div>;
-	}
-
+	// get frequency of zip file vulnerability scores
 	var freqOfVuln = new Array(10).fill(0);
 	files.forEach((file) => freqOfVuln[file.severityScore]++);
-
-	const data = {
-		labels: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-		datasets: [
-			{
-				label: "# of Votes",
-				data: freqOfVuln,
-				backgroundColor: pieColors,
-				borderColor: pieColors,
-				borderWidth: 1,
-			},
-		],
-	};
-
+	
+	// get average severity count of the zip files
 	var fileSevCount = 0;
 	files.forEach((file) => (fileSevCount += file.severityScore));
 	var fileSevAverage = fileSevCount / files.length;
@@ -165,7 +186,7 @@ function ZipChartsPage(props) {
 	return (
 		<Card.Group>
 			<Card>
-				<Card.Header>Average Zip File Severity Score</Card.Header>
+				<Card.Header>Average Severity Score of All Zip Files</Card.Header>
 				<Card.Content>
 					<GaugeChart
 						id="gauge-chart2"
@@ -178,7 +199,7 @@ function ZipChartsPage(props) {
 				</Card.Content>
 			</Card>
 			<Card>
-				<Card.Header>Files with Highest Severity Score</Card.Header>
+				<Card.Header>Zip Files with Highest Severity Scores</Card.Header>
 				<Card.Content>
 					<List>
 						{files
@@ -193,8 +214,8 @@ function ZipChartsPage(props) {
 				</Card.Content>
 			</Card>
 			<Card>
-				<Card.Header>Frequency of Zip File Severities</Card.Header>
-				<Pie data={data} />
+				<Card.Header>Severity Scores of All Zip Files</Card.Header>
+				<Pie data={getPieData(freqOfVuln)} />
 			</Card>
 		</Card.Group>
 	);
