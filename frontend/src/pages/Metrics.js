@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Grid, Icon, Segment, Header } from "semantic-ui-react";
-import {  ZipChartsPage } from "../components/ChartsPage";
+import { ZipChartsPage } from "../components/ChartsPage";
 import { getZipFileMetadata } from "../client/API.js";
 import { useCookies } from "react-cookie";
 
@@ -27,7 +27,6 @@ function MetricsPage() {
 		);
 	}, []);
 
-
 	return (
 		<Grid style={{ padding: "1.5vw" }}>
 			<Grid.Row>
@@ -40,11 +39,7 @@ function MetricsPage() {
 					</div>
 				</Segment>
 			</Grid.Row>
-			<Grid.Row>
-				{
-					<ZipChartsPage files={files}/>
-				}
-			</Grid.Row>
+			<Grid.Row>{<ZipChartsPage files={files} />}</Grid.Row>
 		</Grid>
 	);
 }
