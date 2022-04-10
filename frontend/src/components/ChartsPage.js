@@ -1,6 +1,6 @@
 import React from "react";
-import { Radar, Pie } from "react-chartjs-2";
-import GaugeChart from "react-gauge-chart";
+import { Radar, Pie, Line, Bar, getElementAtEvent } from "react-chartjs-2";
+import GaugeChart from 'react-gauge-chart'
 import { Card, List } from "semantic-ui-react";
 import {
 	Chart as ChartJS,
@@ -11,6 +11,10 @@ import {
 	Tooltip,
 	Legend,
 	ArcElement,
+	CategoryScale,
+	LinearScale,
+	Title,
+	BarElement,
 } from "chart.js";
 
 ChartJS.register(
@@ -20,15 +24,19 @@ ChartJS.register(
 	Filler,
 	Tooltip,
 	Legend,
-	ArcElement
+	ArcElement,
+	CategoryScale,
+	LinearScale,
+	Title,
+	BarElement
 );
 
 function getRadarData(dataArray) {
 	return {
-		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
 		datasets: [
 			{
-				label: 'frequency',
+				label: 'number of occurences',
 				data: dataArray,
 				backgroundColor: 'rgba(255, 99, 132, 0.2)',
 				borderColor: 'rgba(255, 99, 132, 1)',
@@ -40,7 +48,7 @@ function getRadarData(dataArray) {
 
 function getPieData(dataArray) {
 	return {
-		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
 		datasets: [
 			{
 				label: 'data',
@@ -75,15 +83,56 @@ function getPieData(dataArray) {
 	};
 }
 
+function getBarData(dataArray) {
+	return {
+		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+		datasets: [
+		{
+			label: 'Number of Occurences',
+			data: dataArray,
+			backgroundColor: 'rgba(255, 99, 132, 0.5)',
+		}
+	],
+  };
+}
+
+function getLineData(xArray, yArray) {
+	return {
+		labels: xArray,
+		datasets: [
+		{
+			label: 'Severity Scores',
+			data: yArray,
+			borderColor: 'rgb(255, 99, 132)',
+			backgroundColor: 'rgba(255, 99, 132, 0.5)',
+		}
+		],
+	};
+}
+
 function getErrors(students) {
 	var errorList = [];
 	students.map((student) =>
 		student.Files.map((file) =>
-			file.Errors.map((error) => errorList.push(error))
+			file.Errors.map((error) => {
+				if (error.ErrorType.Severity != 0) {
+					errorList.push(error)
+				}
+			})
 		)
 	);
 	return errorList;
 }
+
+function getMean(array) {
+	const n = array.length;
+	return array.reduce((a, b) => a + b) / n;
+}
+
+function getStandardDeviation(array) {
+	const mean = getMean(array);
+	return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / array.length);
+  }
 
 function ChartsPage(props) {
 	// get list of errors from all students in zip
@@ -91,11 +140,11 @@ function ChartsPage(props) {
 	
 	// get frequency of all vulnerabilities in zip file
 	var freqOfVuln = new Array(10).fill(0);
-	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity]++);
+	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity - 1]++);
 
 	// get frequency of severities for each student
 	var freqOfSev = new Array(10).fill(0);
-	props.file.Students.forEach((student) => freqOfSev[student.SeverityScore]++);
+	props.file.Students.forEach((student) => freqOfSev[student.SeverityScore - 1]++);
 
 	// get most popular vulnerabilities
 	var vulns = new Map();
@@ -110,6 +159,11 @@ function ChartsPage(props) {
 	const sortedVulns = new Map(
 		[...vulns.entries()].sort((a, b) => b[1] - a[1])
 	);
+
+	// get array of error severity scores
+	var severityList = [];
+	errorList.forEach((error) => severityList.push(error.ErrorType.Severity));
+	console.log(severityList);
 
 	return (
 		<Card.Group>
@@ -167,6 +221,18 @@ function ChartsPage(props) {
 					<Radar data={getRadarData(freqOfVuln)}/>
 				</Card.Content>
 			</Card>
+			<Card>
+				<Card.Header>Frequency of Severities in All Files</Card.Header>
+				<Card.Content>
+					<Bar data={getBarData(freqOfVuln)}/>
+				</Card.Content>
+				<Card.Content>
+					<List>
+						<List.Item>Mean: {getMean(severityList).toFixed(2)}</List.Item>
+						<List.Item>Standard Deviation: {getStandardDeviation(severityList).toFixed(2)}</List.Item>
+					</List>
+				</Card.Content>
+			</Card>
 		</Card.Group>
 	);
 }
@@ -176,12 +242,20 @@ function ZipChartsPage(props) {
 
 	// get frequency of zip file vulnerability scores
 	var freqOfVuln = new Array(10).fill(0);
-	files.forEach((file) => freqOfVuln[file.severityScore]++);
+	files.forEach((file) => freqOfVuln[file.severityScore - 1]++);
 	
 	// get average severity count of the zip files
 	var fileSevCount = 0;
 	files.forEach((file) => (fileSevCount += file.severityScore));
 	var fileSevAverage = fileSevCount / files.length;
+
+	// get array of zip file dates and severity scores
+	var zipDate = [];
+	var zipSev = [];
+	files.forEach((file) => {
+		zipDate.push(file.date)
+		zipSev.push(file.severityScore);
+	})
 
 	return (
 		<Card.Group>
@@ -216,6 +290,10 @@ function ZipChartsPage(props) {
 			<Card>
 				<Card.Header>Severity Scores of All Zip Files</Card.Header>
 				<Pie data={getPieData(freqOfVuln)} />
+			</Card>
+			<Card>
+				<Card.Header>Severity Scores Over Time</Card.Header>
+				<Line data={getLineData(zipDate, zipSev)} />
 			</Card>
 		</Card.Group>
 	);
