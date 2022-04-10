@@ -1,5 +1,5 @@
 import React from "react";
-import { Radar, Pie, Line, Bar } from "react-chartjs-2";
+import { Radar, Pie, Line, Bar, getElementAtEvent } from "react-chartjs-2";
 import GaugeChart from 'react-gauge-chart'
 import { Card, List } from "semantic-ui-react";
 import {
@@ -36,7 +36,7 @@ function getRadarData(dataArray) {
 		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
 		datasets: [
 			{
-				label: 'frequency',
+				label: 'number of occurences',
 				data: dataArray,
 				backgroundColor: 'rgba(255, 99, 132, 0.2)',
 				borderColor: 'rgba(255, 99, 132, 1)',
@@ -88,7 +88,7 @@ function getBarData(dataArray) {
 		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
 		datasets: [
 		{
-			label: 'frequency',
+			label: 'number of occurences',
 			data: dataArray,
 			backgroundColor: 'rgba(255, 99, 132, 0.5)',
 		}
@@ -102,6 +102,15 @@ function getErrors(students) {
 	return errorList;
 }
 
+function getMean(array) {
+	const n = array.length;
+	return array.reduce((a, b) => a + b) / n;
+}
+
+function getStandardDeviation(array) {
+	const mean = getMean(array);
+	return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / array.length);
+  }
 
 function ChartsPage(props) {
 
@@ -128,6 +137,11 @@ function ChartsPage(props) {
 		}
 	});
 	const sortedVulns = new Map([...vulns.entries()].sort((a, b) => b[1] - a[1]));
+
+	// get array of error severity scores
+	var severityList = [];
+	errorList.forEach((error) => severityList.push(error.ErrorType.Severity));
+	console.log(severityList);
 
 	return (
 		<Card.Group>
@@ -183,6 +197,12 @@ function ChartsPage(props) {
 				<Card.Header>Frequency of Severities in All Files</Card.Header>
 				<Card.Content>
 					<Bar data={getBarData(freqOfVuln)}/>
+				</Card.Content>
+				<Card.Content>
+					<List>
+						<List.Item>Mean: {getMean(severityList).toFixed(2)}</List.Item>
+						<List.Item>Standard Deviation: {getStandardDeviation(severityList).toFixed(2)}</List.Item>
+					</List>
 				</Card.Content>
 			</Card>
 		</Card.Group>
