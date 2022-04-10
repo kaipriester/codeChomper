@@ -1,5 +1,5 @@
 import React from "react";
-import { Radar, Pie } from "react-chartjs-2";
+import { Radar, Pie, Line } from "react-chartjs-2";
 import GaugeChart from 'react-gauge-chart'
 import { Card, List } from "semantic-ui-react";
 import {
@@ -11,6 +11,9 @@ import {
 	Tooltip,
 	Legend,
 	ArcElement,
+	CategoryScale,
+	LinearScale,
+	Title,
 } from "chart.js";
 
 ChartJS.register(
@@ -20,7 +23,10 @@ ChartJS.register(
 	Filler,
 	Tooltip,
 	Legend,
-	ArcElement
+	ArcElement,
+	CategoryScale,
+	LinearScale,
+	Title
 );
 
 function getRadarData(dataArray) {
