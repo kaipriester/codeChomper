@@ -1,11 +1,6 @@
 import React from "react";
-<<<<<<< HEAD
 import { Radar, Pie, Line, Bar, getElementAtEvent } from "react-chartjs-2";
 import GaugeChart from 'react-gauge-chart'
-=======
-import { Radar, Pie } from "react-chartjs-2";
-import GaugeChart from "react-gauge-chart";
->>>>>>> 49b8804ed64564d0157fb72640e2e9f453337fd8
 import { Card, List } from "semantic-ui-react";
 import {
 	Chart as ChartJS,
@@ -111,7 +106,6 @@ function getErrors(students) {
 	return errorList;
 }
 
-<<<<<<< HEAD
 function getMean(array) {
 	const n = array.length;
 	return array.reduce((a, b) => a + b) / n;
@@ -122,8 +116,6 @@ function getStandardDeviation(array) {
 	return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / array.length);
   }
 
-=======
->>>>>>> 49b8804ed64564d0157fb72640e2e9f453337fd8
 function ChartsPage(props) {
 	// get list of errors from all students in zip
 	const errorList = getErrors(props.file.Students);
