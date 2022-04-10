@@ -1,6 +1,6 @@
 import React from "react";
 import { Radar, Pie } from "react-chartjs-2";
-import GaugeChart from 'react-gauge-chart'
+import GaugeChart from "react-gauge-chart";
 import { Card, List } from "semantic-ui-react";
 import {
 	Chart as ChartJS,
@@ -77,13 +77,15 @@ function getPieData(dataArray) {
 
 function getErrors(students) {
 	var errorList = [];
-	students.map((student) => student.Files.map((file) => file.Errors.map((error) => errorList.push(error))));
+	students.map((student) =>
+		student.Files.map((file) =>
+			file.Errors.map((error) => errorList.push(error))
+		)
+	);
 	return errorList;
 }
 
-
 function ChartsPage(props) {
-
 	// get list of errors from all students in zip
 	const errorList = getErrors(props.file.Students);
 	
@@ -96,39 +98,48 @@ function ChartsPage(props) {
 	props.file.Students.forEach((student) => freqOfSev[student.SeverityScore]++);
 
 	// get most popular vulnerabilities
-	var vulns = new Map;
+	var vulns = new Map();
 	errorList.forEach((error) => {
 		if (!vulns.has(error.ErrorType.Name)) {
 			vulns.set(error.ErrorType.Name, 1);
-		}
-		else {
-			var currNum = vulns.get(error.ErrorType.Name)
+		} else {
+			var currNum = vulns.get(error.ErrorType.Name);
 			vulns.set(error.ErrorType.Name, currNum + 1);
 		}
 	});
-	const sortedVulns = new Map([...vulns.entries()].sort((a, b) => b[1] - a[1]));
+	const sortedVulns = new Map(
+		[...vulns.entries()].sort((a, b) => b[1] - a[1])
+	);
 
 	return (
 		<Card.Group>
 			<Card>
 				<Card.Header>Overall Zip File Severity</Card.Header>
 				<Card.Content>
-					<GaugeChart id="gauge-chart1"
-					nrOfLevels={9}
-					percent={props.file.SeverityScore / 10}
-					textColor='#345243'
-					needleColor='#8A948F'
-					formatTextValue={value => value / 10} />
+					<GaugeChart
+						id="gauge-chart1"
+						nrOfLevels={9}
+						percent={props.file.SeverityScore / 10}
+						textColor="#345243"
+						needleColor="#8A948F"
+						formatTextValue={(value) => value / 10}
+					/>
 				</Card.Content>
 			</Card>
 			<Card>
 				<Card.Header>Students with Highest Severity Score</Card.Header>
 				<Card.Content>
 					<List>
-						{props.file.Students
-						.sort((a, b) => b.SeverityScore - a.SeverityScore)
-						.slice(0, 5)
-						.map((student) => <List.Item>{student.Name}: {student.SeverityScore.toString()}</List.Item>)}
+						{props.file.Students.sort(
+							(a, b) => b.SeverityScore - a.SeverityScore
+						)
+							.slice(0, 5)
+							.map((student) => (
+								<List.Item>
+									{student.Name}:{" "}
+									{student.SeverityScore.toString()}
+								</List.Item>
+							))}
 					</List>
 				</Card.Content>
 			</Card>
@@ -142,9 +153,7 @@ function ChartsPage(props) {
 				<Card.Header>Most Common Vulnerabilities</Card.Header>
 				<Card.Content>
 					<List>
-						{[...sortedVulns]
-							.slice(0,5)
-							.map(([key, value]) => (
+						{[...sortedVulns].slice(0, 5).map(([key, value]) => (
 							<List.Item key={key} value={key}>
 								{key}: {value}
 							</List.Item>
@@ -171,7 +180,7 @@ function ZipChartsPage(props) {
 	
 	// get average severity count of the zip files
 	var fileSevCount = 0;
-	files.forEach((file) => fileSevCount += file.severityScore);
+	files.forEach((file) => (fileSevCount += file.severityScore));
 	var fileSevAverage = fileSevCount / files.length;
 
 	return (
@@ -179,12 +188,14 @@ function ZipChartsPage(props) {
 			<Card>
 				<Card.Header>Average Severity Score of All Zip Files</Card.Header>
 				<Card.Content>
-					<GaugeChart id="gauge-chart2"
-					nrOfLevels={9}
-					percent={fileSevAverage / 10}
-					textColor='#345243'
-					needleColor='#8A948F'
-					formatTextValue={value => value / 10} />
+					<GaugeChart
+						id="gauge-chart2"
+						nrOfLevels={9}
+						percent={fileSevAverage / 10}
+						textColor="#345243"
+						needleColor="#8A948F"
+						formatTextValue={(value) => value / 10}
+					/>
 				</Card.Content>
 			</Card>
 			<Card>
@@ -192,9 +203,13 @@ function ZipChartsPage(props) {
 				<Card.Content>
 					<List>
 						{files
-						.sort((a, b) => b.severityScore - a.severityScore)
-						.slice(0, 5)
-						.map((file) => <List.Item>{file.name}: {file.severityScore.toString()}</List.Item>)}
+							.sort((a, b) => b.severityScore - a.severityScore)
+							.slice(0, 5)
+							.map((file) => (
+								<List.Item>
+									{file.name}: {file.severityScore.toString()}
+								</List.Item>
+							))}
 					</List>
 				</Card.Content>
 			</Card>
@@ -206,7 +221,4 @@ function ZipChartsPage(props) {
 	);
 }
 
-export {
-	ChartsPage, 
-	ZipChartsPage
-};
+export { ChartsPage, ZipChartsPage };
