@@ -33,7 +33,7 @@ ChartJS.register(
 
 function getRadarData(dataArray) {
 	return {
-		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
 		datasets: [
 			{
 				label: 'number of occurences',
@@ -48,7 +48,7 @@ function getRadarData(dataArray) {
 
 function getPieData(dataArray) {
 	return {
-		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
 		datasets: [
 			{
 				label: 'data',
@@ -85,7 +85,7 @@ function getPieData(dataArray) {
 
 function getBarData(dataArray) {
 	return {
-		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
 		datasets: [
 		{
 			label: 'number of occurences',
@@ -100,7 +100,11 @@ function getErrors(students) {
 	var errorList = [];
 	students.map((student) =>
 		student.Files.map((file) =>
-			file.Errors.map((error) => errorList.push(error))
+			file.Errors.map((error) => {
+				if (error.ErrorType.Severity != 0) {
+					errorList.push(error)
+				}
+			})
 		)
 	);
 	return errorList;
@@ -122,11 +126,11 @@ function ChartsPage(props) {
 	
 	// get frequency of all vulnerabilities in zip file
 	var freqOfVuln = new Array(10).fill(0);
-	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity]++);
+	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity - 1]++);
 
 	// get frequency of severities for each student
 	var freqOfSev = new Array(10).fill(0);
-	props.file.Students.forEach((student) => freqOfSev[student.SeverityScore]++);
+	props.file.Students.forEach((student) => freqOfSev[student.SeverityScore - 1]++);
 
 	// get most popular vulnerabilities
 	var vulns = new Map();
@@ -224,7 +228,7 @@ function ZipChartsPage(props) {
 
 	// get frequency of zip file vulnerability scores
 	var freqOfVuln = new Array(10).fill(0);
-	files.forEach((file) => freqOfVuln[file.severityScore]++);
+	files.forEach((file) => freqOfVuln[file.severityScore - 1]++);
 	
 	// get average severity count of the zip files
 	var fileSevCount = 0;
