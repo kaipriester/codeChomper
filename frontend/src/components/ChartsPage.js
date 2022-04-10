@@ -1,5 +1,5 @@
 import React from "react";
-import { Radar, Pie, Line } from "react-chartjs-2";
+import { Radar, Pie, Line, Bar } from "react-chartjs-2";
 import GaugeChart from 'react-gauge-chart'
 import { Card, List } from "semantic-ui-react";
 import {
@@ -14,6 +14,7 @@ import {
 	CategoryScale,
 	LinearScale,
 	Title,
+	BarElement,
 } from "chart.js";
 
 ChartJS.register(
@@ -26,7 +27,8 @@ ChartJS.register(
 	ArcElement,
 	CategoryScale,
 	LinearScale,
-	Title
+	Title,
+	BarElement
 );
 
 function getRadarData(dataArray) {
@@ -79,6 +81,19 @@ function getPieData(dataArray) {
 			},
 		],
 	};
+}
+
+function getBarData(dataArray) {
+	return {
+		labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+		datasets: [
+		{
+			label: 'frequency',
+			data: dataArray,
+			backgroundColor: 'rgba(255, 99, 132, 0.5)',
+		}
+	],
+  };
 }
 
 function getErrors(students) {
@@ -162,6 +177,12 @@ function ChartsPage(props) {
 				<Card.Header>Frequency of Severities in All Files</Card.Header>
 				<Card.Content>
 					<Radar data={getRadarData(freqOfVuln)}/>
+				</Card.Content>
+			</Card>
+			<Card>
+				<Card.Header>Frequency of Severities in All Files</Card.Header>
+				<Card.Content>
+					<Bar data={getBarData(freqOfVuln)}/>
 				</Card.Content>
 			</Card>
 		</Card.Group>
