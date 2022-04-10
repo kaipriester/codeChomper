@@ -8,6 +8,7 @@ import {
 	Segment,
 	Icon,
 	Header,
+	Message,
 } from "semantic-ui-react";
 import { useCookies } from "react-cookie";
 
@@ -16,6 +17,7 @@ function UploadPage() {
 	const [file, setFile] = useState();
 	const [fileName, setFileName] = useState("");
 	const [cookies, setCookie] = useCookies(["user"]);
+	const [success, setSuccess] = useState(false);
 
 	const saveFile = (e) => {
 		setFile(e.target.files[0]);
@@ -23,6 +25,7 @@ function UploadPage() {
 	};
 
 	const uploadFile = async (e) => {
+		setSuccess(false);
 		const formData = new FormData();
 		formData.append("file", file);
 		formData.append("fileName", fileName);
@@ -37,6 +40,7 @@ function UploadPage() {
 		} catch (ex) {
 			console.log(ex);
 		}
+		setSuccess(true);
 	};
 
 	return (
@@ -61,6 +65,13 @@ function UploadPage() {
 						Submit
 					</Button>
 				</Form>
+			</Grid.Row>
+			<Grid.Row>
+				{success && (
+					<Message positive>
+						<p>Upload Successful!</p>
+					</Message>
+				)}
 			</Grid.Row>
 		</Grid>
 	);

@@ -14,44 +14,33 @@ import {
 import { getErrorTypes, getErrorTypesNum } from "../client/API.js";
 
 function BugsPage() {
+	const [nameArray, setNameArray] = useState([]);
+	const [severityArray, setSeverityArray] = useState([]);
+	const [descriptionArray, setDescriptionArray] = useState([]);
 
+	function ArrayAdder(name, severity, description) {
+		// Delete this later
+		setNameArray((nameArray) => [...nameArray, name]);
+		setSeverityArray((severityArray) => [...severityArray, severity]);
+		setDescriptionArray((descriptionArray) => [
+			...descriptionArray,
+			description,
+		]);
+	}
 
-
-
-		const [nameArray,setNameArray] = useState([]);
-		const [severityArray,setSeverityArray] = useState([]);
-		const [descriptionArray,setDescriptionArray] = useState([]);
-	
-
-		  
-		  function ArrayAdder(name,severity, description)    // Delete this later
-		  {
-			setNameArray(nameArray => [...nameArray,name] );
-			setSeverityArray(severityArray => [...severityArray,severity] );
-			setDescriptionArray(descriptionArray => [...descriptionArray,description] );
-		  }
-
-	
-
-
-
-		useEffect(async () => {
-
-			var counter = (await getErrorTypesNum());
-			console.log(counter.data);
-			for (let i = 0; i < counter.data; i++) {
-				const results = (await getErrorTypes(i)).data;
-				ArrayAdder(results.Name,results.Severity,results.Description);
-			  }
-			console.log(results);
-		}, []);
-
-
+	useEffect(async () => {
+		var counter = await getErrorTypesNum();
+		console.log(counter.data);
+		for (let i = 0; i < counter.data; i++) {
+			const results = (await getErrorTypes(i)).data;
+			ArrayAdder(results.Name, results.Severity, results.Description);
+		}
+		console.log(results);
+	}, []);
 
 	//TODO: END GAME add Checkboxs to columns that allow the user to turn on and off the displaying of those detections
 	const getTableRows = () => {
 		return (
-		
 			<div>
 				{Array.from({ length: 24 }).map((_, index) => (
 					<tr>
@@ -62,15 +51,12 @@ function BugsPage() {
 								<tr>Type: </tr>
 							</td>
 						</Table>
-						<td>
-							Description: {descriptionArray[index]}
-						</td>
+						<td>Description: {descriptionArray[index]}</td>
 					</tr>
 				))}
-			</div>		
+			</div>
 		);
 	};
-
 
 	return (
 		<Grid style={{ padding: "1.5vw" }}>

@@ -7,7 +7,6 @@ const fs = require("fs");
 const fsExtra = require("fs-extra");
 const path = require("path");
 const { ESLint } = require("eslint");
-
 const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
 const convertErrorIDToType =
@@ -16,7 +15,7 @@ const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
-
+const NotSecurePassword = "seniorproject2022"
 const app = express();
 const port = 8080;
 
@@ -143,10 +142,29 @@ function median(values) {
 
 	return (values[half - 1] + values[half]) / 2.0;
 }
+app.delete("/deleteZipFolder", async (req, res) => {
+	console.log("I am deleting")
+	if (req.query.password != NotSecurePassword) {
+		res.json(false);
+		return;
+	}
+	console.log(`Deleting:Password confirmed, id is ${req.query.id}`)
+	DAO.deleteZipFolder(req.query.id);
+	console.log("Deleting:I am done deleting")
+});
 
+app.delete("/deleteAll", async (req, res) => {
+    console.log("DELET ALL")
+	if (req.query.password != NotSecurePassword) {
+		res.json(false);
+		return;
+	}
+	DAO.clearDatabase();
+
+});
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
-	if (req.query.password != "seniorproject2022") {
+	if (req.query.password != NotSecurePassword) {
 		res.json(false);
 		return;
 	}
@@ -362,7 +380,7 @@ app.post("/upload", async (req, res) => {
 
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
-	if (req.query.password != "seniorproject2022") {
+	if (req.query.password != NotSecurePassword) {
 		res.json(false);
 		return;
 	}
@@ -379,7 +397,7 @@ app.get("/overview/zipfiles", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-	if (req.query.password == "seniorproject2022") {
+	if (req.query.password == NotSecurePassword) {
 		res.json(true);
 	} else {
 		res.json(false);
@@ -388,7 +406,7 @@ app.post("/login", async (req, res) => {
 
 // overview page- view more data fom invidual zip files
 app.get("/studentfiles", async (req, res) => {
-	if (req.query.password != "seniorproject2022") {
+	if (req.query.password != NotSecurePassword) {
 		res.json(false);
 		return;
 	}
