@@ -88,12 +88,26 @@ function getBarData(dataArray) {
 		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
 		datasets: [
 		{
-			label: 'number of occurences',
+			label: 'Number of Occurences',
 			data: dataArray,
 			backgroundColor: 'rgba(255, 99, 132, 0.5)',
 		}
 	],
   };
+}
+
+function getLineData(xArray, yArray) {
+	return {
+		labels: xArray,
+		datasets: [
+		{
+			label: 'Severity Scores',
+			data: yArray,
+			borderColor: 'rgb(255, 99, 132)',
+			backgroundColor: 'rgba(255, 99, 132, 0.5)',
+		}
+		],
+	};
 }
 
 function getErrors(students) {
@@ -235,6 +249,14 @@ function ZipChartsPage(props) {
 	files.forEach((file) => (fileSevCount += file.severityScore));
 	var fileSevAverage = fileSevCount / files.length;
 
+	// get array of zip file dates and severity scores
+	var zipDate = [];
+	var zipSev = [];
+	files.forEach((file) => {
+		zipDate.push(file.date)
+		zipSev.push(file.severityScore);
+	})
+
 	return (
 		<Card.Group>
 			<Card>
@@ -268,6 +290,10 @@ function ZipChartsPage(props) {
 			<Card>
 				<Card.Header>Severity Scores of All Zip Files</Card.Header>
 				<Pie data={getPieData(freqOfVuln)} />
+			</Card>
+			<Card>
+				<Card.Header>Severity Scores Over Time</Card.Header>
+				<Line data={getLineData(zipDate, zipSev)} />
 			</Card>
 		</Card.Group>
 	);
