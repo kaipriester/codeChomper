@@ -81,6 +81,81 @@ function BugsPage() {
 						</tr>
 					</thead>
 					<tbody>{getTableRows()}</tbody>
+	
+					<br></br>
+
+				</Table>
+
+				<Table>
+
+			
+   
+    <thead>
+		
+        <tr>
+            <th  style={{ width: "33%" }}>Severity Score (Zip Folders/Students) </th>
+            <th style={{ width: "67%" }}> Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+			<td>No Security Concerns                                                                                   </td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>A Few Minor Security Concerns                                                                          </td>
+        </tr>
+		<tr>
+            <td>5</td>
+            <td>A Few Security Conerns/Many Minor Security Concerns                                                     </td>
+        </tr>
+		<tr>
+            <td>8</td>
+            <td>A Major Security Concern/Many Security Concerns                                                         </td>
+        </tr>
+		<tr>
+            <td>10</td>
+            <td>Many Major Security Concerns</td>
+        </tr>
+    </tbody>
+	<br></br>
+				</Table>
+
+
+				<Table>
+
+			
+   
+    <thead>
+        <tr>
+            <th style={{ width: "33%" }}>Severity Level (Security Flaw/Detections) </th>
+            <th style={{ width: "67%" }}> Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>0</td>
+			<td>Score Given to Any Unidentified Issues by ESLint (Most likely not a security concern) </td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td> Not a Security Concern </td>
+        </tr>
+		<tr>
+            <td>2</td>
+            <td>Minor Security Concern (Can lead to potential attacks, but will generally not result in a data breach) </td>
+        </tr>
+		<tr>
+            <td>5</td>
+            <td>Mid-Level Security Concern/Many Security Concerns (Can lead to a potential data breach/assault on the server)</td>
+        </tr>
+		<tr>
+            <td>10</td>
+            <td>Major Security Conerns (Can lead to complete access to the entire server/allow for foreign code to be executed) </td>
+        </tr>
+    </tbody>
+	<br></br>
 				</Table>
 			</Grid.Row>
 		</Grid>
