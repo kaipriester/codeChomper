@@ -247,7 +247,7 @@ function ZipChartsPage(props) {
 	// get average severity count of the zip files
 	var fileSevCount = 0;
 	files.forEach((file) => (fileSevCount += file.severityScore));
-	var fileSevAverage = fileSevCount / files.length;
+	var fileSevAverage = Math.round(fileSevCount / files.length);
 
 	// get array of zip file dates and severity scores
 	var zipDate = [];
