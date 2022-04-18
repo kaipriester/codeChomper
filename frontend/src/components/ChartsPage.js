@@ -38,8 +38,8 @@ function getRadarData(dataArray) {
 			{
 				label: 'number of occurences',
 				data: dataArray,
-				backgroundColor: 'rgba(255, 99, 132, 0.2)',
-				borderColor: 'rgba(255, 99, 132, 1)',
+				backgroundColor: "rgba(255, 99, 132, 0.2)",
+				borderColor: "rgba(255, 99, 132, 1)",
 				borderWidth: 1,
 			},
 		],
@@ -51,31 +51,31 @@ function getPieData(dataArray) {
 		labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
 		datasets: [
 			{
-				label: 'data',
+				label: "data",
 				data: dataArray,
 				backgroundColor: [
-					'rgba(99, 255, 195, 0.3)',
-					'rgba(99, 255, 133, 0.3)',
-					'rgba(131, 255, 99, 0.3)',
-					'rgba(162, 245, 39, 0.3)',
-					'rgba(215, 255, 99, 0.3)',
-					'rgba(247, 255, 99, 0.3)',
-					'rgba(255, 214, 99, 0.3)',
-					'rgba(255, 185, 99, 0.3)',
-					'rgba(255, 149, 99, 0.3)',
-					'rgba(255, 99, 99, 0.3)'
+					"rgba(99, 255, 195, 0.3)",
+					"rgba(99, 255, 133, 0.3)",
+					"rgba(131, 255, 99, 0.3)",
+					"rgba(162, 245, 39, 0.3)",
+					"rgba(215, 255, 99, 0.3)",
+					"rgba(247, 255, 99, 0.3)",
+					"rgba(255, 214, 99, 0.3)",
+					"rgba(255, 185, 99, 0.3)",
+					"rgba(255, 149, 99, 0.3)",
+					"rgba(255, 99, 99, 0.3)",
 				],
 				borderColor: [
-					'rgba(99, 255, 195, 1)',
-					'rgba(99, 255, 133, 1)',
-					'rgba(131, 255, 99, 1)',
-					'rgba(162, 245, 39, 1)',
-					'rgba(215, 255, 99, 1)',
-					'rgba(247, 255, 99, 1)',
-					'rgba(255, 214, 99, 1)',
-					'rgba(255, 185, 99, 1)',
-					'rgba(255, 149, 99, 1)',
-					'rgba(255, 99, 99, 1)'
+					"rgba(99, 255, 195, 1)",
+					"rgba(99, 255, 133, 1)",
+					"rgba(131, 255, 99, 1)",
+					"rgba(162, 245, 39, 1)",
+					"rgba(215, 255, 99, 1)",
+					"rgba(247, 255, 99, 1)",
+					"rgba(255, 214, 99, 1)",
+					"rgba(255, 185, 99, 1)",
+					"rgba(255, 149, 99, 1)",
+					"rgba(255, 99, 99, 1)",
 				],
 				borderWidth: 1,
 			},
@@ -137,7 +137,7 @@ function getStandardDeviation(array) {
 function ChartsPage(props) {
 	// get list of errors from all students in zip
 	const errorList = getErrors(props.file.Students);
-	
+
 	// get frequency of all vulnerabilities in zip file
 	var freqOfVuln = new Array(10).fill(0);
 	errorList.forEach((error) => freqOfVuln[error.ErrorType.Severity - 1]++);
@@ -218,7 +218,7 @@ function ChartsPage(props) {
 			<Card>
 				<Card.Header>Frequency of Severities in All Files</Card.Header>
 				<Card.Content>
-					<Radar data={getRadarData(freqOfVuln)}/>
+					<Radar data={getRadarData(freqOfVuln)} />
 				</Card.Content>
 			</Card>
 			<Card>
@@ -260,7 +260,9 @@ function ZipChartsPage(props) {
 	return (
 		<Card.Group>
 			<Card>
-				<Card.Header>Average Severity Score of All Zip Files</Card.Header>
+				<Card.Header>
+					Average Severity Score of All Zip Files
+				</Card.Header>
 				<Card.Content>
 					<GaugeChart
 						id="gauge-chart2"
@@ -273,7 +275,9 @@ function ZipChartsPage(props) {
 				</Card.Content>
 			</Card>
 			<Card>
-				<Card.Header>Zip Files with Highest Severity Scores</Card.Header>
+				<Card.Header>
+					Zip Files with Highest Severity Scores
+				</Card.Header>
 				<Card.Content>
 					<List>
 						{files

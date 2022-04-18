@@ -28,7 +28,7 @@ const deleteDatabase = async (password, id) => {
 	);
 };
 const deleteZipFolder = async (password, id) => {
-    console.log(`API JS Says ` + id)
+	console.log(`API JS Says ` + id);
 	return await axios.delete(
 		`http://localhost:8080/deleteZipFolder?password=${password}&id=${id}`
 	);
