@@ -18,7 +18,13 @@ function App() {
 
 	const getCurrentRoute = () => {
 		if (currentZipFileId !== "undefined") {
-			return <ViewMorePage id={currentZipFileId} />;
+			return (
+				<ViewMorePage
+					id={currentZipFileId}
+					updateRouteHandler={setCurrentRoute}
+					updateZipFileHandler={setCurrentZipFileId}
+				/>
+			);
 		}
 
 		switch (currentRoute) {

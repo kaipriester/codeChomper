@@ -22,7 +22,11 @@ import DateRangePicker from "@wojtekmaj/react-daterange-picker";
 
 function MainPage(props) {
 	const [filenameFilter, setFilenameFilter] = useState("");
-	const [dateFilter, setDateFilter] = useState([new Date('1/1/22'), new Date('12/1/22')]);
+	const [dateFilter, setDateFilter] = useState([
+		new Date("1/1/22"),
+		new Date("12/1/22"),
+	]);
+	const [severityFilter, setSeverityFilter] = useState(0);
 	const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
 	const { updateRouteHandler, updateZipFileHandler } = props;
@@ -198,9 +202,22 @@ function MainPage(props) {
 				file.name.startsWith(filenameFilter)
 			);
 		}
-        console.log(files.map(f => f.date))
-        console.log(JSON.stringify(files))
-        filteredFiles = filteredFiles.filter(file => new Date(file.date) >= dateFilter[0] && new Date(file.date) <= dateFilter[1] )
+
+		console.log(
+			`the severity filter is ${typeof severityFilter} for ${filteredFiles.map(
+				(f) => f.severityScore
+			)}`
+		);
+		if (severityFilter !== 0) {
+			filteredFiles = filteredFiles.filter(
+				(file) => file.severityScore === severityFilter
+			);
+		}
+		filteredFiles = filteredFiles.filter(
+			(file) =>
+				new Date(file.date) >= dateFilter[0] &&
+				new Date(file.date) <= dateFilter[1]
+		);
 
 		return filteredFiles;
 	};
@@ -251,9 +268,7 @@ function MainPage(props) {
 								<Button
 									basic
 									color="red"
-									onClick={() =>
-										setConfirmDeleteOpen(true)
-									}
+									onClick={() => setConfirmDeleteOpen(true)}
 								>
 									<Icon name="trash" />
 									delete
@@ -306,10 +321,16 @@ function MainPage(props) {
 							selection
 							className="icon"
 							options={filterData}
+							onChange={(e, data) =>
+								setSeverityFilter(parseInt(data.value))
+							}
 						/>
 					</Grid.Column>
 					<Grid.Column>
-						<DateRangePicker onChange={setDateFilter} value={dateFilter} />
+						<DateRangePicker
+							onChange={setDateFilter}
+							value={dateFilter}
+						/>
 					</Grid.Column>
 				</Grid>
 			</Grid.Row>

@@ -22,7 +22,7 @@ import { ChartsPage } from "../components/ChartsPage";
 import { useCookies } from "react-cookie";
 
 function ViewMorePage(props) {
-	const { id } = props;
+	const { id, updateRouteHandler, updateZipFileHandler } = props;
 	const [file, setFile] = useState({ Students: [] });
 	const [cookies, setCookie] = useCookies(["user"]);
 	const [open, setOpen] = useState(false);
@@ -141,11 +141,29 @@ function ViewMorePage(props) {
 
 	return (
 		<Grid style={{ padding: "3.5vw" }}>
+			<Grid.Row></Grid.Row>
 			<Grid.Row>
-				<Header as="h1">
-					{file.Name}
-					<Header.Subheader>Ran on {file.Date}</Header.Subheader>
-				</Header>
+				<Grid columns={2} style={{ paddingRight: "15%" }}>
+					<Grid.Column>
+						<Header as="h1">
+							{file.Name}
+							<Header.Subheader>
+								Ran on {file.Date}
+							</Header.Subheader>
+						</Header>
+					</Grid.Column>
+					<Grid.Column textAlign="right">
+						<Button
+							size="tiny"
+							onClick={() => {
+								updateZipFileHandler("undefined");
+								updateRouteHandler("main");
+							}}
+						>
+							Back
+						</Button>
+					</Grid.Column>
+				</Grid>
 			</Grid.Row>
 			<Grid.Row>
 				<Card.Group>

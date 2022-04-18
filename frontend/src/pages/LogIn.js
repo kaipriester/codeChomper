@@ -21,7 +21,7 @@ function LogIn(props) {
 	};
 
 	return (
-		<Grid style={{ padding: "1.5vw" }}>
+		<Grid style={{paddingTop: '3vh'}}>
 			<Grid.Row>
 				<Form>
 					<Input
