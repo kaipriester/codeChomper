@@ -1,0 +1,11 @@
+// IMPORTANT: File must be renamed to 'config.js' after values have been entered.
+
+let uri = '';
+let db_name = ''; // Leave falsy if the URI supplied already contains name of target database
+
+if (db_name)
+{
+    uri = (uri.substring(0, uri.indexOf('?')) + db_name + uri.substring(uri.indexOf('?')));
+}
+
+exports.uri = uri;

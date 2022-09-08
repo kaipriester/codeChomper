@@ -1,0 +1,45 @@
+# dependencies
+/server/node_modules
+/server/.pnp
+server/.pnp.js
+
+/frontend/node_modules
+/frontend/.pnp
+frontend/.pnp.js
+
+# testing
+/server/coverage
+/frontend/coverage
+
+# production
+/server/build
+/frontend/build
+
+# misc
+server/.DS_Store
+server/.env.local
+server/.env.development.local
+server/.env.test.local
+server/.env.production.local
+
+frontend/.DS_Store
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+server/npm-debug.log*
+server/yarn-debug.log*
+server/yarn-error.log*
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+/.idea/shelf/
+/.idea/workspace.xml
+/.idea/httpRequests/
+/.idea/dataSources/
+/.idea/dataSources.local.xml
+
+/server/database/config.js

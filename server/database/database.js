@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { uri } = require("./config");
 
 mongoose.connection.on("connected", () => {
 	console.log(`Database connection open`);
@@ -24,7 +25,7 @@ process.on("SIGINT", (error, data) => {
 
 exports.connect = () => {
 	mongoose.connect(
-		"mongodb+srv://dashboard:vGeSzgRpiA3kits@cluster0.lclox.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+		uri,
 		{ useNewUrlParser: true, useUnifiedTopology: true }
 	);
 };
