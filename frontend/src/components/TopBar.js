@@ -5,13 +5,13 @@ import { useCookies } from "react-cookie";
 function TopBar(props) {
 
     const { updateRouteHandler } = props;
-    const [cookies, setCookie] = useCookies(["user"]);
+    const [cookies, setCookie, removeCookie] = useCookies(["password"]);
 
 	console.log(updateRouteHandler);
 	const logout = (updateRouteHandler) => {
 		//Remove Users Cookies to remove their login Credentials
 		updateRouteHandler("LogIn");
-        setCookie("password", "", { path: "/" });
+        removeCookie("password", { path: "/" });
 	};
 	return (
 		<div>

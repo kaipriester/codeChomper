@@ -43,3 +43,4 @@ frontend/yarn-error.log*
 /.idea/dataSources.local.xml
 
 /server/database/config.js
+/server/extracted/
