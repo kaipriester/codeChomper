@@ -141,7 +141,19 @@ function ViewMorePage(props) {
 
 	return (
 		<Grid style={{ padding: "3.5vw" }}>
-			<Grid.Row></Grid.Row>
+			<Grid.Row>
+				<Grid.Column textAlign="right">
+					<Button
+						size="tiny"
+						onClick={() => {
+							updateZipFileHandler("undefined");
+							updateRouteHandler("main");
+						}}
+					>
+						Back
+					</Button>
+				</Grid.Column>
+			</Grid.Row>
 			<Grid.Row>
 				<Grid columns={2} style={{ paddingRight: "15%" }}>
 					<Grid.Column>
@@ -151,17 +163,6 @@ function ViewMorePage(props) {
 								Ran on {file.Date}
 							</Header.Subheader>
 						</Header>
-					</Grid.Column>
-					<Grid.Column textAlign="right">
-						<Button
-							size="tiny"
-							onClick={() => {
-								updateZipFileHandler("undefined");
-								updateRouteHandler("main");
-							}}
-						>
-							Back
-						</Button>
 					</Grid.Column>
 				</Grid>
 			</Grid.Row>

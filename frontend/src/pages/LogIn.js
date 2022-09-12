@@ -5,7 +5,7 @@ import { useCookies } from "react-cookie";
 
 function LogIn(props) {
 	const [password, setPassword] = useState("");
-	const [cookies, setCookie] = useCookies(["user"]);
+	const [cookies, setCookie] = useCookies(["password"]);
 	const { updateRouteHandler } = props;
 	const [wrong, setWrong] = useState(false);
 
@@ -28,6 +28,7 @@ function LogIn(props) {
 						type="password"
 						label="password"
 						onChange={(e) => setPassword(e.target.value)}
+						onKeyDown={(e) => {if (e.keyCode === 13) {submitPassword();}}}
 					></Input>
 				</Form>
 			</Grid.Row>
