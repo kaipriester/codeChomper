@@ -33,17 +33,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 database.connect();
 
 //takes the string of the filepath from canvas and extracts the students name from it
-function getStudentIDFromRelPath(path, map) {
-	var cut = path.indexOf("_");
-	var cut2 = path.indexOf("/");
+function getStudentIDFromRelPath(target, map) {
+	var cut = target.indexOf("_");
+	var cut2 = target.indexOf(path.sep);
 	if (cut == -1) {
-		cut = path.indexOf("/");
+		cut = target.indexOf(path.sep);
 	} else if (cut2 == -1) {
-		cut = path.indexOf("_");
+		cut = target.indexOf("_");
 	} else {
 		cut = Math.min(cut, cut2);
 	}
-	return map.get(path.substring(0, cut));
+	return map.get(target.substring(0, cut));
 }
 
 //@param if count is -1 then we will not factor in a dynamic quantity into the severity score
@@ -172,7 +172,7 @@ app.post("/upload", async (req, res) => {
 	const zipFileName = zipFile.name;
 
 	// submitted file must be a zip or error is thrown
-	if (String(zipFile.mimetype) != "application/zip") {
+	if (zipFileName.substring(zipFileName.length - 4) != ".zip") {
 		return res.status(400).json("Error: not zip file");
 	}
 
@@ -429,7 +429,7 @@ app.listen(port, () => {
 });
 
 const getRelativePath = (absolutePath) => {
-	const extractedFolderName = "extracted/";
+	const extractedFolderName = ("extracted" + path.sep);
 	return absolutePath.substring(
 		absolutePath.indexOf(extractedFolderName) + extractedFolderName.length
 	);

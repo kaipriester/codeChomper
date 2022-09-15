@@ -59,7 +59,7 @@ function UploadPage() {
 				<Form>
 					<Form.Field>
 						<label>Code</label>
-						<input type="file" onChange={saveFile} />
+						<input type="file" accept=".zip, application/zip" onChange={saveFile} />
 					</Form.Field>
 					<Button type="submit" onClick={uploadFile}>
 						Submit
