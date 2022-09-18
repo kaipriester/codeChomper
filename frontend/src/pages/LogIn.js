@@ -20,9 +20,15 @@ function LogIn(props) {
 			setWrong(true);
 		}
 	};
+	const signInPage = async () => {
+		updateRouteHandler("SignIn");
+	}
 
 	return (
 		<Grid style={{paddingTop: '3vh'}}>
+			<Grid.Row>
+				<h1>Log In</h1>
+			</Grid.Row>
 			<Grid.Row>
 				<Form>
 					<Input
@@ -52,6 +58,12 @@ function LogIn(props) {
 						<p>Invalid credentials.</p>
 					</Message>
 				)}
+			</Grid.Row>
+			<Grid.Row>
+				<h2>New Here?</h2>
+			</Grid.Row>
+			<Grid.Row>
+				<Button onClick={() => signInPage()}>Creat an Account</Button>
 			</Grid.Row>
 		</Grid>
 	);
