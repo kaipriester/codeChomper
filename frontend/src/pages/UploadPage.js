@@ -10,13 +10,12 @@ import {
 	Header,
 	Message,
 } from "semantic-ui-react";
-import { useCookies } from "react-cookie";
+axios.defaults.withCredentials = true;
 
 function UploadPage() {
 	const [processedFiles, setProcessedFiles] = useState([]);
 	const [file, setFile] = useState();
 	const [fileName, setFileName] = useState("");
-	const [cookies, setCookie] = useCookies(["user"]);
 	const [success, setSuccess] = useState(false);
 
 	const saveFile = (e) => {
@@ -31,10 +30,7 @@ function UploadPage() {
 		formData.append("fileName", fileName);
 
 		try {
-			const res = await axios.post(
-				`http://localhost:8080/upload?password=${cookies.password}`,
-				formData
-			);
+			const res = await axios.post("http://localhost:8080/upload", formData);
 			setProcessedFiles(res.data);
 			console.log(res);
 		} catch (ex) {

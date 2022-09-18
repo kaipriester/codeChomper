@@ -1,17 +1,18 @@
 import React from "react";
 import { Dropdown, Icon, Menu } from "semantic-ui-react";
 import { useCookies } from "react-cookie";
+import { logout } from "../client/API.js";
 
 function TopBar(props) {
 
     const { updateRouteHandler } = props;
-    const [cookies, setCookie, removeCookie] = useCookies(["password"]);
+    const [cookies, setCookie, removeCookie] = useCookies(["loggedIn"]);
 
 	console.log(updateRouteHandler);
-	const logout = (updateRouteHandler) => {
-		//Remove Users Cookies to remove their login Credentials
+	const logout_wrapper = async (updateRouteHandler) => {
+		await logout();
 		updateRouteHandler("LogIn");
-        removeCookie("password", { path: "/" });
+        	removeCookie("loggedIn", { path: "/" });
 	};
 	return (
 		<div>
@@ -20,7 +21,7 @@ function TopBar(props) {
 					<Menu.Item
 						name="logout"
 						active
-                        onClick={() => logout(updateRouteHandler) }
+                        onClick={() => logout_wrapper(updateRouteHandler) }
 					></Menu.Item>
 				</Menu.Menu>
 			</Menu>

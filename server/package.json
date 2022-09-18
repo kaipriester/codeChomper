@@ -14,9 +14,12 @@
   "dependencies": {
     "@microsoft/eslint-plugin-sdl": "^0.1.8",
     "adm-zip": "^0.5.9",
+    "bcrypt": "^5.0.1",
+    "connect-mongo": "^4.6.0",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "express-fileupload": "^1.2.1",
+    "express-session": "^1.17.3",
     "fs-extra": "^10.0.1",
     "mongoose": "^6.2.7",
     "node-stream-zip": "^1.15.0",

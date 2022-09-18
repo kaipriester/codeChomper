@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { uri } = require("./config");
+const { uri } = require("../config.js");
 
 mongoose.connection.on("connected", () => {
 	console.log(`Database connection open`);

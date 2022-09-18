@@ -152,7 +152,7 @@ function BugsPage() {
         </tr>
 		<tr>
             <td>10</td>
-            <td>Major Security Conerns (Can lead to complete access to the entire server/allow for foreign code to be executed) </td>
+            <td>Major Security Concerns (Can lead to complete access to the entire server/allow for foreign code to be executed) </td>
         </tr>
     </tbody>
 	<br></br>

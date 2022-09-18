@@ -13,9 +13,9 @@ import LogIn from "./pages/LogIn";
 import { useCookies } from "react-cookie";
 
 function App() {
-	const [cookies, setCookie] = useCookies(["password"]);
+	const [cookies, setCookie] = useCookies(["loggedIn"]);
 	let defaultRoute = "LogIn";
-	if (cookies.password) {defaultRoute = "main";}
+	if (cookies.loggedIn) {defaultRoute = "main";}
 	const [currentRoute, setCurrentRoute] = useState(defaultRoute);
 	const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
 

@@ -4,16 +4,17 @@ import { login } from "../client/API.js";
 import { useCookies } from "react-cookie";
 
 function LogIn(props) {
+	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	const [cookies, setCookie] = useCookies(["password"]);
+	const [cookies, setCookie] = useCookies(["loggedIn"]);
 	const { updateRouteHandler } = props;
 	const [wrong, setWrong] = useState(false);
 
-	const submitPassword = async () => {
+	const submitCredentials = async () => {
 		setWrong(false);
-		const result = await login(password);
-		setCookie("password", password, { path: "/" });
+		const result = await login(username, password);
 		if (result.data) {
+			setCookie("loggedIn", true, { path: "/" });
 			updateRouteHandler("main");
 		} else {
 			setWrong(true);
@@ -25,20 +26,30 @@ function LogIn(props) {
 			<Grid.Row>
 				<Form>
 					<Input
-						type="password"
-						label="password"
-						onChange={(e) => setPassword(e.target.value)}
-						onKeyDown={(e) => {if (e.keyCode === 13) {submitPassword();}}}
+						type="text"
+						label="username"
+						onChange={(e) => setUsername(e.target.value)}
+						onKeyDown={(e) => {if (e.keyCode === 13) {submitCredentials();}}}
 					></Input>
 				</Form>
 			</Grid.Row>
 			<Grid.Row>
-				<Button onClick={() => submitPassword()}>login</Button>
+				<Form>
+					<Input
+						type="password"
+						label="password"
+						onChange={(e) => setPassword(e.target.value)}
+						onKeyDown={(e) => {if (e.keyCode === 13) {submitCredentials();}}}
+					></Input>
+				</Form>
+			</Grid.Row>
+			<Grid.Row>
+				<Button onClick={() => submitCredentials()}>login</Button>
 			</Grid.Row>
 			<Grid.Row>
 				{wrong && (
 					<Message negative>
-						<p>Incorrect Password! Try Again!</p>
+						<p>Invalid credentials.</p>
 					</Message>
 				)}
 			</Grid.Row>

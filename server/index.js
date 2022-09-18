@@ -1,4 +1,7 @@
 const express = require("express");
+const session = require("express-session");
+const mongoStore = require("connect-mongo");
+const bcrypt = require("bcrypt");
 const fileupload = require("express-fileupload");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -9,28 +12,58 @@ const path = require("path");
 const { ESLint } = require("eslint");
 const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
+const { uri, session_secret, session_store_secret } = require("./config.js");
 const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
-const NotSecurePassword = "seniorproject2022"
 const app = express();
 const port = 8080;
+const reactPort = 3000;
+const origin = new RegExp(("https?://[0-9a-z+\\-*/=~_#@$&%()[\\]',;.?!]+:" + reactPort), "i");
+const saltRounds = 12;
 
 const corsOptions = {
-	origin: "*",
+	origin: origin,
 	optionsSuccessStatus: 200,
+	credentials: true
 };
 
 app.use(cors(corsOptions));
+app.use(session({
+	secret: session_secret,
+	resave: false,
+	saveUninitialized: false,
+	store: mongoStore.create({
+		mongoUrl: uri,
+		mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+		crypto: { secret: session_store_secret },
+		autoRemove: "native",
+		ttl: (60 * 60 * 24 * 7)})
+	})
+);
 app.use(fileupload());
 app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 database.connect();
+let { master_username, master_password } = require("./config.js");
+(async () =>
+{
+	const user = await DAO.getUser(master_username);
+	if (!user)
+	{
+		const salt = await bcrypt.genSalt(saltRounds);
+		const hash = await bcrypt.hash(master_password, salt);
+		await DAO.addUser(master_username, hash);
+		console.log("Registered master account.");
+	}
+	master_username = "";
+	master_password = "";
+})();
 
 //takes the string of the filepath from canvas and extracts the students name from it
 function getStudentIDFromRelPath(target, map) {
@@ -144,7 +177,7 @@ function median(values) {
 }
 app.delete("/deleteZipFolder", async (req, res) => {
 	console.log("I am deleting")
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -155,7 +188,7 @@ app.delete("/deleteZipFolder", async (req, res) => {
 
 app.delete("/deleteAll", async (req, res) => {
     console.log("DELET ALL")
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -164,7 +197,7 @@ app.delete("/deleteAll", async (req, res) => {
 });
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -380,7 +413,7 @@ app.post("/upload", async (req, res) => {
 
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -396,17 +429,61 @@ app.get("/overview/zipfiles", async (req, res) => {
 	// return: zip file name, date uploaded, number of files, detections, security scores
 });
 
-app.post("/login", async (req, res) => {
-	if (req.query.password == NotSecurePassword) {
-		res.json(true);
-	} else {
-		res.json(false);
+app.post("/login", async (req, res) =>
+{
+	if (req.body.username && req.body.password)
+	{
+		const user = await DAO.getUser(req.body.username);
+		if (user)
+		{
+			bcrypt.compare(req.body.password, user.Hash, (err, result) =>
+			{
+				if (err)
+				{
+					console.log(err);
+					res.status(500).json(false);
+				}
+				else
+				{
+					if (result)
+					{
+						req.session.loggedIn = true;
+						res.status(200).json(true);
+					}
+					else
+					{
+						res.status(200).json(false);
+					}
+				}
+			});
+		}
+		else
+		{
+			res.status(200).json(false);
+		}
+	}
+	else
+	{
+		res.status(400).json(false);
+	}
+});
+
+app.post("/logout", (req, res) =>
+{
+	if (req.session.loggedIn)
+	{
+		req.session.destroy();
+		res.status(200).send();
+	}
+	else
+	{
+		res.status(400).send();
 	}
 });
 
 // overview page- view more data fom invidual zip files
 app.get("/studentfiles", async (req, res) => {
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
