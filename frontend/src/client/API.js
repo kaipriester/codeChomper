@@ -5,6 +5,10 @@ const login = async (username, password) => {
 	return await axios.post("http://localhost:8080/login", { username: username, password: password });
 };
 
+const signin = async (username, password) => {
+	return await axios.post("http://localhost:8080/signin", { username: username, password: password });
+};
+
 const logout = async () => {
 	return await axios.post("http://localhost:8080/logout");
 };
@@ -38,6 +42,7 @@ export {
 	getZipFileMetadata,
 	getZipFile,
 	login,
+	signin,
 	logout,
 	getErrorTypes,
 	getErrorTypesNum,

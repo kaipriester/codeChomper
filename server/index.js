@@ -468,6 +468,25 @@ app.post("/login", async (req, res) =>
 	}
 });
 
+app.post("/signin", async (req, res) =>
+{
+	if (req.body.username && req.body.password)
+	{
+		const salt = await bcrypt.genSalt(saltRounds);
+		const hash = await bcrypt.hash(req.body.password, salt);
+		const result = await DAO.addUser(req.body.username, hash);
+		if (result) {
+			console.log(result);
+			req.session.loggedIn = true;
+			res.status(200).json(true);
+		}
+	}
+	else {
+		console.log(req.body);
+		res.status(400).json(false);
+	}
+});
+
 app.post("/logout", (req, res) =>
 {
 	if (req.session.loggedIn)
