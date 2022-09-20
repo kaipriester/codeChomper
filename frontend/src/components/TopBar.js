@@ -27,9 +27,9 @@ function TopBar(props) {
 					{ (!cookies.loggedIn) &&
 						<>
 							<Menu.Item
-								name="SignIn"
+								name="SignUp"
 								active
-								onClick={() => updateRouteHandler("SignIn") }
+								onClick={() => updateRouteHandler("SignUp") }
 							></Menu.Item>
 							<Menu.Item
 								name="LogIn"

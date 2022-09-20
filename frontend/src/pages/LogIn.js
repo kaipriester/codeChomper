@@ -20,8 +20,8 @@ function LogIn(props) {
 			setWrong(true);
 		}
 	};
-	const signInPage = async () => {
-		updateRouteHandler("SignIn");
+	const signUpPage = async () => {
+		updateRouteHandler("SignUp");
 	}
 
 	return (
@@ -33,7 +33,7 @@ function LogIn(props) {
 				<Form>
 					<Input
 						type="text"
-						label="username"
+						label="Username"
 						onChange={(e) => setUsername(e.target.value)}
 						onKeyDown={(e) => {if (e.keyCode === 13) {submitCredentials();}}}
 					></Input>
@@ -43,14 +43,14 @@ function LogIn(props) {
 				<Form>
 					<Input
 						type="password"
-						label="password"
+						label="Password"
 						onChange={(e) => setPassword(e.target.value)}
 						onKeyDown={(e) => {if (e.keyCode === 13) {submitCredentials();}}}
 					></Input>
 				</Form>
 			</Grid.Row>
 			<Grid.Row>
-				<Button onClick={() => submitCredentials()}>login</Button>
+				<Button onClick={() => submitCredentials()}>Log in</Button>
 			</Grid.Row>
 			<Grid.Row>
 				{wrong && (
@@ -63,7 +63,7 @@ function LogIn(props) {
 				<h2>New Here?</h2>
 			</Grid.Row>
 			<Grid.Row>
-				<Button onClick={() => signInPage()}>Creat an Account</Button>
+				<Button onClick={() => signUpPage()}>Create an Account</Button>
 			</Grid.Row>
 		</Grid>
 	);

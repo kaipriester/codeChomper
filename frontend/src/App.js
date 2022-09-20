@@ -10,13 +10,13 @@ import BugListPage from "./pages/BugsDisplayPage";
 import ViewMorePage from "./pages/ViewMorePage";
 import MetricsPage from "./pages/Metrics";
 import LogIn from "./pages/LogIn";
-import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
 import { useCookies } from "react-cookie";
 
 function App() {
 	const [cookies, setCookie] = useCookies(["loggedIn"]);
-	let defaultRoute = "Landing";
+	let defaultRoute = "LogIn";
 	if (cookies.loggedIn) {defaultRoute = "main";}
 	const [currentRoute, setCurrentRoute] = useState(defaultRoute);
 	const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
@@ -35,8 +35,8 @@ function App() {
 		switch (currentRoute) {
 			case "LogIn":
 				return <LogIn updateRouteHandler={setCurrentRoute} />;
-			case "SignIn":
-				return <SignIn updateRouteHandler={setCurrentRoute} />;
+			case "SignUp":
+				return <SignUp updateRouteHandler={setCurrentRoute} />;
 			case "Landing":
 				return <Landing updateRouteHandler={setCurrentRoute}/>;
 			case "main":

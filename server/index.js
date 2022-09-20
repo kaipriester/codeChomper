@@ -22,7 +22,7 @@ const ErrorTypeDetail = require("./models/ErrorTypes.js");
 const app = express();
 const port = 8080;
 const reactPort = 3000;
-const origin = new RegExp(("https?://[0-9a-z+\\-*/=~_#@$&%()[\\]',;.?!]+:" + reactPort), "i");
+const origin = new RegExp(("^https?://[0-9a-z+\\-*/=~_#@$&%()[\\]',;.?!]+:" + reactPort + "$"), "i");
 const saltRounds = 12;
 
 const corsOptions = {
@@ -468,20 +468,26 @@ app.post("/login", async (req, res) =>
 	}
 });
 
-app.post("/signin", async (req, res) =>
+app.post("/signup", async (req, res) =>
 {
-	if (req.body.username && req.body.password)
+	if (req.body.username && req.body.password && /^[a-zA-Z0-9]+$/.test(req.body.username) && /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
 	{
-		const salt = await bcrypt.genSalt(saltRounds);
-		const hash = await bcrypt.hash(req.body.password, salt);
-		const result = await DAO.addUser(req.body.username, hash);
-		if (result) {
-			console.log(result);
+		const user = await DAO.getUser(req.body.username);
+		if (user)
+		{
+			res.status(409).json(false);
+		}
+		else
+		{
+			const salt = await bcrypt.genSalt(saltRounds);
+			const hash = await bcrypt.hash(req.body.password, salt);
+			await DAO.addUser(req.body.username, hash);
 			req.session.loggedIn = true;
 			res.status(200).json(true);
 		}
 	}
-	else {
+	else
+	{
 		console.log(req.body);
 		res.status(400).json(false);
 	}

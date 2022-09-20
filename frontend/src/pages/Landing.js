@@ -12,7 +12,7 @@ function Landing(props) {
     <div>
       <h1>Welcome to codeChomper</h1>
       <Button onClick={() => updateRouteHandler("LogIn")}>login</Button>
-			<Button onClick={() => updateRouteHandler("SignIn")}>Creat an Account</Button>
+			<Button onClick={() => updateRouteHandler("SignUp")}>Create an Account</Button>
     </div>
   );
 }

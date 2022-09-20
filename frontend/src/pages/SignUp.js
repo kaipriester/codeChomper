@@ -1,40 +1,49 @@
 import React, { useState } from "react";
 import { Form, Grid, Input, Button, Message } from "semantic-ui-react";
-import { signin } from "../client/API.js";
+import { signup } from "../client/API.js";
 import { useCookies } from "react-cookie";
 import { List } from "semantic-ui-react";
 
-function SignIn(props) {
+function SignUp(props) {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-  const [rePassword, setRePassword] = useState("");
+	const [rePassword, setRePassword] = useState("");
 	const [cookies, setCookie] = useCookies(["loggedIn"]);
 	const { updateRouteHandler } = props;
 	const [wrong, setWrong] = useState([]);
 
 	const createAccount = async () => {
 		setWrong([]);
-    var usernameRegex = /^[a-zA-Z0-9]+$/;
-    var passwordRegex = /^(?=.*[0-9])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
-    if (!usernameRegex.test(username)) {
-      setWrong(prevState => ([...prevState, <li>"Username is invalid"</li>]));
-    }
-    if (!passwordRegex.test(password)) {
-      setWrong(prevState => ([...prevState, <li>"Password is not strong enough. Must contain at least one number and 6-16 characters"</li>]));
-    }
-    if (password != rePassword) {
-      setWrong(prevState => ([...prevState, <li>"Passwords don't match"</li>]));
-    }
-
-    if (wrong.length > 0) 
-      return;
-
-		const result = await signin(username, password);
-		if (result.data) {
-			setCookie("loggedIn", true, { path: "/" });
-			updateRouteHandler("main");
-		} else {
-			setWrong(true);
+		var correct = true;
+		var usernameRegex = /^[a-zA-Z0-9]+$/;
+		var passwordRegex = /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
+		if (!usernameRegex.test(username)) {
+			setWrong(prevState => ([...prevState, <li>Invalid username. Only alphanumeric characters are permitted.</li>]));
+			correct = false;
+		}
+		if (!passwordRegex.test(password)) {
+			setWrong(prevState => ([...prevState, <li>Invalid password. Must contain at least one letter and one number and be 6-16 characters in length. May contain alphanumeric characters and the following symbols: !, @, #, $, %, ^, &, and *.</li>]));
+			correct = false;
+		}
+		if (password != rePassword) {
+			setWrong(prevState => ([...prevState, <li>Passwords don't match.</li>]));
+			correct = false;
+		}
+		if (correct)
+		{
+			try
+			{
+				const result = await signup(username, password);
+				if (result.data)
+				{
+					setCookie("loggedIn", true, { path: "/" });
+					updateRouteHandler("main");
+				}
+			}
+			catch (err)
+			{
+				setWrong([<li>Username unavailable. Please retry using a different username.</li>]);
+			}
 		}
 	};
 
@@ -47,7 +56,7 @@ function SignIn(props) {
 				<Form>
 					<Input
 						type="text"
-						label="username"
+						label="Username"
 						onChange={(e) => setUsername(e.target.value)}
 						onKeyDown={(e) => {if (e.keyCode === 13) {createAccount();}}}
 					></Input>
@@ -57,7 +66,7 @@ function SignIn(props) {
 				<Form>
 					<Input
 						type="password"
-						label="password"
+						label="Password"
 						onChange={(e) => setPassword(e.target.value)}
 						onKeyDown={(e) => {if (e.keyCode === 13) {createAccount();}}}
 					></Input>
@@ -74,7 +83,7 @@ function SignIn(props) {
 				</Form>
 			</Grid.Row>
 			<Grid.Row>
-				<Button onClick={() => createAccount()}>Sign In</Button>
+				<Button onClick={() => createAccount()}>Sign Up</Button>
 			</Grid.Row>
 			<Grid.Row>
 				{wrong.length > 0 && (
@@ -87,4 +96,4 @@ function SignIn(props) {
 	);
 }
 
-export default SignIn;
+export default SignUp;

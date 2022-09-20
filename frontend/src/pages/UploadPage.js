@@ -10,6 +10,7 @@ import {
 	Header,
 	Message,
 } from "semantic-ui-react";
+import { upload } from "../client/API.js";
 axios.defaults.withCredentials = true;
 
 function UploadPage() {
@@ -30,7 +31,7 @@ function UploadPage() {
 		formData.append("fileName", fileName);
 
 		try {
-			const res = await axios.post("http://localhost:8080/upload", formData);
+			const res = await upload(formData);
 			setProcessedFiles(res.data);
 			console.log(res);
 		} catch (ex) {
