@@ -48,9 +48,11 @@ app.use(fileupload());
 app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "frontend", "build")))
 
 database.connect();
 let { master_username, master_password } = require("./config.js");
+const exp = require("constants");
 (async () =>
 {
 	const user = await DAO.getUser(master_username);
@@ -520,11 +522,20 @@ app.get("/ErrorTypes", async (req, res) => {
 	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
 });
 
-
 app.get("/ErrorTypesNum", async (req, res) => {
 	res.json(ErrorTypeDetail.getErrorTypesNum());
 });
 
+// if (process.env.NODE_ENV === "production") {
+// 	app.use(express.static(path.join("frontend/build")));
+// 	app.get("*", (req, res) => {
+// 		res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"))
+// 	})
+// }
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "frontend", "build", "index.html"));
+});
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);

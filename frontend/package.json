@@ -63,5 +63,6 @@
     },
     "optionalDependencies": {
         "win-node-env": "^0.6.1"
-    }
+    },
+    "proxy": "http://localhost:8000"
 }

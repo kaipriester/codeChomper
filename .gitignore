@@ -1,26 +1,26 @@
 # dependencies
-/server/node_modules
-/server/.pnp
-server/.pnp.js
+/node_modules
+/.pnp
+/.pnp.js
 
 /frontend/node_modules
 /frontend/.pnp
 frontend/.pnp.js
 
 # testing
-/server/coverage
+/coverage
 /frontend/coverage
 
 # production
-/server/build
+/build
 /frontend/build
 
 # misc
-server/.DS_Store
-server/.env.local
-server/.env.development.local
-server/.env.test.local
-server/.env.production.local
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 frontend/.DS_Store
 frontend/.env.local
@@ -28,9 +28,9 @@ frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
 
-server/npm-debug.log*
-server/yarn-debug.log*
-server/yarn-error.log*
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
 
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
@@ -42,5 +42,5 @@ frontend/yarn-error.log*
 /.idea/dataSources/
 /.idea/dataSources.local.xml
 
-/server/config.js
-/server/extracted/
+/config.js
+/extracted/
