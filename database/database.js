@@ -25,7 +25,7 @@ process.on("SIGINT", (error, data) => {
 
 exports.connect = () => {
 	mongoose.connect(
-		uri,
+		process.env.MONGODB_URI || uri,
 		{ useNewUrlParser: true, useUnifiedTopology: true }
 	);
 };
