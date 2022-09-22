@@ -48,7 +48,7 @@ app.use(fileupload());
 app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "frontend", "build")))
+app.use(express.static(path.join(__dirname, "client", "build")))
 
 database.connect();
 let { master_username, master_password } = require("./config.js");
@@ -534,7 +534,7 @@ app.get("/ErrorTypesNum", async (req, res) => {
 // }
 
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "frontend", "build", "index.html"));
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
 
 app.listen(port, () => {
