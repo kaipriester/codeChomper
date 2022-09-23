@@ -1,6 +1,6 @@
 import axios from "axios";
 const development = "http://localhost";
-const production = "https://codechomper.herokuapp.com/"
+const production = "https://codechomper.herokuapp.com"
 let url = (process.env.NODE_ENV ? production : development);
 const port = process.env.PORT;
 axios.defaults.withCredentials = true;
@@ -13,6 +13,9 @@ if (url.charAt(url.length - 1) === "/")
 if (process.env.NODE_ENV === development) 
 {
 	url = (url + ":" + port + "/");
+}
+else {
+	url = (url + "/");
 }
 
 const login = async (username, password) => {
