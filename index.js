@@ -13,7 +13,6 @@ const path = require("path");
 const { ESLint } = require("eslint");
 const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
-// const { uri, session_secret, session_store_secret } = require("./config.js");
 const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
@@ -52,8 +51,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "build")))
 
 database.connect();
-// let { master_username, master_password } = require("./config.js");
-// const exp = require("constants");
+
 (async () =>
 {
 	const user = await DAO.getUser(process.env.MASTER_USERNAME);
@@ -518,7 +516,6 @@ app.get("/studentfiles", async (req, res) => {
 	res.json(await DAO.getZipFile(req.query.id));
 });
 
-
 app.get("/ErrorTypes", async (req, res) => {
 	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
 });
@@ -526,13 +523,6 @@ app.get("/ErrorTypes", async (req, res) => {
 app.get("/ErrorTypesNum", async (req, res) => {
 	res.json(ErrorTypeDetail.getErrorTypesNum());
 });
-
-// if (process.env.NODE_ENV === "production") {
-// 	app.use(express.static(path.join("frontend/build")));
-// 	app.get("*", (req, res) => {
-// 		res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"))
-// 	})
-// }
 
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
