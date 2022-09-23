@@ -1,4 +1,3 @@
-require("dotenv").config();
 import axios from "axios";
 const development = "http://localhost";
 const production = "https://codechomper.herokuapp.com"
