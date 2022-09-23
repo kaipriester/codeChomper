@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 // const { uri } =  require("../config.js");
+require("dotenv").config();
 
 mongoose.connection.on("connected", () => {
 	console.log(`Database connection open`);

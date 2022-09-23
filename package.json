@@ -7,7 +7,7 @@
     "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint \"**/*.{js,ts}\"",
-    "fix": "eslint --fix \"**/*.{js,ts}\"", 
+    "fix": "eslint --fix \"**/*.{js,ts}\"",
     "heroku-postbuild": "cd client && npm install --only=dev && npm install && npm run build"
   },
   "author": "",
@@ -18,23 +18,23 @@
     "bcrypt": "^5.0.1",
     "connect-mongo": "^4.6.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "eslint": "^8.6.0",
     "express": "^4.17.2",
     "express-fileupload": "^1.2.1",
     "express-session": "^1.17.3",
     "fs-extra": "^10.0.1",
     "mongoose": "^6.2.7",
     "node-stream-zip": "^1.15.0",
-    "nodemon": "^2.0.15", 
-    "eslint": "^8.6.0"
+    "nodemon": "^2.0.15"
   },
   "nodemonConfig": {
     "ignore": [
       "./extracted",
       "./testFiles"
     ]
-  }, 
+  },
   "engines": {
     "node": "18.9.0"
-}
-  
+  }
 }

@@ -12,7 +12,7 @@ const path = require("path");
 const { ESLint } = require("eslint");
 const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
-const { uri, session_secret, session_store_secret } = require("./config.js");
+// const { uri, session_secret, session_store_secret } = require("./config.js");
 const convertErrorIDToType =
 	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
@@ -33,13 +33,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(session({
-	secret: session_secret,
+	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: false,
 	store: mongoStore.create({
-		mongoUrl: uri,
+		mongoUrl: process.env.MONGODB_URI,
 		mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-		crypto: { secret: session_store_secret },
+		crypto: { secret: process.env.SESSION_STROE_SECRET },
 		autoRemove: "native",
 		ttl: (60 * 60 * 24 * 7)})
 	})
@@ -51,15 +51,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "build")))
 
 database.connect();
-let { master_username, master_password } = require("./config.js");
-const exp = require("constants");
+// let { master_username, master_password } = require("./config.js");
+// const exp = require("constants");
 (async () =>
 {
-	const user = await DAO.getUser(master_username);
+	const user = await DAO.getUser(process.env.MASTER_USERNAME);
 	if (!user)
 	{
 		const salt = await bcrypt.genSalt(saltRounds);
-		const hash = await bcrypt.hash(master_password, salt);
+		const hash = await bcrypt.hash(process.env.MASTER_PASSWORD, salt);
 		await DAO.addUser(master_username, hash);
 		console.log("Registered master account.");
 	}
