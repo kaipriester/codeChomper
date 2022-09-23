@@ -1,5 +1,5 @@
 import axios from "axios";
-let url = "http://localhost";
+let url = "/";
 const port = process.env.PORT || 8080;
 axios.defaults.withCredentials = true;
 
