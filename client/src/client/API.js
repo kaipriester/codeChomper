@@ -1,3 +1,4 @@
+require("dotenv").config();
 import axios from "axios";
 const development = "http://localhost";
 const production = "https://codechomper.herokuapp.com"
@@ -10,7 +11,10 @@ if (url.charAt(url.length - 1) === "/")
 	url = url.substring(0, (url.length - 1));
 }
 
-url = (url + ":" + port + "/");
+if (process.env.NODE_ENV === development) 
+{
+	url = (url + ":" + port + "/");
+}
 
 const login = async (username, password) => {
 	return await axios.post((url + "login"), { username: username, password: password });

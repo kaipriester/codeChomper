@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const mongoStore = require("connect-mongo");
@@ -39,7 +40,7 @@ app.use(session({
 	store: mongoStore.create({
 		mongoUrl: process.env.MONGODB_URI,
 		mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-		crypto: { secret: process.env.SESSION_STROE_SECRET },
+		crypto: { secret: process.env.SESSION_STORE_SECRET},
 		autoRemove: "native",
 		ttl: (60 * 60 * 24 * 7)})
 	})
