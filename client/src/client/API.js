@@ -1,5 +1,7 @@
 import axios from "axios";
-let url = "/";
+const development = "http://localhost";
+const production = "https://codechomper.herokuapp.com"
+let url = (process.env.NODE_ENV ? production : development);
 const port = process.env.PORT;
 axios.defaults.withCredentials = true;
 
