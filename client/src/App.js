@@ -10,10 +10,15 @@ import BugListPage from "./pages/BugsDisplayPage";
 import ViewMorePage from "./pages/ViewMorePage";
 import MetricsPage from "./pages/Metrics";
 import LogIn from "./pages/LogIn";
+import SignUp from "./pages/SignUp";
+import Landing from "./pages/Landing";
 import { useCookies } from "react-cookie";
 
 function App() {
-	const [currentRoute, setCurrentRoute] = useState("LogIn");
+	const [cookies, setCookie] = useCookies(["loggedIn"]);
+	let defaultRoute = "LogIn";
+	if (cookies.loggedIn) {defaultRoute = "main";}
+	const [currentRoute, setCurrentRoute] = useState(defaultRoute);
 	const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
 
 	const getCurrentRoute = () => {
@@ -28,6 +33,12 @@ function App() {
 		}
 
 		switch (currentRoute) {
+			case "LogIn":
+				return <LogIn updateRouteHandler={setCurrentRoute} />;
+			case "SignUp":
+				return <SignUp updateRouteHandler={setCurrentRoute} />;
+			case "Landing":
+				return <Landing updateRouteHandler={setCurrentRoute}/>;
 			case "main":
 				return (
 					<MainPage
@@ -35,40 +46,44 @@ function App() {
 						updateZipFileHandler={setCurrentZipFileId}
 					/>
 				);
-				break;
 			case "upload":
 				return <UploadPage />;
-				break;
 			case "BugListPage":
 				return <BugListPage />;
-				break;
 			case "MetricsPage":
 				return <MetricsPage />;
-				break;
-			case "LogIn":
-				return <LogIn updateRouteHandler={setCurrentRoute} />;
-				break;
+			
 		}
 	};
 
 	return (
-		<Grid>
-			<Grid.Column width={3} style={{ paddingRight: 0 }}>
-				{currentRoute != "LogIn" && (
-					<Sidebar
-						updateZipFileHandler={setCurrentZipFileId}
-						updateRouteHandler={setCurrentRoute}
-						style={{ width: "100%" }}
-					/>
-				)}
-			</Grid.Column>
-			<Grid.Column width={13} style={{ paddingLeft: 0 }}>
-				{currentRoute != "LogIn" && (
+		<div>
+			{(cookies.loggedIn) && (
+			<Grid>
+				<Grid.Column width={3} style={{ paddingRight: 0 }}>
+						<Sidebar
+							updateZipFileHandler={setCurrentZipFileId}
+							updateRouteHandler={setCurrentRoute}
+							style={{ width: "100%" }}
+						/>
+				</Grid.Column>
+				<Grid.Column width={13} style={{ paddingLeft: 0 }}>
 					<TopBar updateRouteHandler={setCurrentRoute} />
-				)}
-				{getCurrentRoute()}
-			</Grid.Column>
-		</Grid>
+					{getCurrentRoute()}
+				</Grid.Column>
+				</Grid>
+			)}
+			{(!cookies.loggedIn) && (
+				<>
+					<TopBar updateRouteHandler={setCurrentRoute} />
+					<div style={{paddingLeft: "20%", paddingRight: "15%", paddingTop: "5%"}}>
+						{getCurrentRoute()}
+					</div>
+				</>
+				)
+			}
+		</div>
+		
 	);
 }
 

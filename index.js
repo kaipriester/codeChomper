@@ -1,4 +1,8 @@
+require("dotenv").config();
 const express = require("express");
+const session = require("express-session");
+const mongoStore = require("connect-mongo");
+const bcrypt = require("bcrypt");
 const fileupload = require("express-fileupload");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -15,35 +19,65 @@ const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
-const NotSecurePassword = "seniorproject2022"
 const app = express();
-const port = 8080;
+const port = process.env.PORT;
+const reactPort = 3000;
+const origin = new RegExp(("^https?://[0-9a-z+\\-*/=~_#@$&%()[\\]',;.?!]+:" + reactPort + "$"), "i");
+const saltRounds = 12;
 
 const corsOptions = {
-	origin: "*",
+	origin: origin,
 	optionsSuccessStatus: 200,
+	credentials: true
 };
 
 app.use(cors(corsOptions));
+app.use(session({
+	secret: process.env.SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false,
+	store: mongoStore.create({
+		mongoUrl: process.env.MONGODB_URI,
+		mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+		crypto: { secret: process.env.SESSION_STORE_SECRET},
+		autoRemove: "native",
+		ttl: (60 * 60 * 24 * 7)})
+	})
+);
 app.use(fileupload());
 app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "client", "build")))
 
 database.connect();
 
+(async () =>
+{
+	const user = await DAO.getUser(process.env.MASTER_USERNAME);
+	if (!user)
+	{
+		const salt = await bcrypt.genSalt(saltRounds);
+		const hash = await bcrypt.hash(process.env.MASTER_PASSWORD, salt);
+		await DAO.addUser(master_username, hash);
+		console.log("Registered master account.");
+	}
+	master_username = "";
+	master_password = "";
+})();
+
 //takes the string of the filepath from canvas and extracts the students name from it
-function getStudentIDFromRelPath(path, map) {
-	var cut = path.indexOf("_");
-	var cut2 = path.indexOf("/");
+function getStudentIDFromRelPath(target, map) {
+	var cut = target.indexOf("_");
+	var cut2 = target.indexOf(path.sep);
 	if (cut == -1) {
-		cut = path.indexOf("/");
+		cut = target.indexOf(path.sep);
 	} else if (cut2 == -1) {
-		cut = path.indexOf("_");
+		cut = target.indexOf("_");
 	} else {
 		cut = Math.min(cut, cut2);
 	}
-	return map.get(path.substring(0, cut));
+	return map.get(target.substring(0, cut));
 }
 
 //@param if count is -1 then we will not factor in a dynamic quantity into the severity score
@@ -144,7 +178,7 @@ function median(values) {
 }
 app.delete("/deleteZipFolder", async (req, res) => {
 	console.log("I am deleting")
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -155,7 +189,7 @@ app.delete("/deleteZipFolder", async (req, res) => {
 
 app.delete("/deleteAll", async (req, res) => {
     console.log("DELET ALL")
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -164,7 +198,7 @@ app.delete("/deleteAll", async (req, res) => {
 });
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -172,7 +206,7 @@ app.post("/upload", async (req, res) => {
 	const zipFileName = zipFile.name;
 
 	// submitted file must be a zip or error is thrown
-	if (String(zipFile.mimetype) != "application/zip") {
+	if (zipFileName.substring(zipFileName.length - 4) != ".zip") {
 		return res.status(400).json("Error: not zip file");
 	}
 
@@ -380,7 +414,7 @@ app.post("/upload", async (req, res) => {
 
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
@@ -396,40 +430,110 @@ app.get("/overview/zipfiles", async (req, res) => {
 	// return: zip file name, date uploaded, number of files, detections, security scores
 });
 
-app.post("/login", async (req, res) => {
-	if (req.query.password == NotSecurePassword) {
-		res.json(true);
-	} else {
-		res.json(false);
+app.post("/login", async (req, res) =>
+{
+	if (req.body.username && req.body.password)
+	{
+		const user = await DAO.getUser(req.body.username);
+		if (user)
+		{
+			bcrypt.compare(req.body.password, user.Hash, (err, result) =>
+			{
+				if (err)
+				{
+					console.log(err);
+					res.status(500).json(false);
+				}
+				else
+				{
+					if (result)
+					{
+						req.session.loggedIn = true;
+						res.status(200).json(true);
+					}
+					else
+					{
+						res.status(200).json(false);
+					}
+				}
+			});
+		}
+		else
+		{
+			res.status(200).json(false);
+		}
+	}
+	else
+	{
+		res.status(400).json(false);
+	}
+});
+
+app.post("/signup", async (req, res) =>
+{
+	if (req.body.username && req.body.password && /^[a-zA-Z0-9]+$/.test(req.body.username) && /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
+	{
+		const user = await DAO.getUser(req.body.username);
+		if (user)
+		{
+			res.status(409).json(false);
+		}
+		else
+		{
+			const salt = await bcrypt.genSalt(saltRounds);
+			const hash = await bcrypt.hash(req.body.password, salt);
+			await DAO.addUser(req.body.username, hash);
+			req.session.loggedIn = true;
+			res.status(200).json(true);
+		}
+	}
+	else
+	{
+		console.log(req.body);
+		res.status(400).json(false);
+	}
+});
+
+app.post("/logout", (req, res) =>
+{
+	if (req.session.loggedIn)
+	{
+		req.session.destroy();
+		res.status(200).send();
+	}
+	else
+	{
+		res.status(400).send();
 	}
 });
 
 // overview page- view more data fom invidual zip files
 app.get("/studentfiles", async (req, res) => {
-	if (req.query.password != NotSecurePassword) {
+	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
 	}
 	res.json(await DAO.getZipFile(req.query.id));
 });
 
-
 app.get("/ErrorTypes", async (req, res) => {
 	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
 });
-
 
 app.get("/ErrorTypesNum", async (req, res) => {
 	res.json(ErrorTypeDetail.getErrorTypesNum());
 });
 
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+});
 
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
 
 const getRelativePath = (absolutePath) => {
-	const extractedFolderName = "extracted/";
+	const extractedFolderName = ("extracted" + path.sep);
 	return absolutePath.substring(
 		absolutePath.indexOf(extractedFolderName) + extractedFolderName.length
 	);

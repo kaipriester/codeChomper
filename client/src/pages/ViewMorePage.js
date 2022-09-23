@@ -19,12 +19,10 @@ import {
 import moment from "moment";
 import { getZipFile } from "../client/API.js";
 import { ChartsPage } from "../components/ChartsPage";
-import { useCookies } from "react-cookie";
 
 function ViewMorePage(props) {
 	const { id, updateRouteHandler, updateZipFileHandler } = props;
 	const [file, setFile] = useState({ Students: [] });
-	const [cookies, setCookie] = useCookies(["user"]);
 	const [open, setOpen] = useState(false);
 	const [errors, setErrors] = useState([]);
 
@@ -36,7 +34,7 @@ function ViewMorePage(props) {
 	}
 
 	useEffect(async () => {
-		const results = (await getZipFile(cookies.password, id)).data;
+		const results = (await getZipFile(id)).data;
 		setFile(results);
 	}, []);
 
@@ -141,7 +139,19 @@ function ViewMorePage(props) {
 
 	return (
 		<Grid style={{ padding: "3.5vw" }}>
-			<Grid.Row></Grid.Row>
+			<Grid.Row>
+				<Grid.Column textAlign="right">
+					<Button
+						size="tiny"
+						onClick={() => {
+							updateZipFileHandler("undefined");
+							updateRouteHandler("main");
+						}}
+					>
+						Back
+					</Button>
+				</Grid.Column>
+			</Grid.Row>
 			<Grid.Row>
 				<Grid columns={2} style={{ paddingRight: "15%" }}>
 					<Grid.Column>
@@ -151,17 +161,6 @@ function ViewMorePage(props) {
 								Ran on {file.Date}
 							</Header.Subheader>
 						</Header>
-					</Grid.Column>
-					<Grid.Column textAlign="right">
-						<Button
-							size="tiny"
-							onClick={() => {
-								updateZipFileHandler("undefined");
-								updateRouteHandler("main");
-							}}
-						>
-							Back
-						</Button>
 					</Grid.Column>
 				</Grid>
 			</Grid.Row>

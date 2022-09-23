@@ -1,9 +1,13 @@
+const User = require("../models/User.js").Model;
 const Student = require("../models/Student.js").Model;
 const ZipFile = require("../models/ZipFile.js").Model;
 const File = require("../models/File.js").Model;
 const Error = require("../models/Error.js").Model;
 const ErrorList = require("../models/ErrorTypes.js").ErrorList;
 
+exports.getUser = async (username) => {
+	return User.findOne({ Username: username }).exec();
+};
 exports.getStudent = async (id) => {
 	return Student.find();
 };
@@ -12,6 +16,9 @@ exports.getStudent = async (id) => {
 // };
 exports.getFile = async (id) => {
 	return File.find();
+};
+exports.addUser = async (Username, Hash) => {
+	return await User.create({ Username, Hash });
 };
 exports.addStudent = async (Name, ZipFolderID) => {
 	return await Student.create({ Name, ZipFolderID, Files: [] });
