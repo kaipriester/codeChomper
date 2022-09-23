@@ -20,7 +20,7 @@ const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT;
 const reactPort = 3000;
 const origin = new RegExp(("^https?://[0-9a-z+\\-*/=~_#@$&%()[\\]',;.?!]+:" + reactPort + "$"), "i");
 const saltRounds = 12;
