@@ -24,9 +24,7 @@
     "fs-extra": "^10.0.1",
     "mongoose": "^6.2.7",
     "node-stream-zip": "^1.15.0",
-    "nodemon": "^2.0.15"
-  },
-  "devDependencies": {
+    "nodemon": "^2.0.15", 
     "eslint": "^8.6.0"
   },
   "nodemonConfig": {
