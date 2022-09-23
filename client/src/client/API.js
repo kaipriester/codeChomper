@@ -1,6 +1,6 @@
 import axios from "axios";
 let url = "/";
-const port = process.env.PORT || 8080;
+const port = process.env.PORT;
 axios.defaults.withCredentials = true;
 
 if (url.charAt(url.length - 1) === "/")
