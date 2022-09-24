@@ -12,7 +12,7 @@ let uri = process.env.MONGODB_URI;
 if (process.env.DB_NAME)
 {
     uri = (uri.substring(0, (uri.split("/", 3).join("/").length + 1)) + process.env.DB_NAME + uri.substring(uri.indexOf("?")));
-}console.log(uri);
+}
 
 mongoose.connection.on("connected", () => {
 	console.log(`Database connection open`);
