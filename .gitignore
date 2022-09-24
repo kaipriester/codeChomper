@@ -6,6 +6,8 @@ server/.pnp.js
 /frontend/node_modules
 /frontend/.pnp
 frontend/.pnp.js
+client/node_modules
+node_modules
 
 # testing
 /server/coverage
@@ -14,6 +16,7 @@ frontend/.pnp.js
 # production
 /server/build
 /frontend/build
+client/build
 
 # misc
 server/.DS_Store
@@ -43,4 +46,4 @@ frontend/yarn-error.log*
 /.idea/dataSources.local.xml
 
 config.js
-/server/extracted/
+extracted/
