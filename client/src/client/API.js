@@ -1,0 +1,64 @@
+import axios from "axios";
+const development = "http://localhost";
+const production = "https://codechomper.herokuapp.com/"
+let url = (process.env.NODE_ENV ? production : development);
+const port = process.env.PORT;
+axios.defaults.withCredentials = true;
+
+if (process.env.NODE_ENV === development) 
+{
+	url = (url + ":" + port + "/");
+}
+
+const login = async (username, password) => {
+	return await axios.post((url + "login"), { username: username, password: password });
+};
+
+const signup = async (username, password) => {
+	return await axios.post((url + "signup"), { username: username, password: password });
+};
+
+const logout = async () => {
+	return await axios.post(url + "logout");
+};
+
+const upload = async (formData) => {
+	return axios.post((url + "upload"), formData);
+};
+
+const getZipFileMetadata = async () => {
+	return await axios.get(url + "overview/zipfiles");
+};
+
+const getErrorTypes = async (id) => {
+	return await axios.get(url + "ErrorTypes?id=" + id);
+};
+
+const getErrorTypesNum = async () => {
+	return await axios.get(url + "ErrorTypesNum");
+};
+
+const getZipFile = async (id) => {
+	return await axios.get(url + "studentfiles?id=" + id);
+};
+
+const deleteDatabase = async () => {
+	return await axios.delete(url + "deleteAll");
+};
+
+const deleteZipFolder = async (id) => {
+	console.log(`API JS Says ` + id);
+	return await axios.delete(url + "deleteZipFolder?id=" + id);
+};
+
+export {
+	getZipFileMetadata,
+	getZipFile,
+	login,
+	signup,
+	logout,
+	upload,
+	getErrorTypes,
+	getErrorTypesNum,
+	deleteZipFolder,
+};

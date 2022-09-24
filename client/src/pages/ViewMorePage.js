@@ -19,12 +19,10 @@ import {
 import moment from "moment";
 import { getZipFile } from "../client/API.js";
 import { ChartsPage } from "../components/ChartsPage";
-import { useCookies } from "react-cookie";
 
 function ViewMorePage(props) {
 	const { id, updateRouteHandler, updateZipFileHandler } = props;
 	const [file, setFile] = useState({ Students: [] });
-	const [cookies, setCookie] = useCookies(["user"]);
 	const [open, setOpen] = useState(false);
 	const [errors, setErrors] = useState([]);
 
@@ -36,7 +34,7 @@ function ViewMorePage(props) {
 	}
 
 	useEffect(async () => {
-		const results = (await getZipFile(cookies.password, id)).data;
+		const results = (await getZipFile(id)).data;
 		setFile(results);
 	}, []);
 

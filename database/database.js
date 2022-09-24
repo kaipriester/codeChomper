@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { uri } = require("./config");
+require("dotenv").config();
 
 mongoose.connection.on("connected", () => {
 	console.log(`Database connection open`);
@@ -25,7 +25,7 @@ process.on("SIGINT", (error, data) => {
 
 exports.connect = () => {
 	mongoose.connect(
-		uri,
+		process.env.MONGODB_URI,
 		{ useNewUrlParser: true, useUnifiedTopology: true }
 	);
 };

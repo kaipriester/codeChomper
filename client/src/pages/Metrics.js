@@ -3,14 +3,12 @@ import axios from "axios";
 import { Grid, Icon, Segment, Header } from "semantic-ui-react";
 import { ZipChartsPage } from "../components/ChartsPage";
 import { getZipFileMetadata } from "../client/API.js";
-import { useCookies } from "react-cookie";
 
 function MetricsPage() {
 	const [files, setFiles] = useState([]);
-	const [cookies, setCookie] = useCookies(["user"]);
 
 	useEffect(async () => {
-		const results = (await getZipFileMetadata(cookies.password)).data
+		const results = (await getZipFileMetadata()).data
 			.zipFileData;
 		console.log(results);
 		setFiles(
