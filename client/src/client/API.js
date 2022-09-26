@@ -1,12 +1,12 @@
 import axios from "axios";
-let devmode = false;
+let devmode = true;
 let url;
 const development_url = "http://localhost";
 const development_port = 8080;
 const production_url = "https://codechomper.herokuapp.com";
 axios.defaults.withCredentials = true;
 
-if (devmode) 
+if (devmode || (process.env.NODE_ENV === "development"))
 {
 	url = development_url;
 	if (url.charAt(url.length - 1) === "/")
