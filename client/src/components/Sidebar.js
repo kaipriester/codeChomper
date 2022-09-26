@@ -12,7 +12,7 @@ function Sidebar(props) {
 	return (
 		<>
 			<Menu inverted compact style={{ width: "100%" }}>
-				<Menu.Item header>JSAnalyzer</Menu.Item>
+				<Menu.Item header>codeChomper</Menu.Item>
 			</Menu>
 			<Menu
 				vertical
