@@ -1,13 +1,44 @@
 import axios from "axios";
+/*
 const development = "http://localhost";
 const production = "https://codechomper.herokuapp.com/"
 let url = (process.env.NODE_ENV ? production : development);
 const port = process.env.PORT;
+*/
+let devmode = true;
+let url;
+const development_url = "http://localhost";
+const development_port = 8080;
+const production_url = "https://codechomper.herokuapp.com";
 axios.defaults.withCredentials = true;
 
-if (process.env.NODE_ENV === development) 
+//if (process.env.NODE_ENV === development) 
+if(devmode)
 {
-	url = (url + ":" + port + "/");
+	
+	console.log("WERE IN DEVMODE");
+	/*
+	//url = (url + ":" + port + "/");
+	url = development_url;
+	
+	if (url.charAt(url.length - 1) === "/")
+	{
+		url = url.substring(0, (url.length - 1));
+	}
+	url = (url + ":" + development_port + "/");
+	console.log("the url is");
+	*/
+	url = "http://localhost:8080/";
+}
+else
+{
+	//REVERT
+	console.log("WERE IN PROD");
+	url = production_url;
+	if (url.charAt(url.length - 1) !== "/")
+	{
+		url = (url + "/");
+	}
 }
 
 const login = async (username, password) => {

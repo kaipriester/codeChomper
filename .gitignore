@@ -47,3 +47,4 @@ client/yarn-error.log*
 
 /config.js
 /extracted/
+.env

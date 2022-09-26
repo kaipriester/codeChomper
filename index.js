@@ -26,7 +26,8 @@ const origin = new RegExp(("^https?://[0-9a-z+\\-*/=~_#@$&%()[\\]',;.?!]+:" + re
 const saltRounds = 12;
 
 const corsOptions = {
-	origin: origin,
+	//unsafe? REVERT?
+	origin: "*",
 	optionsSuccessStatus: 200,
 	credentials: true
 };
@@ -37,7 +38,7 @@ app.use(session({
 	resave: false,
 	saveUninitialized: false,
 	store: mongoStore.create({
-		mongoUrl: process.env.MONGODB_URI,
+		mongoUrl: database.uri,
 		mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
 		crypto: { secret: process.env.SESSION_STORE_SECRET},
 		autoRemove: "native",
@@ -48,9 +49,10 @@ app.use(fileupload());
 app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "client", "build")))
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 database.connect();
+
 
 (async () =>
 {
@@ -59,11 +61,11 @@ database.connect();
 	{
 		const salt = await bcrypt.genSalt(saltRounds);
 		const hash = await bcrypt.hash(process.env.MASTER_PASSWORD, salt);
-		await DAO.addUser(master_username, hash);
+		await DAO.addUser(process.env.MASTER_USERNAME, hash);
 		console.log("Registered master account.");
 	}
-	master_username = "";
-	master_password = "";
+	delete process.env.MASTER_USERNAME;
+	delete process.env.MASTER_PASSWORD;
 })();
 
 //takes the string of the filepath from canvas and extracts the students name from it
@@ -198,12 +200,17 @@ app.delete("/deleteAll", async (req, res) => {
 });
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
+	req.session.loggedIn = true; //MUST REMOVE
 	if (!req.session.loggedIn) {
+		console.log("not logged in");
+		console.log(req.session);
 		res.json(false);
 		return;
 	}
 	const zipFile = req.files.file;
 	const zipFileName = zipFile.name;
+
+	console.log("zipFileName");
 
 	// submitted file must be a zip or error is thrown
 	if (zipFileName.substring(zipFileName.length - 4) != ".zip") {
