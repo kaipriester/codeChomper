@@ -1,0 +1,1 @@
+web: nodemon --ignore extracted/ index.js
