@@ -48,3 +48,4 @@ client/yarn-error.log*
 /config.js
 /extracted/
 .env
+package-lock.json
