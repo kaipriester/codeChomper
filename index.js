@@ -32,6 +32,8 @@ const corsOptions = {
 	credentials: true
 };
 
+const Bandit = require("./bandit/pythonShell.js");
+
 app.use(cors(corsOptions));
 app.use(session({
 	secret: process.env.SESSION_SECRET,
@@ -201,6 +203,12 @@ app.delete("/deleteAll", async (req, res) => {
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
 	req.session.loggedIn = true; //MUST REMOVE
+
+	let mytest = await Bandit.runBandit();
+	console.log("my childs output is: ");
+	console.log(mytest);
+
+
 	if (!req.session.loggedIn) {
 		console.log("not logged in");
 		console.log(req.session);
