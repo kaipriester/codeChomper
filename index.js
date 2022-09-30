@@ -197,15 +197,15 @@ app.delete("/deleteAll", async (req, res) => {
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
 	if (!req.session.loggedIn) {
-		res.json(false);
+		res.status(200).json(false);
 		return;
 	}
 	const zipFile = req.files.file;
 	const zipFileName = zipFile.name;
 
 	// submitted file must be a zip or error is thrown
-	if (zipFileName.substring(zipFileName.length - 4) != ".zip") {
-		return res.status(400).json("Error: not zip file");
+	if (zipFileName.substring(zipFileName.length - 4) !== ".zip") {
+		return res.status(400).json("Error: Not a zip file");
 	}
 
 	const fileLocation = `${"testFiles/"}${zipFileName}`;
@@ -406,7 +406,7 @@ app.post("/upload", async (req, res) => {
 		// }));
 
 		fsExtra.emptyDirSync("./extracted");
-		res.json({});
+		res.status(200).json(true);
 	});
 });
 
@@ -430,7 +430,7 @@ app.get("/overview/zipfiles", async (req, res) => {
 
 app.post("/login", async (req, res) =>
 {
-	if (req.body.username && req.body.password)
+	if (!req.session.loggedIn && req.body.username && req.body.password)
 	{
 		const user = await DAO.getUser(req.body.username);
 		if (user)
