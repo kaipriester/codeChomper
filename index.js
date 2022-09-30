@@ -13,10 +13,8 @@ const path = require("path");
 const { ESLint } = require("eslint");
 const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
-const convertErrorIDToType =
-	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
+const convertErrorIDToType = require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
-
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
 const app = express();
@@ -37,7 +35,7 @@ app.use(session({
 	resave: false,
 	saveUninitialized: false,
 	store: mongoStore.create({
-		mongoUrl: process.env.MONGODB_URI,
+		mongoUrl: database.uri,
 		mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
 		crypto: { secret: process.env.SESSION_STORE_SECRET},
 		autoRemove: "native",
@@ -59,11 +57,11 @@ database.connect();
 	{
 		const salt = await bcrypt.genSalt(saltRounds);
 		const hash = await bcrypt.hash(process.env.MASTER_PASSWORD, salt);
-		await DAO.addUser(master_username, hash);
+		await DAO.addUser(process.env.MASTER_USERNAME, hash);
 		console.log("Registered master account.");
 	}
-	master_username = "";
-	master_password = "";
+	delete process.env.MASTER_USERNAME;
+	delete process.env.MASTER_PASSWORD;
 })();
 
 //takes the string of the filepath from canvas and extracts the students name from it
@@ -199,15 +197,15 @@ app.delete("/deleteAll", async (req, res) => {
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
 	if (!req.session.loggedIn) {
-		res.json(false);
+		res.status(200).json(false);
 		return;
 	}
 	const zipFile = req.files.file;
 	const zipFileName = zipFile.name;
 
 	// submitted file must be a zip or error is thrown
-	if (zipFileName.substring(zipFileName.length - 4) != ".zip") {
-		return res.status(400).json("Error: not zip file");
+	if (zipFileName.substring(zipFileName.length - 4) !== ".zip") {
+		return res.status(400).json("Error: Not a zip file");
 	}
 
 	const fileLocation = `${"testFiles/"}${zipFileName}`;
@@ -408,7 +406,7 @@ app.post("/upload", async (req, res) => {
 		// }));
 
 		fsExtra.emptyDirSync("./extracted");
-		res.json({});
+		res.status(200).json(true);
 	});
 });
 
@@ -432,7 +430,7 @@ app.get("/overview/zipfiles", async (req, res) => {
 
 app.post("/login", async (req, res) =>
 {
-	if (req.body.username && req.body.password)
+	if (!req.session.loggedIn && req.body.username && req.body.password)
 	{
 		const user = await DAO.getUser(req.body.username);
 		if (user)
