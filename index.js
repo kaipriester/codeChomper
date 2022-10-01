@@ -29,6 +29,8 @@ const corsOptions = {
 	credentials: true
 };
 
+const Bandit = require("./bandit/pythonShell.js");
+
 app.use(cors(corsOptions));
 app.use(session({
 	secret: process.env.SESSION_SECRET,
@@ -46,7 +48,7 @@ app.use(fileupload());
 app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "client", "build")))
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 database.connect();
 
@@ -253,6 +255,24 @@ app.post("/upload", async (req, res) => {
 			}
 		});
 
+		const hasPyFiles = (element) => {
+			if(path.extname(element) == ".py") return true;
+			else return false;
+		}
+
+		if(fileNamesInZipFolder.some(hasPyFiles)){
+			// there is at least 1 py file in the zipfile uploaded
+			console.log("inside .py only code section");
+			
+			let mytest = await Bandit.runBandit("./extracted/", true);
+			console.log("my childs output is: ");
+			console.log(mytest);
+
+			//clear out the dir
+			fsExtra.emptyDirSync("./extracted");
+			res.json({});
+		}
+else{
 		// Setup ESLINT and run them on all the files in this folder.
 		const eslint = new ESLint();
 		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
@@ -407,6 +427,7 @@ app.post("/upload", async (req, res) => {
 
 		fsExtra.emptyDirSync("./extracted");
 		res.status(200).json(true);
+}
 	});
 });
 
