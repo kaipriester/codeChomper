@@ -204,11 +204,6 @@ app.delete("/deleteAll", async (req, res) => {
 app.post("/upload", async (req, res) => {
 	req.session.loggedIn = true; //MUST REMOVE
 
-	let mytest = await Bandit.runBandit();
-	console.log("my childs output is: ");
-	console.log(mytest);
-
-
 	if (!req.session.loggedIn) {
 		console.log("not logged in");
 		console.log(req.session);
@@ -270,6 +265,24 @@ app.post("/upload", async (req, res) => {
 			}
 		});
 
+		const hasPyFiles = (element) => {
+			if(path.extname(element) == ".py") return true;
+			else return false;
+		}
+
+		if(fileNamesInZipFolder.some(hasPyFiles)){
+			// there is at least 1 py file in the zipfile uploaded
+			console.log("inside .py only code section");
+			
+			let mytest = await Bandit.runBandit("./extracted/", true);
+			console.log("my childs output is: ");
+			console.log(mytest);
+
+			//clear out the dir
+			fsExtra.emptyDirSync("./extracted");
+			res.json({});
+		}
+else{
 		// Setup ESLINT and run them on all the files in this folder.
 		const eslint = new ESLint();
 		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
@@ -424,6 +437,7 @@ app.post("/upload", async (req, res) => {
 
 		fsExtra.emptyDirSync("./extracted");
 		res.json({});
+}
 	});
 });
 
