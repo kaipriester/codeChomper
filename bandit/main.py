@@ -28,9 +28,9 @@ def run_bandit():
     #print(sys.argv[2])
 
     if sys.argv[2] != "0": 
-        list_files = subprocess.run(["py", "-m","bandit", "-r",sys.argv[1], "-f", "json"])
+        list_files = subprocess.run(["python", "-m","bandit", "-r",sys.argv[1], "-f", "json"])
     else:
-        list_files = subprocess.run(["py", "-m","bandit", "-r",sys.argv[1], "-f", "csv"])   
+        list_files = subprocess.run(["python", "-m","bandit", "-r",sys.argv[1], "-f", "csv"])   
     print("The exit code was: %d" % list_files.returncode)
 
 
