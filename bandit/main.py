@@ -35,6 +35,6 @@ def run_bandit():
 
 
 if __name__ == '__main__':
-    install_bandit()
-    #run_bandit()
+    # install_bandit()
+    run_bandit()
    
