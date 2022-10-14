@@ -449,6 +449,48 @@ app.get("/overview/zipfiles", async (req, res) => {
 	// return: zip file name, date uploaded, number of files, detections, security scores
 });
 
+app.get("/generateReport", async (req, res) => {
+	const zipFiles = await DAO.getFile();
+	
+	if (!zipFiles) {
+		res.status(400).json(false);
+		return;
+	}
+	
+	const map =  new Map();
+	var numFiles = 0;
+	var numErrors = 0;
+	for (index in zipFiles) {
+		numFiles++;
+		for (err in zipFiles[index].Errors) {
+			numErrors++;
+			console.log(zipFiles[index].Errors[err].Message);
+			if (map.has(zipFiles[index].Errors[err].ErrorType)) {
+				var newObj = map.get(zipFiles[index].Errors[err].ErrorType);
+				newObj.frequency++;
+				map.set(zipFiles[index].Errors[err].ErrorType, newObj);
+			}
+			else {
+				var newObj = {
+				  ErrorType: zipFiles[index].Errors[err].ErrorType,
+					Message: zipFiles[index].Errors[err].Message,
+					Severity: zipFiles[index].Errors[err].Severity,
+					frequency: 1
+				}
+				map.set(zipFiles[index].Errors[err].ErrorType, newObj);
+			}
+		}		
+	}
+	var response = "Most Common Vulnerabilities in JavaScript Files\n"+
+				"Error Type, Message, Severity, Frequency per file, Percentage of all vulnerabilities\n";
+	var errors = [...map.values()];
+	errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
+	errors.forEach((error) => {
+		response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/numFiles + "," + error.frequency/numErrors+"\n";
+	})
+	res.json(response);
+});
+
 app.post("/login", async (req, res) =>
 {
 	if (!req.session.loggedIn && req.body.username && req.body.password)
