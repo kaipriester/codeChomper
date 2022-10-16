@@ -227,25 +227,16 @@ app.post("/upload", async (req, res) => {
 		const fileNamesInZipFolder = fs.readdirSync("./extracted");
 		const studentNames = new Set();
 
-		console.log(fileNamesInZipFolder);
 		fileNamesInZipFolder.forEach((file) => {
 			const currentStudentName = file.substring(0, file.indexOf("_"));
 			// Make sure its not empty before adding it to Hashset, The Set prevents repeats
-			console.log(
-				`$$$$$$$####### current username ${currentStudentName} for ${file}`
-			);
+		
 			if (currentStudentName) {
 				studentNames.add(currentStudentName);
 			}
 
-			console.log(
-				`${currentStudentName} for file ${file} extension ${path.extname(
-					file
-				)}`
-			);
 			// Zip folders within the zip folder
 			if (path.extname(file) == ".zip") {
-				console.log(`     - unzipping ^^^ ${file}`);
 				const innerZipFileExtractor = new AdmZip("./extracted/" + file);
 				innerZipFileExtractor.extractAllTo(
 					"./extracted/" + file.substring(0, file.indexOf("_")),
@@ -272,162 +263,151 @@ app.post("/upload", async (req, res) => {
 			fsExtra.emptyDirSync("./extracted");
 			res.json({});
 		}
-else{
-		// Setup ESLINT and run them on all the files in this folder.
-		const eslint = new ESLint();
-		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
+		else{
+			// Setup ESLINT and run them on all the files in this folder.
+			const eslint = new ESLint();
+			const results = await eslint.lintFiles(["./extracted/**/*.js"]);
 
-		// fileNamesInZipFolder
-		console.log(throughDirectory("./extracted"));
-		console.log(results.map((result) => getRelativePath(result.filePath)));
-		const zipFileRecord = await DAO.addZipFile(
-			zipFileName,
-			new Date(),
-			results.length
-		);
-
-		// This map is used to link student IDs with student names
-		const studentIDsByName = new Map();
-		await Promise.all(
-			[...studentNames].map(async (studentName) =>
-				studentIDsByName.set(
-					studentName,
-					(
-						await DAO.addStudent(studentName, zipFileRecord._id)
-					)._id
-				)
-			)
-		);
-
-		// This map is used to keep the scores of each student in an array
-		const listOfSeverityScoreFilesOwnedByStudents = new Map();
-		studentIDsByName.forEach((value, key) => {
-			listOfSeverityScoreFilesOwnedByStudents.set(value, []);
-		});
-
-		//Go tThrough ESlint detected errors
-		await Promise.all(
-			results.map(async (result) => {
-				const relativePath = getRelativePath(result.filePath);
-				const severityScores = [];
-
-				//add Errors to database
-				const errors = await Promise.all(
-					result.messages.map((message) => {
-						const currentErrorType = convertErrorIDToType(
-							message.ruleId
-						);
-						console.log(
-							`error ${JSON.stringify(
-								ErrorTypes[currentErrorType]
-							)} for ${relativePath}`
-						);
-						severityScores.push(
-							ErrorTypes[currentErrorType]["Severity"]
-						);
-						return DAO.addError(
-							currentErrorType,
-							message.ruleId,
-							message.severity,
-							message.message,
-							message.line,
-							message.column,
-							message.nodeType,
-							message.messageId,
-							message.endLine,
-							message.endColumn
-						);
-					})
-				);
-
-				//TODO TEST THIS FUNCTION
-				//gets the severity score of current file
-				console.log(`severity scoresssssss (( ${severityScores}  )) `);
-				const fileSeverity = getSeverityScore(severityScores, -1);
-				console.log(`***** ${fileSeverity}`);
-
-				//Stores file on the database
-				const fileRecord = await DAO.addFile(
-					relativePath,
-					result.errorCount,
-					result.fatalErrorCount,
-					result.warningCount,
-					result.fixableErrorCount,
-					result.fixableWarningCount,
-					result.source,
-					errors,
-					fileSeverity
-				);
-
-				//Gets the current student
-				const currentStudentID = getStudentIDFromRelPath(
-					relativePath,
-					studentIDsByName
-				);
-
-				//adding files severity scores to the student so we can calculate the students severity score
-				listOfSeverityScoreFilesOwnedByStudents
-					.get(currentStudentID)
-					.push(fileSeverity);
-				console.log(listOfSeverityScoreFilesOwnedByStudents);
-				DAO.addFileToStudent(currentStudentID, fileRecord._id);
-			})
-		); //Out of ESLINT Loop
-
-		//add the list of the students to the zip file on database
-		await DAO.addStudentsToZipFile(
-			zipFileRecord._id,
-			Array.from(studentIDsByName.values())
-		);
-
-		//Where we store the results to then further calculate the classes severity score
-		const ListOfStudentSeverityScores = [];
-		console.log(`listOfSeverityScoreFilesOwnedByStudents`);
-		console.log(listOfSeverityScoreFilesOwnedByStudents);
-		//go through students and calculate and add their severity scores
-		for (const [
-			key,
-			value,
-		] of listOfSeverityScoreFilesOwnedByStudents.entries(
-			listOfSeverityScoreFilesOwnedByStudents
-		)) {
-			temp = getSeverityScore(value);
-			//let average = value.reduce((a, b) => a + b) / value.length;
-			ListOfStudentSeverityScores.push(temp);
-			await DAO.updateStudent(key, temp);
-		}
-
-		ListOfStudentSeverityScores.sort();
-		for (
-			i = 0;
-			i < Math.ceil(ListOfStudentSeverityScores.length / 8);
-			i++
-		) {
-			ListOfStudentSeverityScores.push(
-				ListOfStudentSeverityScores[
-					Math.floor(ListOfStudentSeverityScores.length / 2)
-				]
+			// fileNamesInZipFolder
+			const zipFileRecord = await DAO.addZipFile(
+				zipFileName,
+				new Date(),
+				results.length
 			);
+
+			// This map is used to link student IDs with student names
+			const studentIDsByName = new Map();
+			await Promise.all(
+				[...studentNames].map(async (studentName) =>
+					studentIDsByName.set(
+						studentName,
+						(
+							await DAO.addStudent(studentName, zipFileRecord._id)
+						)._id
+					)
+				)
+			);
+
+			// This map is used to keep the scores of each student in an array
+			const listOfSeverityScoreFilesOwnedByStudents = new Map();
+			studentIDsByName.forEach((value, key) => {
+				listOfSeverityScoreFilesOwnedByStudents.set(value, []);
+			});
+
+			//Go tThrough ESlint detected errors
+			await Promise.all(
+				results.map(async (result) => {
+					const relativePath = getRelativePath(result.filePath);
+					const severityScores = [];
+
+					//add Errors to database
+					const errors = await Promise.all(
+						result.messages.map((message) => {
+							const currentErrorType = convertErrorIDToType(
+								message.ruleId
+							);
+							severityScores.push(
+								ErrorTypes[currentErrorType]["Severity"]
+							);
+							return DAO.addError(
+								currentErrorType,
+								message.ruleId,
+								message.severity,
+								message.message,
+								message.line,
+								message.column,
+								message.nodeType,
+								message.messageId,
+								message.endLine,
+								message.endColumn
+							);
+						})
+					);
+
+					//TODO TEST THIS FUNCTION
+					//gets the severity score of current file
+					const fileSeverity = getSeverityScore(severityScores, -1);
+
+					//Stores file on the database
+					const fileRecord = await DAO.addFile(
+						relativePath,
+						result.errorCount,
+						result.fatalErrorCount,
+						result.warningCount,
+						result.fixableErrorCount,
+						result.fixableWarningCount,
+						result.source,
+						errors,
+						fileSeverity,
+						zipFileRecord._id
+					);
+
+					//Gets the current student
+					const currentStudentID = getStudentIDFromRelPath(
+						relativePath,
+						studentIDsByName
+					);
+
+					//adding files severity scores to the student so we can calculate the students severity score
+					listOfSeverityScoreFilesOwnedByStudents
+						.get(currentStudentID)
+						.push(fileSeverity);
+					DAO.addFileToStudent(currentStudentID, fileRecord._id);
+				})
+			); //Out of ESLINT Loop
+
+			//add the list of the students to the zip file on database
+			await DAO.addStudentsToZipFile(
+				zipFileRecord._id,
+				Array.from(studentIDsByName.values())
+			);
+
+			//Where we store the results to then further calculate the classes severity score
+			const ListOfStudentSeverityScores = [];
+			//go through students and calculate and add their severity scores
+			for (const [
+				key,
+				value,
+			] of listOfSeverityScoreFilesOwnedByStudents.entries(
+				listOfSeverityScoreFilesOwnedByStudents
+			)) {
+				temp = getSeverityScore(value);
+				//let average = value.reduce((a, b) => a + b) / value.length;
+				ListOfStudentSeverityScores.push(temp);
+				await DAO.updateStudent(key, temp);
+			}
+
+			ListOfStudentSeverityScores.sort();
+			for (
+				i = 0;
+				i < Math.ceil(ListOfStudentSeverityScores.length / 8);
+				i++
+			) {
+				ListOfStudentSeverityScores.push(
+					ListOfStudentSeverityScores[
+						Math.floor(ListOfStudentSeverityScores.length / 2)
+					]
+				);
+			}
+
+			let average = Math.ceil(
+				ListOfStudentSeverityScores.reduce((a, b) => a + b) /
+					ListOfStudentSeverityScores.length
+			);
+			//adds the error count and severity score
+			await DAO.updateZipFile(zipFileRecord._id, results.length, average);
+
+			// const responseData = results.map((result) => ({
+			// 	filePath: result.filePath.substring(
+			// 		result.filePath.lastIndexOf("/") + 1
+			// 	),
+			// 	errorCount: result.errorCount,
+			// 	messages: result.messages,
+			// }));
+
+			fsExtra.emptyDirSync("./extracted");
+			res.status(200).json(true);
 		}
-
-		let average = Math.ceil(
-			ListOfStudentSeverityScores.reduce((a, b) => a + b) /
-				ListOfStudentSeverityScores.length
-		);
-		//adds the error count and severity score
-		await DAO.updateZipFile(zipFileRecord._id, results.length, average);
-
-		// const responseData = results.map((result) => ({
-		// 	filePath: result.filePath.substring(
-		// 		result.filePath.lastIndexOf("/") + 1
-		// 	),
-		// 	errorCount: result.errorCount,
-		// 	messages: result.messages,
-		// }));
-
-		fsExtra.emptyDirSync("./extracted");
-		res.status(200).json(true);
-}
 	});
 });
 
@@ -450,37 +430,37 @@ app.get("/overview/zipfiles", async (req, res) => {
 });
 
 app.get("/generateReport", async (req, res) => {
-	const zipFiles = await DAO.getFile();
+	var files = await DAO.getFile();
 	
-	if (!zipFiles) {
+	if (!files) {
 		res.status(400).json(false);
 		return;
 	}
-	
+	files = files.filter((file) => req.query.zipFileIds.indexOf(file.ParentZipFileId.toString()) != -1);
+
 	const map =  new Map();
 	var numFiles = 0;
 	var numErrors = 0;
-	for (index in zipFiles) {
+	files.forEach((file) => {
 		numFiles++;
-		for (err in zipFiles[index].Errors) {
+		file.Errors.forEach((err) => {
 			numErrors++;
-			console.log(zipFiles[index].Errors[err].Message);
-			if (map.has(zipFiles[index].Errors[err].ErrorType)) {
-				var newObj = map.get(zipFiles[index].Errors[err].ErrorType);
+			if (map.has(err.ErrorType)) {
+				var newObj = map.get(err.ErrorType);
 				newObj.frequency++;
-				map.set(zipFiles[index].Errors[err].ErrorType, newObj);
+				map.set(err.ErrorType, newObj);
 			}
 			else {
 				var newObj = {
-				  ErrorType: zipFiles[index].Errors[err].ErrorType,
-					Message: zipFiles[index].Errors[err].Message,
-					Severity: zipFiles[index].Errors[err].Severity,
+				  ErrorType: err.ErrorType,
+					Message: err.Message,
+					Severity: err.Severity,
 					frequency: 1
 				}
-				map.set(zipFiles[index].Errors[err].ErrorType, newObj);
+				map.set(err.ErrorType, newObj);
 			}
-		}		
-	}
+		}	);	
+	});
 	var response = "Most Common Vulnerabilities in JavaScript Files\n"+
 				"Error Type, Message, Severity, Frequency per file, Percentage of all vulnerabilities\n";
 	var errors = [...map.values()];
