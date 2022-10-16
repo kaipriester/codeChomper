@@ -20,7 +20,7 @@ exports.getFile = async (id) => {
 			.populate({
 				path: "Errors", 
 				model: "Error"
-			});;
+			});
 };
 
 exports.addUser = async (Username, Hash) => {
@@ -68,7 +68,8 @@ exports.addFile = async (
 	FixableWarningCount,
 	Source,
 	Errors,
-	SeverityScore
+	SeverityScore,
+	ParentZipFileId
 ) => {
 	return await File.create({
 		Name,
@@ -80,6 +81,7 @@ exports.addFile = async (
 		Source,
 		Errors,
 		SeverityScore,
+		ParentZipFileId 
 	});
 };
 
