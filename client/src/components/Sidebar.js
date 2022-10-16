@@ -57,6 +57,15 @@ function Sidebar(props) {
 					<Icon name="chart bar" />
 					Metrics
 				</Menu.Item>
+
+				<Menu.Item
+				  name="reports"
+					active={false}
+					onClick={() => updateRoute("DownloadReportPage")}
+					>
+						<Icon name="download" />
+						Download Reports
+					</Menu.Item>
 			</Menu>
 		</>
 	);
