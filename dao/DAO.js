@@ -2,7 +2,7 @@ const User = require("../models/User.js").Model;
 const Student = require("../models/Student.js").Model;
 const ZipFile = require("../models/ZipFile.js").Model;
 const File = require("../models/File.js").Model;
-const Error = require("../models/Error.js").Model;
+const Error = require("../models/JSError.js").Model;
 const ErrorList = require("../models/ErrorTypes.js").ErrorList;
 
 exports.getUser = async (username) => {
