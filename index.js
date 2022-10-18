@@ -188,7 +188,7 @@ app.delete("/deleteZipFolder", async (req, res) => {
 });
 
 app.delete("/deleteAll", async (req, res) => {
-    console.log("DELET ALL")
+    console.log("DELETE ALL")
 	if (!req.session.loggedIn) {
 		res.json(false);
 		return;
@@ -413,14 +413,13 @@ app.post("/upload", async (req, res) => {
 
 app.get("/ping", (req, res) =>
 {
+  res.status(200);
   if (req.session.loggedIn)
   {
-    res.status(200);
     res.json(true);
   }
   else
   {
-    res.status(200);
     res.json(false);
   }
 });
@@ -444,45 +443,50 @@ app.get("/overview/zipfiles", async (req, res) => {
 });
 
 app.get("/generateReport", async (req, res) => {
-	var files = await DAO.getFile();
+	if (req.session.loggedIn) {
+		var files = await DAO.getFile();
 	
-	if (!files) {
-		res.status(400).json(false);
-		return;
-	}
-	files = files.filter((file) => req.query.zipFileIds.indexOf(file.ParentZipFileId.toString()) != -1);
+		if (!files) {
+			res.status(400).json(false);
+			return;
+		}
+		files = files.filter((file) => req.query.zipFileIds.indexOf(file.ParentZipFileId.toString()) != -1);
 
-	const map =  new Map();
-	var numFiles = 0;
-	var numErrors = 0;
-	files.forEach((file) => {
-		numFiles++;
-		file.Errors.forEach((err) => {
-			numErrors++;
-			if (map.has(err.ErrorType)) {
-				var newObj = map.get(err.ErrorType);
-				newObj.frequency++;
-				map.set(err.ErrorType, newObj);
-			}
-			else {
-				var newObj = {
-				  ErrorType: err.ErrorType,
-					Message: err.Message,
-					Severity: err.Severity,
-					frequency: 1
+		const map =  new Map();
+		var numFiles = 0;
+		var numErrors = 0;
+		files.forEach((file) => {
+			numFiles++;
+			file.Errors.forEach((err) => {
+				numErrors++;
+				if (map.has(err.ErrorType)) {
+					var newObj = map.get(err.ErrorType);
+					newObj.frequency++;
+					map.set(err.ErrorType, newObj);
 				}
-				map.set(err.ErrorType, newObj);
-			}
-		}	);	
-	});
-	var response = "Most Common Vulnerabilities in JavaScript Files\n"+
-				"Error Type, Message, Severity, Frequency per file, Percentage of all vulnerabilities\n";
-	var errors = [...map.values()];
-	errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
-	errors.forEach((error) => {
-		response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/numFiles + "," + error.frequency/numErrors+"\n";
-	})
-	res.json(response);
+				else {
+					var newObj = {
+				  	ErrorType: err.ErrorType,
+						Message: err.Message,
+						Severity: err.Severity,
+						frequency: 1
+					}
+					map.set(err.ErrorType, newObj);
+				}
+			}	);	
+		});
+		var response = "Most Common Vulnerabilities in JavaScript Files\n"+
+					"Error Type, Message, Severity, Frequency per file, Percentage of all vulnerabilities\n";
+		var errors = [...map.values()];
+		errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
+		errors.forEach((error) => {
+			response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/numFiles + "," + error.frequency/numErrors+"\n";
+		})
+		res.json(response);
+	}
+	else {
+		res.status(200).json(false);
+	}
 });
 
 app.post("/login", async (req, res) =>
@@ -563,24 +567,52 @@ app.post("/logout", (req, res) =>
 });
 
 // overview page- view more data fom invidual zip files
-app.get("/studentfiles", async (req, res) => {
-	if (!req.session.loggedIn) {
+app.get("/studentfiles", async (req, res) =>
+{
+	res.status(200);
+	if (req.session.loggedIn)
+	{
+		res.json(await DAO.getZipFile(req.query.id));
+	}
+	else
+	{
 		res.json(false);
 		return;
 	}
-	res.json(await DAO.getZipFile(req.query.id));
 });
 
-app.get("/ErrorTypes", async (req, res) => {
-	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+app.get("/ErrorTypes", async (req, res) =>
+{
+	res.status(200);
+	if (req.session.loggedIn)
+	{
+		res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+	}
+	else
+	{
+		res.json(false);
+	}
 });
 
 app.get("/ErrorTypesNum", async (req, res) => {
-	res.json(ErrorTypeDetail.getErrorTypesNum());
+	res.status(200);
+	if (req.session.loggedIn)
+	{
+		res.json(ErrorTypeDetail.getErrorTypesNum());
+	}
+	else
+	{
+		res.json(false);
+	}
 });
 
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+});
+
+app.all("*", (req, res) =>
+{
+	res.status(404).send();
 });
 
 app.listen(port, () => {
