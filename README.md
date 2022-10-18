@@ -14,11 +14,19 @@ Whether we realize it or not, software impacts our daily lives in almost every a
 
 ## Technical Documentation 
 ### For Local Development
-1. Clone this repo
-2. Work on your own dev branch
-3. Add .env (contact developers for values)
-4. In root `$: npm install`
-5. cd into client and `$: npm install` then `$: npm run build`
-6. Return to root and `$: node index.js`
-7. Should see ` Example app listening at http://localhost:8080
+1. `~$ git clone [repository URL] && git switch [name]-dev`
+2. Supply values to `codeChomper/.env.template` and save as `codeChomper/.env`
+3. `~/codeChomper$ npm install`
+4. `~/codeChomper/client$ npm install && npm run build` (production, static) or `~/codeChomper/client$ npm install && npm start` (development, dynamic)
+5. `~/codeChomper$ node index.js` (in separate terminal if latter method of (4) was used)
+6. On success, console will output `Example app listening at http://localhost:8080
 Database connection open`
+
+### Updating/Recompiling Bandit
+1. Download and install [Python](https://www.python.org/downloads/)
+2. Using pip, download and install PyInstaller and Bandit (`pip install pyinstaller` and `pip install bandit`)
+3. `~/codeChomper/bandit/update$ pyinstaller -F --additional-hooks-dir=hooks bandit.py`
+4. Overwrite `codeChomper/bandit/bandit.exe` with `codeChomper/bandit/update/dist/bandit.exe`
+5. Any newly generated directories or files within `codeChomper/bandit/update`, such as the `dist`, `build`, and `hooks/__pycache__` directories as well as any `.spec` files, should be deleted
+6. If desired, PyInstaller and Bandit may be uninstalled (`pip uninstall pyinstaller` and `pip uninstall bandit`)
+7. If desired, Python may also be uninstalled
