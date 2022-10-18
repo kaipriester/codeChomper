@@ -14,7 +14,7 @@ Whether we realize it or not, software impacts our daily lives in almost every a
 
 ## Technical Documentation 
 ### For Local Development
-1. `~$ git clone [repository url] && git switch [name]-dev`
+1. `~$ git clone [repository URL] && git switch [name]-dev`
 2. Supply values to `codeChomper/.env.template` and save as `codeChomper/.env`
 3. `~/codeChomper$ npm install`
 4. `~/codeChomper/client$ npm install && npm run build` (production, static) or `~/codeChomper/client$ npm install && npm start` (development, dynamic)
