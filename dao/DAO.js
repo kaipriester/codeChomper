@@ -15,8 +15,14 @@ exports.getStudent = async (id) => {
 // 	return ZipFile.find();
 // };
 exports.getFile = async (id) => {
-	return File.find();
+	return File.find()
+		.lean()
+			.populate({
+				path: "Errors", 
+				model: "Error"
+			});
 };
+
 exports.addUser = async (Username, Hash) => {
 	return await User.create({ Username, Hash });
 };
@@ -62,7 +68,8 @@ exports.addFile = async (
 	FixableWarningCount,
 	Source,
 	Errors,
-	SeverityScore
+	SeverityScore,
+	ParentZipFileId
 ) => {
 	return await File.create({
 		Name,
@@ -74,6 +81,7 @@ exports.addFile = async (
 		Source,
 		Errors,
 		SeverityScore,
+		ParentZipFileId 
 	});
 };
 

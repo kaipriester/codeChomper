@@ -24,6 +24,14 @@ else
 	}
 }
 
+const generateReport = async (zipFiles) => {
+	return await axios.get(url + "generateReport", {
+		params: {
+			zipFileIds: zipFiles,
+		}
+	});
+};
+
 const login = async (username, password) => {
 	return await axios.post((url + "login"), { username: username, password: password });
 };
@@ -75,4 +83,5 @@ export {
 	getErrorTypes,
 	getErrorTypesNum,
 	deleteZipFolder,
+	generateReport,
 };
