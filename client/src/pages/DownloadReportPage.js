@@ -36,8 +36,7 @@ function DownloadReport() {
 	};
 
   useEffect(async () => {
-		const results = (await getZipFileMetadata()).data
-			.zipFileData;
+		const results = (await getZipFileMetadata()).data;
 		setData(
 			results.map((result) => {
 				return {

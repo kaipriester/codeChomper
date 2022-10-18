@@ -59,7 +59,7 @@ database.connect();
 	{
 		const salt = await bcrypt.genSalt(saltRounds);
 		const hash = await bcrypt.hash(process.env.MASTER_PASSWORD, salt);
-		await DAO.addUser(process.env.MASTER_USERNAME, hash);
+		await DAO.addUser(process.env.MASTER_USERNAME, hash, true);
 		console.log("Registered master account.");
 	}
 	delete process.env.MASTER_USERNAME;
@@ -176,30 +176,42 @@ function median(values) {
 
 	return (values[half - 1] + values[half]) / 2.0;
 }
-app.delete("/deleteZipFolder", async (req, res) => {
-	console.log("I am deleting")
-	if (!req.session.loggedIn) {
-		res.json(false);
-		return;
+app.delete("/deleteZipFolder", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		if ((await DAO.getZipFile(req.query.id)).Owner === req.session.username)
+		{
+			DAO.deleteZipFolder(req.query.id);
+			res.status(202).json(true);
+		}
+		else
+		{
+			res.status(403).json(false);
+		}
 	}
-	console.log(`Deleting:Password confirmed, id is ${req.query.id}`)
-	DAO.deleteZipFolder(req.query.id);
-	console.log("Deleting:I am done deleting")
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 
-app.delete("/deleteAll", async (req, res) => {
-    console.log("DELETE ALL")
-	if (!req.session.loggedIn) {
-		res.json(false);
-		return;
+app.delete("/deleteAll", async (req, res) =>
+{
+	if (req.session.admin)
+	{
+		DAO.clearDatabase();
+		res.status(202).json(true);
 	}
-	DAO.clearDatabase();
-
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
-	if (!req.session.loggedIn) {
-		res.status(200).json(false);
+	if (!req.session.username) {
+		res.status(403).json(false);
 		return;
 	}
 	const zipFile = req.files.file;
@@ -272,6 +284,7 @@ app.post("/upload", async (req, res) => {
 			const zipFileRecord = await DAO.addZipFile(
 				zipFileName,
 				new Date(),
+				req.session.username,
 				results.length
 			);
 
@@ -338,8 +351,7 @@ app.post("/upload", async (req, res) => {
 						result.fixableWarningCount,
 						result.source,
 						errors,
-						fileSeverity,
-						zipFileRecord._id
+						fileSeverity
 					);
 
 					//Gets the current student
@@ -414,7 +426,7 @@ app.post("/upload", async (req, res) => {
 app.get("/ping", (req, res) =>
 {
   res.status(200);
-  if (req.session.loggedIn)
+  if (req.session.username)
   {
     res.json(true);
   }
@@ -425,38 +437,56 @@ app.get("/ping", (req, res) =>
 });
 
 // overview page- return all uploaded zip files
-app.get("/overview/zipfiles", async (req, res) => {
-	if (!req.session.loggedIn) {
-		res.json(false);
-		return;
+app.get("/overview/zipfiles", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200);
+		if (req.session.admin)
+		{
+			res.json(await DAO.getZipFiles());
+		}
+		else
+		{
+			res.json(await DAO.getZipFiles(req.session.username));
+		}
 	}
-	const response = {
-		graphData: {}, //TODO
-		zipFileData: await DAO.getAllZipFiles(),
-	};
-	res.json(response);
-
-	// also return information to build graphs- GRACE working on it!!
-	// grace has ~ideas~
-
-	// return: zip file name, date uploaded, number of files, detections, security scores
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 
-app.get("/generateReport", async (req, res) => {
-	if (req.session.loggedIn) {
-		var files = await DAO.getFile();
-	
-		if (!files) {
+app.post("/generateReport", async (req, res) => {
+	if (req.session.username)
+	{
+		if ((!req.body.zipFiles) || (req.body.zipFiles.length === 0))
+		{
 			res.status(400).json(false);
 			return;
 		}
-		files = files.filter((file) => req.query.zipFileIds.indexOf(file.ParentZipFileId.toString()) != -1);
+		let file = null;
+		let files = [];
+		for (let i = 0; i < req.body.zipFiles.length; i++)
+		{
+			file = await DAO.getZipFileRaw(req.body.zipFiles[i]);
+			if (!file || (file.Owner !== req.session.username))
+			{
+				res.status(403).json(false); // 403 notwithstanding to prevent the existence of a file with the specified ID from being ascertained
+				return;
+			}
+			for (let j = 0; j < file.Students.length; j++)
+			{
+				for (let k = 0; k < file.Students[j].Files.length; k++)
+				{
+					files.push(file.Students[j].Files[k]);
+				}
+			}
+		}
 
 		const map =  new Map();
-		var numFiles = 0;
 		var numErrors = 0;
 		files.forEach((file) => {
-			numFiles++;
 			file.Errors.forEach((err) => {
 				numErrors++;
 				if (map.has(err.ErrorType)) {
@@ -467,7 +497,7 @@ app.get("/generateReport", async (req, res) => {
 				else {
 					var newObj = {
 				  	ErrorType: err.ErrorType,
-						Message: err.Message,
+						Message: err.Message.replace(",", ""),
 						Severity: err.Severity,
 						frequency: 1
 					}
@@ -480,18 +510,19 @@ app.get("/generateReport", async (req, res) => {
 		var errors = [...map.values()];
 		errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
 		errors.forEach((error) => {
-			response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/numFiles + "," + error.frequency/numErrors+"\n";
+			response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/files.length + "," + error.frequency/numErrors+"\n";
 		})
 		res.json(response);
 	}
-	else {
-		res.status(200).json(false);
+	else
+	{
+		res.status(403).json(false);
 	}
 });
 
 app.post("/login", async (req, res) =>
 {
-	if (!req.session.loggedIn && req.body.username && req.body.password)
+	if (!req.session.username && req.body.username && req.body.password)
 	{
 		const user = await DAO.getUser(req.body.username);
 		if (user)
@@ -505,14 +536,19 @@ app.post("/login", async (req, res) =>
 				}
 				else
 				{
+					res.status(200);
 					if (result)
 					{
-						req.session.loggedIn = true;
-						res.status(200).json(true);
+						req.session.username = req.body.username;
+						if (user.Admin)
+						{
+							req.session.admin = true;
+						}
+						res.json(true);
 					}
 					else
 					{
-						res.status(200).json(false);
+						res.json(false);
 					}
 				}
 			});
@@ -532,18 +568,17 @@ app.post("/signup", async (req, res) =>
 {
 	if (req.body.username && req.body.password && /^[a-zA-Z0-9]+$/.test(req.body.username) && /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
 	{
-		const user = await DAO.getUser(req.body.username);
-		if (user)
-		{
-			res.status(409).json(false);
-		}
-		else
+		try
 		{
 			const salt = await bcrypt.genSalt(saltRounds);
 			const hash = await bcrypt.hash(req.body.password, salt);
-			await DAO.addUser(req.body.username, hash);
-			req.session.loggedIn = true;
+			await DAO.addUser(req.body.username, hash, false);
+			req.session.username = req.body.username;
 			res.status(200).json(true);
+		}
+		catch (err)
+		{
+			res.status(409).json(false);
 		}
 	}
 	else
@@ -555,7 +590,7 @@ app.post("/signup", async (req, res) =>
 
 app.post("/logout", (req, res) =>
 {
-	if (req.session.loggedIn)
+	if (req.session.username)
 	{
 		req.session.destroy();
 		res.status(200).send();
@@ -569,40 +604,46 @@ app.post("/logout", (req, res) =>
 // overview page- view more data fom invidual zip files
 app.get("/studentfiles", async (req, res) =>
 {
-	res.status(200);
-	if (req.session.loggedIn)
+	if (req.session.username)
 	{
-		res.json(await DAO.getZipFile(req.query.id));
+		const file = await DAO.getZipFile(req.query.id);
+		if (file.Owner === req.session.username)
+		{
+			res.status(200).json(file);
+		}
+		else
+		{
+			res.status(403).json(false);
+		}
 	}
 	else
 	{
-		res.json(false);
+		res.status(403).json(false);
 		return;
 	}
 });
 
 app.get("/ErrorTypes", async (req, res) =>
 {
-	res.status(200);
-	if (req.session.loggedIn)
+	if (req.session.username)
 	{
-		res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+		res.status(200).json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
 	}
 	else
 	{
-		res.json(false);
+		res.status(403).json(false);
 	}
 });
 
-app.get("/ErrorTypesNum", async (req, res) => {
-	res.status(200);
-	if (req.session.loggedIn)
+app.get("/ErrorTypesNum", async (req, res) =>
+{
+	if (req.session.username)
 	{
-		res.json(ErrorTypeDetail.getErrorTypesNum());
+		res.status(200).json(ErrorTypeDetail.getErrorTypesNum());
 	}
 	else
 	{
-		res.json(false);
+		res.status(403).json(false);
 	}
 });
 

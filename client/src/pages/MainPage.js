@@ -173,8 +173,7 @@ function MainPage(props) {
 	})();
 
 	useEffect(async () => {
-		const results = (await getZipFileMetadata()).data
-			.zipFileData;
+		const results = (await getZipFileMetadata()).data;
 		console.log(results);
 		setFiles(
 			results.map((result) => {

@@ -25,11 +25,7 @@ else
 }
 
 const generateReport = async (zipFiles) => {
-	return await axios.get(url + "generateReport", {
-		params: {
-			zipFileIds: zipFiles,
-		}
-	});
+	return await axios.post((url + "generateReport"), { zipFiles: zipFiles });
 };
 
 const login = async (username, password) => {

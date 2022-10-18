@@ -10,7 +10,7 @@ const Schema = new mongoose.Schema({
 	NodeType: String,
 	MessageId: String,
 	EndLine: Number,
-	EndColumn: Number,
+	EndColumn: Number
 });
 
 exports.Model = mongoose.model("Error", Schema);

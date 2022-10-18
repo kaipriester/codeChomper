@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import {
 	Grid,
 	Card,
@@ -11,7 +10,6 @@ import {
 	Message,
 } from "semantic-ui-react";
 import { upload } from "../client/API.js";
-axios.defaults.withCredentials = true;
 
 function UploadPage() {
 	const [file, setFile] = useState();
@@ -41,9 +39,8 @@ function UploadPage() {
 				setStatus("failure");
 			}
 		}
-		catch (ex)
+		catch (err)
 		{
-			console.log(ex);
 			setStatus("failure");
 		}
 	};
