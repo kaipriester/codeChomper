@@ -44,6 +44,10 @@ const logout = async () => {
 	return await axios.post(url + "logout");
 };
 
+const ping = async () => {
+	return await axios.get(url + "ping");
+};
+
 const upload = async (formData) => {
 	return axios.post((url + "upload"), formData);
 };
@@ -79,6 +83,7 @@ export {
 	login,
 	signup,
 	logout,
+	ping,
 	upload,
 	getErrorTypes,
 	getErrorTypesNum,

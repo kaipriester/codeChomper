@@ -5,13 +5,15 @@ import { logout } from "../client/API.js";
 
 function TopBar(props) {
 
-  const { updateRouteHandler } = props;
-  const [cookies, setCookie, removeCookie] = useCookies(["loggedIn"]);
+	const { updateZipFileHandler, updateRouteHandler } = props;
+	const [cookies, setCookie, removeCookie] = useCookies(["loggedIn"]);
 
-	const logout_wrapper = async (updateRouteHandler) => {
+	const logout_wrapper = async (updateRouteHandler) =>
+	{
 		await logout();
+		removeCookie("loggedIn", { path: "/" });
+		updateZipFileHandler("undefined");
 		updateRouteHandler("LogIn");
-    removeCookie("loggedIn", { path: "/" });
 	};
 	return (
 		<div>

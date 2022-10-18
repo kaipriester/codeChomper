@@ -411,6 +411,20 @@ app.post("/upload", async (req, res) => {
 	});
 });
 
+app.get("/ping", (req, res) =>
+{
+  if (req.session.loggedIn)
+  {
+    res.status(200);
+    res.json(true);
+  }
+  else
+  {
+    res.status(200);
+    res.json(false);
+  }
+});
+
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) => {
 	if (!req.session.loggedIn) {
