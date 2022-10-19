@@ -8,7 +8,7 @@ const Schema = new mongoose.Schema({
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "File",
 		},
-	],
+	]
 });
 
 exports.Model = mongoose.model("Student", Schema);

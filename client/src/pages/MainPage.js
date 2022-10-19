@@ -15,7 +15,8 @@ import {
 	Confirm,
 } from "semantic-ui-react";
 import { Range } from "react-range";
-import { getZipFileMetadata, deleteZipFolder } from "../client/API.js";
+import { useCookies } from "react-cookie";
+import { ping, getZipFileMetadata, deleteZipFolder } from "../client/API.js";
 import { ZipChartsPage } from "../components/ChartsPage";
 import DateRangePicker from "@wojtekmaj/react-daterange-picker";
 
@@ -29,6 +30,7 @@ function MainPage(props) {
 	const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
 	const { updateRouteHandler, updateZipFileHandler } = props;
+	const [cookies, setCookie, removeCookie] = useCookies(["loggedIn"]);
 	const [files, setFiles] = useState([]);
 
 	const panes = [
@@ -159,9 +161,19 @@ function MainPage(props) {
 		setFiles(files.filter((file) => file.id !== id));
 	};
 
+	(async () =>
+	{
+		const res = await ping();
+		if (!res.data)
+		{
+			removeCookie("loggedIn", { path: "/" });
+			updateZipFileHandler("undefined");
+			updateRouteHandler("LogIn");
+		}
+	})();
+
 	useEffect(async () => {
-		const results = (await getZipFileMetadata()).data
-			.zipFileData;
+		const results = (await getZipFileMetadata()).data;
 		console.log(results);
 		setFiles(
 			results.map((result) => {
