@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table } from 'antd';
 import { getZipFileMetadata, generateReport } from "../client/API.js";
 import FileDownload from "js-file-download";
-import 'antd/dist/antd.css';
+import 'antd/dist/antd.min.css';
 import { Button, Icon } from "semantic-ui-react";
 
 const columns = [{
@@ -33,11 +33,10 @@ function DownloadReport() {
   async function downloadReport() {
 		var result = await generateReport(selectedRowKeys);
 		FileDownload(result.data, "Report.csv");
-	};
+	}
 
   useEffect(async () => {
-		const results = (await getZipFileMetadata()).data
-			.zipFileData;
+		const results = (await getZipFileMetadata()).data;
 		setData(
 			results.map((result) => {
 				return {
@@ -76,6 +75,6 @@ function DownloadReport() {
 
     </div>
   );
-};
+}
 
 export default DownloadReport;

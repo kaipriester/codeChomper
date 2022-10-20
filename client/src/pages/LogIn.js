@@ -60,7 +60,7 @@ function LogIn(props) {
 				)}
 			</Grid.Row>
 			<Grid.Row>
-				<h2>New Here?</h2>
+				<h2>New here?</h2>
 			</Grid.Row>
 			<Grid.Row>
 				<Button onClick={() => signUpPage()}>Create an Account</Button>

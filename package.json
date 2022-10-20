@@ -27,6 +27,7 @@
     "mongoose": "^6.2.7",
     "node-stream-zip": "^1.15.0",
     "nodemon": "^2.0.15",
+    "package.json": "^2.0.1",
     "python-shell": "^3.0.1"
   },
   "nodemonConfig": {

@@ -70,7 +70,10 @@ function App() {
 						/>
 				</Grid.Column>
 				<Grid.Column width={13} style={{ paddingLeft: 0 }}>
-					<TopBar updateRouteHandler={setCurrentRoute} />
+					<TopBar
+						updateZipFileHandler={setCurrentZipFileId}
+						updateRouteHandler={setCurrentRoute}
+					/>
 					{getCurrentRoute()}
 				</Grid.Column>
 				</Grid>

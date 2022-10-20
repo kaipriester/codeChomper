@@ -2,18 +2,17 @@ const User = require("../models/User.js").Model;
 const Student = require("../models/Student.js").Model;
 const ZipFile = require("../models/ZipFile.js").Model;
 const File = require("../models/File.js").Model;
-const Error = require("../models/Error.js").Model;
+const Error = require("../models/JSError.js").Model;
 const ErrorList = require("../models/ErrorTypes.js").ErrorList;
 
-exports.getUser = async (username) => {
+exports.getUser = async (username) =>
+{
 	return User.findOne({ Username: username }).exec();
 };
 exports.getStudent = async (id) => {
 	return Student.find();
 };
-// exports.getZipFile = async (id) => {
-// 	return ZipFile.find();
-// };
+
 exports.getFile = async (id) => {
 	return File.find()
 		.lean()
@@ -23,14 +22,22 @@ exports.getFile = async (id) => {
 			});
 };
 
-exports.addUser = async (Username, Hash) => {
-	return await User.create({ Username, Hash });
+exports.addUser = async (Username, Hash, Admin) =>
+{
+	if (Admin)
+	{
+		return await User.create({ Username: Username, Hash: Hash, Admin: true });
+	}
+	else
+	{
+		return await User.create({ Username: Username, Hash: Hash, Admin: false });
+	}
 };
 exports.addStudent = async (Name, ZipFolderID) => {
 	return await Student.create({ Name, ZipFolderID, Files: [] });
 };
-exports.addZipFile = async (Name, Date, FileCount) => {
-	return await ZipFile.create({ Name, Date, FileCount });
+exports.addZipFile = async (Name, Date, Owner, FileCount) => {
+	return await ZipFile.create({ Name, Date, Owner, FileCount });
 };
 
 exports.addError = async (
@@ -54,7 +61,7 @@ exports.addError = async (
 		NodeType,
 		MessageId,
 		EndLine,
-		EndColumn,
+		EndColumn
 	});
 	return error._id;
 };
@@ -68,8 +75,7 @@ exports.addFile = async (
 	FixableWarningCount,
 	Source,
 	Errors,
-	SeverityScore,
-	ParentZipFileId
+	SeverityScore
 ) => {
 	return await File.create({
 		Name,
@@ -80,8 +86,7 @@ exports.addFile = async (
 		FixableWarningCount,
 		Source,
 		Errors,
-		SeverityScore,
-		ParentZipFileId 
+		SeverityScore
 	});
 };
 
@@ -93,7 +98,7 @@ exports.addFileToStudent = async (StudentId, FileID) => {
 		{
 			$push: {
 				Files: FileID,
-			},
+			}
 		}
 	);
 };
@@ -104,7 +109,7 @@ exports.addStudentsToZipFile = async (ZipFileId, Students) => {
 		{
 			$set: {
 				Students: Students,
-			},
+			}
 		}
 	);
 };
@@ -126,7 +131,7 @@ exports.getZipFile = async (id) => {
 				path: "Files",
 				model: "File",
 				populate: { path: "Errors", model: "Error" },
-			},
+			}
 		});
 
 	zipFile.Students.forEach((student, i) => {
@@ -142,7 +147,6 @@ exports.getZipFile = async (id) => {
 					EndLine: error.EndLine,
 					EndColumn: error.EndColumn,
 				};
-				// console.log(updatedError);
 
 				zipFile.Students[i].Files[j].Errors[k] = updatedError;
 			});
@@ -151,8 +155,29 @@ exports.getZipFile = async (id) => {
 	return zipFile;
 };
 
-exports.getAllZipFiles = async () => {
-	return await ZipFile.find({}).exec();
+exports.getZipFileRaw = async (id) => {
+	return (await ZipFile.findById(id)
+		.lean()
+		.populate({
+			path: "Students",
+			populate: {
+				path: "Files",
+				model: "File",
+				populate: { path: "Errors", model: "Error" },
+			}
+		}));
+};
+
+exports.getZipFiles = async (owner) =>
+{
+	if (owner)
+	{
+		return await ZipFile.find({Owner: owner}).exec();
+	}
+	else
+	{
+		return await ZipFile.find({}).exec();
+	}
 };
 exports.getAllStudentFiles = async () => {
 	return await Student.find({}).exec();
@@ -167,7 +192,7 @@ exports.deleteZipFolder= async (zipFolderID) => {
 			path: "Files",
 			model: "File",
 			populate: { path: "Errors", model: "Error" },
-		},
+		}
 	});
 	console.log("database deleter: I found the zipfile")
 	zipFile.Students.forEach((student, i) => {
