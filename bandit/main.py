@@ -2,6 +2,7 @@ import subprocess
 import importlib.util
 import sys
 import bandit
+import json
 
 def install_bandit():
     name = 'bandit'
@@ -28,14 +29,17 @@ def run_bandit():
     #print(sys.argv[2])
 
     if sys.argv[2] != "0": 
-        list_files = subprocess.run(["python", "-m","bandit", "-r",sys.argv[1], "-f", "json"])
+        #list_files = subprocess.run(["py", "-m","bandit", "-r",sys.argv[1], "-f", "json"], stdout=subprocess.PIPE)
+        list_files = subprocess.run(["py", "-m","bandit", "-r",sys.argv[1], "-f", "json"], stdout=subprocess.PIPE)
+        #print("the list_files was")
+        #print(list_files.stdout.decode('utf-8'))
+        print(json.dumps(list_files.stdout.decode('utf-8'),ensure_ascii=False))
     else:
-        list_files = subprocess.run(["python", "-m","bandit", "-r",sys.argv[1], "-f", "csv"]) 
-  
-    print("The exit code was: %d" % list_files.returncode)
+        list_files = subprocess.run(["py", "-m","bandit", "-r",sys.argv[1], "-f", "csv"])   
+    #print("The exit code was: %d" % list_files.returncode)
 
 
 if __name__ == '__main__':
-    # install_bandit()
+    #install_bandit()
     run_bandit()
    

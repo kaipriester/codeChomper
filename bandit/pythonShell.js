@@ -3,7 +3,7 @@ let {PythonShell} = require('python-shell')
 exports.runBandit = async (dirToPyFiles, isJson)=> {
     //"C:\\Users\\Dryan\\Desktop\\SRPROJtests\\pythonTests"
     let optionsJSON = {
-    mode: 'text',
+    mode: 'json',
     //pythonPath: 'path/to/python',
     pythonOptions: ["-u"], // get print results in real-time
     scriptPath: __dirname,
