@@ -13,6 +13,7 @@ if (process.env.DB_NAME)
 {
     uri = (uri.substring(0, (uri.split("/", 3).join("/").length + 1)) + process.env.DB_NAME + uri.substring(uri.indexOf("?")));
 }
+
 mongoose.connection.on("connected", () => {
 	console.log(`Database connection open`);
 });
@@ -37,7 +38,7 @@ process.on("SIGINT", (error, data) => {
 
 exports.connect = () => {
 	mongoose.connect(
-		process.env.MONGODB_URI,
+		uri,
 		{ useNewUrlParser: true, useUnifiedTopology: true }
 	);
 };
@@ -45,4 +46,5 @@ exports.connect = () => {
 exports.disconnect = () => {
 	mongoose.disconnect();
 };
+
 exports.uri = uri;

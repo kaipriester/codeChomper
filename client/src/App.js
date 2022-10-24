@@ -12,6 +12,7 @@ import MetricsPage from "./pages/Metrics";
 import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
+import DownloadReportPage from "./pages/DownloadReportPage";
 import { useCookies } from "react-cookie";
 
 function App() {
@@ -52,7 +53,8 @@ function App() {
 				return <BugListPage />;
 			case "MetricsPage":
 				return <MetricsPage />;
-			
+			case "DownloadReportPage":
+				return <DownloadReportPage/>
 		}
 	};
 
@@ -68,7 +70,10 @@ function App() {
 						/>
 				</Grid.Column>
 				<Grid.Column width={13} style={{ paddingLeft: 0 }}>
-					<TopBar updateRouteHandler={setCurrentRoute} />
+					<TopBar
+						updateZipFileHandler={setCurrentZipFileId}
+						updateRouteHandler={setCurrentRoute}
+					/>
 					{getCurrentRoute()}
 				</Grid.Column>
 				</Grid>

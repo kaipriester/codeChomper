@@ -13,10 +13,8 @@ const path = require("path");
 const { ESLint } = require("eslint");
 const database = require("./database/database.js");
 const DAO = require("./dao/DAO.js");
-const convertErrorIDToType =
-	require("./models/ErrorTypes.js").convertRuleIDToErrorType;
+const convertErrorIDToType = require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
-
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
 const app = express();
@@ -26,8 +24,7 @@ const origin = new RegExp(("^https?://[0-9a-z+\\-*/=~_#@$&%()[\\]',;.?!]+:" + re
 const saltRounds = 12;
 
 const corsOptions = {
-	//unsafe? REVERT?
-	origin: "*",
+	origin: origin,
 	optionsSuccessStatus: 200,
 	credentials: true
 };
@@ -55,7 +52,6 @@ app.use(express.static(path.join(__dirname, "client", "build")));
 
 database.connect();
 
-
 (async () =>
 {
 	const user = await DAO.getUser(process.env.MASTER_USERNAME);
@@ -63,7 +59,7 @@ database.connect();
 	{
 		const salt = await bcrypt.genSalt(saltRounds);
 		const hash = await bcrypt.hash(process.env.MASTER_PASSWORD, salt);
-		await DAO.addUser(process.env.MASTER_USERNAME, hash);
+		await DAO.addUser(process.env.MASTER_USERNAME, hash, true);
 		console.log("Registered master account.");
 	}
 	delete process.env.MASTER_USERNAME;
@@ -180,44 +176,50 @@ function median(values) {
 
 	return (values[half - 1] + values[half]) / 2.0;
 }
-app.delete("/deleteZipFolder", async (req, res) => {
-	console.log("I am deleting")
-	if (!req.session.loggedIn) {
-		res.json(false);
-		return;
+app.delete("/deleteZipFolder", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		if ((await DAO.getZipFile(req.query.id)).Owner === req.session.username)
+		{
+			DAO.deleteZipFolder(req.query.id);
+			res.status(202).json(true);
+		}
+		else
+		{
+			res.status(403).json(false);
+		}
 	}
-	console.log(`Deleting:Password confirmed, id is ${req.query.id}`)
-	DAO.deleteZipFolder(req.query.id);
-	console.log("Deleting:I am done deleting")
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 
-app.delete("/deleteAll", async (req, res) => {
-    console.log("DELET ALL")
-	if (!req.session.loggedIn) {
-		res.json(false);
-		return;
+app.delete("/deleteAll", async (req, res) =>
+{
+	if (req.session.admin)
+	{
+		DAO.clearDatabase();
+		res.status(202).json(true);
 	}
-	DAO.clearDatabase();
-
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 //This function is performed when someone uploads a zipfolder to our backend
 app.post("/upload", async (req, res) => {
-	req.session.loggedIn = true; //MUST REMOVE
-
-	if (!req.session.loggedIn) {
-		console.log("not logged in");
-		console.log(req.session);
-		res.json(false);
+	if (!req.session.username) {
+		res.status(403).json(false);
 		return;
 	}
 	const zipFile = req.files.file;
 	const zipFileName = zipFile.name;
 
-	console.log("zipFileName");
-
 	// submitted file must be a zip or error is thrown
-	if (zipFileName.substring(zipFileName.length - 4) != ".zip") {
-		return res.status(400).json("Error: not zip file");
+	if (zipFileName.substring(zipFileName.length - 4) !== ".zip") {
+		return res.status(400).json("Error: Not a zip file");
 	}
 
 	const fileLocation = `${"testFiles/"}${zipFileName}`;
@@ -237,25 +239,16 @@ app.post("/upload", async (req, res) => {
 		const fileNamesInZipFolder = fs.readdirSync("./extracted");
 		const studentNames = new Set();
 
-		console.log(fileNamesInZipFolder);
 		fileNamesInZipFolder.forEach((file) => {
 			const currentStudentName = file.substring(0, file.indexOf("_"));
 			// Make sure its not empty before adding it to Hashset, The Set prevents repeats
-			console.log(
-				`$$$$$$$####### current username ${currentStudentName} for ${file}`
-			);
+		
 			if (currentStudentName) {
 				studentNames.add(currentStudentName);
 			}
 
-			console.log(
-				`${currentStudentName} for file ${file} extension ${path.extname(
-					file
-				)}`
-			);
 			// Zip folders within the zip folder
 			if (path.extname(file) == ".zip") {
-				console.log(`     - unzipping ^^^ ${file}`);
 				const innerZipFileExtractor = new AdmZip("./extracted/" + file);
 				innerZipFileExtractor.extractAllTo(
 					"./extracted/" + file.substring(0, file.indexOf("_")),
@@ -307,186 +300,254 @@ app.post("/upload", async (req, res) => {
 			fsExtra.emptyDirSync("./extracted");
 			res.json({});
 		}
-else{
-		// Setup ESLINT and run them on all the files in this folder.
-		const eslint = new ESLint();
-		const results = await eslint.lintFiles(["./extracted/**/*.js"]);
+		else{
+			// Setup ESLINT and run them on all the files in this folder.
+			const eslint = new ESLint();
+			const results = await eslint.lintFiles(["./extracted/**/*.js"]);
 
-		// fileNamesInZipFolder
-		console.log(throughDirectory("./extracted"));
-		console.log(results.map((result) => getRelativePath(result.filePath)));
-		const zipFileRecord = await DAO.addZipFile(
-			zipFileName,
-			new Date(),
-			results.length
-		);
-
-		// This map is used to link student IDs with student names
-		const studentIDsByName = new Map();
-		await Promise.all(
-			[...studentNames].map(async (studentName) =>
-				studentIDsByName.set(
-					studentName,
-					(
-						await DAO.addStudent(studentName, zipFileRecord._id)
-					)._id
-				)
-			)
-		);
-
-		// This map is used to keep the scores of each student in an array
-		const listOfSeverityScoreFilesOwnedByStudents = new Map();
-		studentIDsByName.forEach((value, key) => {
-			listOfSeverityScoreFilesOwnedByStudents.set(value, []);
-		});
-
-		//Go tThrough ESlint detected errors
-		await Promise.all(
-			results.map(async (result) => {
-				const relativePath = getRelativePath(result.filePath);
-				const severityScores = [];
-
-				//add Errors to database
-				const errors = await Promise.all(
-					result.messages.map((message) => {
-						const currentErrorType = convertErrorIDToType(
-							message.ruleId
-						);
-						console.log(
-							`error ${JSON.stringify(
-								ErrorTypes[currentErrorType]
-							)} for ${relativePath}`
-						);
-						severityScores.push(
-							ErrorTypes[currentErrorType]["Severity"]
-						);
-						return DAO.addError(
-							currentErrorType,
-							message.ruleId,
-							message.severity,
-							message.message,
-							message.line,
-							message.column,
-							message.nodeType,
-							message.messageId,
-							message.endLine,
-							message.endColumn
-						);
-					})
-				);
-
-				//TODO TEST THIS FUNCTION
-				//gets the severity score of current file
-				console.log(`severity scoresssssss (( ${severityScores}  )) `);
-				const fileSeverity = getSeverityScore(severityScores, -1);
-				console.log(`***** ${fileSeverity}`);
-
-				//Stores file on the database
-				const fileRecord = await DAO.addFile(
-					relativePath,
-					result.errorCount,
-					result.fatalErrorCount,
-					result.warningCount,
-					result.fixableErrorCount,
-					result.fixableWarningCount,
-					result.source,
-					errors,
-					fileSeverity
-				);
-
-				//Gets the current student
-				const currentStudentID = getStudentIDFromRelPath(
-					relativePath,
-					studentIDsByName
-				);
-
-				//adding files severity scores to the student so we can calculate the students severity score
-				listOfSeverityScoreFilesOwnedByStudents
-					.get(currentStudentID)
-					.push(fileSeverity);
-				console.log(listOfSeverityScoreFilesOwnedByStudents);
-				DAO.addFileToStudent(currentStudentID, fileRecord._id);
-			})
-		); //Out of ESLINT Loop
-
-		//add the list of the students to the zip file on database
-		await DAO.addStudentsToZipFile(
-			zipFileRecord._id,
-			Array.from(studentIDsByName.values())
-		);
-
-		//Where we store the results to then further calculate the classes severity score
-		const ListOfStudentSeverityScores = [];
-		console.log(`listOfSeverityScoreFilesOwnedByStudents`);
-		console.log(listOfSeverityScoreFilesOwnedByStudents);
-		//go through students and calculate and add their severity scores
-		for (const [
-			key,
-			value,
-		] of listOfSeverityScoreFilesOwnedByStudents.entries(
-			listOfSeverityScoreFilesOwnedByStudents
-		)) {
-			temp = getSeverityScore(value);
-			//let average = value.reduce((a, b) => a + b) / value.length;
-			ListOfStudentSeverityScores.push(temp);
-			await DAO.updateStudent(key, temp);
-		}
-
-		ListOfStudentSeverityScores.sort();
-		for (
-			i = 0;
-			i < Math.ceil(ListOfStudentSeverityScores.length / 8);
-			i++
-		) {
-			ListOfStudentSeverityScores.push(
-				ListOfStudentSeverityScores[
-					Math.floor(ListOfStudentSeverityScores.length / 2)
-				]
+			// fileNamesInZipFolder
+			const zipFileRecord = await DAO.addZipFile(
+				zipFileName,
+				new Date(),
+				req.session.username,
+				results.length
 			);
+
+			// This map is used to link student IDs with student names
+			const studentIDsByName = new Map();
+			await Promise.all(
+				[...studentNames].map(async (studentName) =>
+					studentIDsByName.set(
+						studentName,
+						(
+							await DAO.addStudent(studentName, zipFileRecord._id)
+						)._id
+					)
+				)
+			);
+
+			// This map is used to keep the scores of each student in an array
+			const listOfSeverityScoreFilesOwnedByStudents = new Map();
+			studentIDsByName.forEach((value, key) => {
+				listOfSeverityScoreFilesOwnedByStudents.set(value, []);
+			});
+
+			//Go tThrough ESlint detected errors
+			await Promise.all(
+				results.map(async (result) => {
+					const relativePath = getRelativePath(result.filePath);
+					const severityScores = [];
+
+					//add Errors to database
+					const errors = await Promise.all(
+						result.messages.map((message) => {
+							const currentErrorType = convertErrorIDToType(
+								message.ruleId
+							);
+							severityScores.push(
+								ErrorTypes[currentErrorType]["Severity"]
+							);
+							return DAO.addError(
+								currentErrorType,
+								message.ruleId,
+								message.severity,
+								message.message,
+								message.line,
+								message.column,
+								message.nodeType,
+								message.messageId,
+								message.endLine,
+								message.endColumn
+							);
+						})
+					);
+
+					//TODO TEST THIS FUNCTION
+					//gets the severity score of current file
+					const fileSeverity = getSeverityScore(severityScores, -1);
+
+					//Stores file on the database
+					const fileRecord = await DAO.addFile(
+						relativePath,
+						result.errorCount,
+						result.fatalErrorCount,
+						result.warningCount,
+						result.fixableErrorCount,
+						result.fixableWarningCount,
+						result.source,
+						errors,
+						fileSeverity
+					);
+
+					//Gets the current student
+					const currentStudentID = getStudentIDFromRelPath(
+						relativePath,
+						studentIDsByName
+					);
+
+					//adding files severity scores to the student so we can calculate the students severity score
+					listOfSeverityScoreFilesOwnedByStudents
+						.get(currentStudentID)
+						.push(fileSeverity);
+					DAO.addFileToStudent(currentStudentID, fileRecord._id);
+				})
+			); //Out of ESLINT Loop
+
+			//add the list of the students to the zip file on database
+			await DAO.addStudentsToZipFile(
+				zipFileRecord._id,
+				Array.from(studentIDsByName.values())
+			);
+
+			//Where we store the results to then further calculate the classes severity score
+			const ListOfStudentSeverityScores = [];
+			//go through students and calculate and add their severity scores
+			for (const [
+				key,
+				value,
+			] of listOfSeverityScoreFilesOwnedByStudents.entries(
+				listOfSeverityScoreFilesOwnedByStudents
+			)) {
+				temp = getSeverityScore(value);
+				//let average = value.reduce((a, b) => a + b) / value.length;
+				ListOfStudentSeverityScores.push(temp);
+				await DAO.updateStudent(key, temp);
+			}
+
+			ListOfStudentSeverityScores.sort();
+			for (
+				i = 0;
+				i < Math.ceil(ListOfStudentSeverityScores.length / 8);
+				i++
+			) {
+				ListOfStudentSeverityScores.push(
+					ListOfStudentSeverityScores[
+						Math.floor(ListOfStudentSeverityScores.length / 2)
+					]
+				);
+			}
+
+			let average = Math.ceil(
+				ListOfStudentSeverityScores.reduce((a, b) => a + b) /
+					ListOfStudentSeverityScores.length
+			);
+			//adds the error count and severity score
+			await DAO.updateZipFile(zipFileRecord._id, results.length, average);
+
+			// const responseData = results.map((result) => ({
+			// 	filePath: result.filePath.substring(
+			// 		result.filePath.lastIndexOf("/") + 1
+			// 	),
+			// 	errorCount: result.errorCount,
+			// 	messages: result.messages,
+			// }));
+
+			fsExtra.emptyDirSync("./extracted");
+			res.status(200).json(true);
 		}
-
-		let average = Math.ceil(
-			ListOfStudentSeverityScores.reduce((a, b) => a + b) /
-				ListOfStudentSeverityScores.length
-		);
-		//adds the error count and severity score
-		await DAO.updateZipFile(zipFileRecord._id, results.length, average);
-
-		// const responseData = results.map((result) => ({
-		// 	filePath: result.filePath.substring(
-		// 		result.filePath.lastIndexOf("/") + 1
-		// 	),
-		// 	errorCount: result.errorCount,
-		// 	messages: result.messages,
-		// }));
-
-		fsExtra.emptyDirSync("./extracted");
-		res.json({});
-}
 	});
 });
 
+app.get("/ping", (req, res) =>
+{
+  res.status(200);
+  if (req.session.username)
+  {
+    res.json(true);
+  }
+  else
+  {
+    res.json(false);
+  }
+});
+
 // overview page- return all uploaded zip files
-app.get("/overview/zipfiles", async (req, res) => {
-	if (!req.session.loggedIn) {
-		res.json(false);
-		return;
+app.get("/overview/zipfiles", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200);
+		if (req.session.admin)
+		{
+			res.json(await DAO.getZipFiles());
+		}
+		else
+		{
+			res.json(await DAO.getZipFiles(req.session.username));
+		}
 	}
-	const response = {
-		graphData: {}, //TODO
-		zipFileData: await DAO.getAllZipFiles(),
-	};
-	res.json(response);
+	else
+	{
+		res.status(403).json(false);
+	}
+});
 
-	// also return information to build graphs- GRACE working on it!!
-	// grace has ~ideas~
+app.post("/generateReport", async (req, res) => {
+	if (req.session.username)
+	{
+		if ((!req.body.zipFiles) || (req.body.zipFiles.length === 0))
+		{
+			res.status(400).json(false);
+			return;
+		}
+		let file = null;
+		let files = [];
+		for (let i = 0; i < req.body.zipFiles.length; i++)
+		{
+			file = await DAO.getZipFileRaw(req.body.zipFiles[i]);
+			if (!file || (file.Owner !== req.session.username))
+			{
+				res.status(403).json(false); // 403 notwithstanding to prevent the existence of a file with the specified ID from being ascertained
+				return;
+			}
+			for (let j = 0; j < file.Students.length; j++)
+			{
+				for (let k = 0; k < file.Students[j].Files.length; k++)
+				{
+					files.push(file.Students[j].Files[k]);
+				}
+			}
+		}
 
-	// return: zip file name, date uploaded, number of files, detections, security scores
+		const map =  new Map();
+		var numErrors = 0;
+		files.forEach((file) => {
+			file.Errors.forEach((err) => {
+				numErrors++;
+				if (map.has(err.ErrorType)) {
+					var newObj = map.get(err.ErrorType);
+					newObj.frequency++;
+					map.set(err.ErrorType, newObj);
+				}
+				else {
+					var newObj = {
+				  	ErrorType: err.ErrorType,
+						Message: err.Message.replace(",", ""),
+						Severity: err.Severity,
+						frequency: 1
+					}
+					map.set(err.ErrorType, newObj);
+				}
+			}	);	
+		});
+		var response = "Most Common Vulnerabilities in JavaScript Files\n"+
+					"Error Type, Message, Severity, Frequency per file, Percentage of all vulnerabilities\n";
+		var errors = [...map.values()];
+		errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
+		errors.forEach((error) => {
+			response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/files.length + "," + error.frequency/numErrors+"\n";
+		})
+		res.json(response);
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 
 app.post("/login", async (req, res) =>
 {
-	if (req.body.username && req.body.password)
+	if (!req.session.username && req.body.username && req.body.password)
 	{
 		const user = await DAO.getUser(req.body.username);
 		if (user)
@@ -500,14 +561,19 @@ app.post("/login", async (req, res) =>
 				}
 				else
 				{
+					res.status(200);
 					if (result)
 					{
-						req.session.loggedIn = true;
-						res.status(200).json(true);
+						req.session.username = req.body.username;
+						if (user.Admin)
+						{
+							req.session.admin = true;
+						}
+						res.json(true);
 					}
 					else
 					{
-						res.status(200).json(false);
+						res.json(false);
 					}
 				}
 			});
@@ -527,18 +593,17 @@ app.post("/signup", async (req, res) =>
 {
 	if (req.body.username && req.body.password && /^[a-zA-Z0-9]+$/.test(req.body.username) && /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
 	{
-		const user = await DAO.getUser(req.body.username);
-		if (user)
-		{
-			res.status(409).json(false);
-		}
-		else
+		try
 		{
 			const salt = await bcrypt.genSalt(saltRounds);
 			const hash = await bcrypt.hash(req.body.password, salt);
-			await DAO.addUser(req.body.username, hash);
-			req.session.loggedIn = true;
+			await DAO.addUser(req.body.username, hash, false);
+			req.session.username = req.body.username;
 			res.status(200).json(true);
+		}
+		catch (err)
+		{
+			res.status(409).json(false);
 		}
 	}
 	else
@@ -550,7 +615,7 @@ app.post("/signup", async (req, res) =>
 
 app.post("/logout", (req, res) =>
 {
-	if (req.session.loggedIn)
+	if (req.session.username)
 	{
 		req.session.destroy();
 		res.status(200).send();
@@ -562,24 +627,58 @@ app.post("/logout", (req, res) =>
 });
 
 // overview page- view more data fom invidual zip files
-app.get("/studentfiles", async (req, res) => {
-	if (!req.session.loggedIn) {
-		res.json(false);
+app.get("/studentfiles", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		const file = await DAO.getZipFile(req.query.id);
+		if (file.Owner === req.session.username)
+		{
+			res.status(200).json(file);
+		}
+		else
+		{
+			res.status(403).json(false);
+		}
+	}
+	else
+	{
+		res.status(403).json(false);
 		return;
 	}
-	res.json(await DAO.getZipFile(req.query.id));
 });
 
-app.get("/ErrorTypes", async (req, res) => {
-	res.json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+app.get("/ErrorTypes", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 
-app.get("/ErrorTypesNum", async (req, res) => {
-	res.json(ErrorTypeDetail.getErrorTypesNum());
+app.get("/ErrorTypesNum", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(ErrorTypeDetail.getErrorTypesNum());
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
 });
 
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+});
+
+app.all("*", (req, res) =>
+{
+	res.status(404).send();
 });
 
 app.listen(port, () => {

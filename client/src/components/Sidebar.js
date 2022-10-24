@@ -12,7 +12,7 @@ function Sidebar(props) {
 	return (
 		<>
 			<Menu inverted compact style={{ width: "100%" }}>
-				<Menu.Item header>JSAnalyzer</Menu.Item>
+				<Menu.Item header>codeChomper</Menu.Item>
 			</Menu>
 			<Menu
 				vertical
@@ -57,6 +57,15 @@ function Sidebar(props) {
 					<Icon name="chart bar" />
 					Metrics
 				</Menu.Item>
+
+				<Menu.Item
+				  name="reports"
+					active={false}
+					onClick={() => updateRoute("DownloadReportPage")}
+					>
+						<Icon name="download" />
+						Download Reports
+					</Menu.Item>
 			</Menu>
 		</>
 	);

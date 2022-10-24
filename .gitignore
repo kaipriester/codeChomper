@@ -45,7 +45,5 @@ client/yarn-error.log*
 /.idea/dataSources/
 /.idea/dataSources.local.xml
 
-/config.js
+/.env
 /extracted/
-.env
-package-lock.json

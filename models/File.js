@@ -9,12 +9,13 @@ const Schema = new mongoose.Schema({
 	FixableWarningCount: Number,
 	Source: String,
 	SeverityScore: Number,
+	ParentZipFileId: mongoose.Schema.Types.ObjectId,
 	Errors: [
 		{
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Error",
 		},
-	],
+	]
 });
 
 exports.Model = mongoose.model("File", Schema);

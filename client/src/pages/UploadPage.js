@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import {
 	Grid,
 	Card,
@@ -11,33 +10,39 @@ import {
 	Message,
 } from "semantic-ui-react";
 import { upload } from "../client/API.js";
-axios.defaults.withCredentials = true;
 
 function UploadPage() {
-	const [processedFiles, setProcessedFiles] = useState([]);
 	const [file, setFile] = useState();
 	const [fileName, setFileName] = useState("");
-	const [success, setSuccess] = useState(false);
+	const [status, setStatus] = useState("");
 
 	const saveFile = (e) => {
 		setFile(e.target.files[0]);
 		setFileName(e.target.files[0].name);
 	};
 
-	const uploadFile = async (e) => {
-		setSuccess(false);
+	const uploadFile = async (e) =>
+	{
+		setStatus("");
 		const formData = new FormData();
 		formData.append("file", file);
 		formData.append("fileName", fileName);
-
-		try {
+		try
+		{
 			const res = await upload(formData);
-			setProcessedFiles(res.data);
-			console.log(res);
-		} catch (ex) {
-			console.log(ex);
+			if (res.data)
+			{
+				setStatus("success");
+			}
+			else
+			{
+				setStatus("failure");
+			}
 		}
-		setSuccess(true);
+		catch (err)
+		{
+			setStatus("failure");
+		}
 	};
 
 	return (
@@ -64,9 +69,14 @@ function UploadPage() {
 				</Form>
 			</Grid.Row>
 			<Grid.Row>
-				{success && (
+				{status === "success" && (
 					<Message positive>
-						<p>Upload Successful!</p>
+						<p>Upload successful!</p>
+					</Message>
+				)}
+				{status === "failure" && (
+					<Message negative>
+						<p>Upload failed. Please retry.</p>
 					</Message>
 				)}
 			</Grid.Row>
