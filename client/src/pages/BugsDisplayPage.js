@@ -11,6 +11,8 @@ import {
 	Table,
 } from "semantic-ui-react";
 
+//TO-DO redesign this
+
 import { getErrorTypes, getErrorTypesNum } from "../client/API.js";
 
 function BugsPage() {
@@ -39,16 +41,15 @@ function BugsPage() {
 	}, []);
 
 	//TODO: END GAME add Checkboxs to columns that allow the user to turn on and off the displaying of those detections
-	const getTableRows = () => {
+	const getTableRowsJavaScript = () => {
 		return (
 			<div>
 				{Array.from({ length: 24 }).map((_, index) => (
 					<tr>
 						<Table bordered hover>
 							<td>
-								<tr>Name: {nameArray[index]} </tr>
-								<tr>Severity: {severityArray[index]} </tr>
-								<tr>Type: </tr>
+								<tr><b>  {nameArray[index]} </b></tr>
+								<tr>Severity Level: {severityArray[index]} </tr>
 							</td>
 						</Table>
 						<td>Description: {descriptionArray[index]}</td>
@@ -73,18 +74,7 @@ function BugsPage() {
 				</Segment>
 			</Grid.Row>
 			<Grid.Row>
-				<Table striped bordered hover>
-					<thead>
-						<tr>
-							<th>Info</th>
-							<th>Description</th>
-						</tr>
-					</thead>
-					<tbody>{getTableRows()}</tbody>
-	
-					<br></br>
 
-				</Table>
 
 				<Table>
 
@@ -154,10 +144,35 @@ function BugsPage() {
             <td>10</td>
             <td>Major Security Concerns (Can lead to complete access to the entire server/allow for foreign code to be executed) </td>
         </tr>
+		
     </tbody>
+	
 	<br></br>
 				</Table>
 			</Grid.Row>
+			<Table striped bordered hover>
+					<thead>
+						<tr>
+							<th>JavaScript Security Issue Types</th>
+						</tr>
+					</thead>
+					<tbody>{getTableRowsJavaScript()}</tbody>
+	
+					<br></br>
+
+				</Table>
+
+				<Table striped bordered hover>
+					<thead>
+						<tr>
+							<th>Python Security Issue Types</th>
+						</tr>
+					</thead>
+					<tbody>{}</tbody>
+	
+					<br></br>
+
+				</Table>
 		</Grid>
 	);
 }

@@ -5,6 +5,7 @@ exports.ErrorList[-1] = {
 	Severity: 0,
 };
 exports.ErrorList[0] = {
+	Language: "JavaScript",
 	Name: "no caller",
 	Description:
 		"usage of deprecated functions arguments.caller() and arguments.callee was detected, this could potentially allow access to call stack.",
@@ -12,6 +13,7 @@ exports.ErrorList[0] = {
 	Severity: 6,
 };
 exports.ErrorList[1] = {
+	Language: "JavaScript",
 	Name: "no delete var",
 	Description:
 		"usage of delete on variables was detected, this could potentially lead to unexpected behavior.",
@@ -19,6 +21,7 @@ exports.ErrorList[1] = {
 	Severity: 2,
 };
 exports.ErrorList[2] = {
+	Language: "JavaScript",
 	Name: "no eval",
 	Description:
 		"Usage of eval() was detected, which could potentially lead to code execution from string argument.",
@@ -26,6 +29,7 @@ exports.ErrorList[2] = {
 	Severity: 9,
 };
 exports.ErrorList[3] = {
+	Language: "JavaScript",
 	Name: "no implied eval",
 	Description:
 		"Usage of setTimeout(), setInterval() or execScript() was detected. These functions are prone to code execution.",
@@ -33,6 +37,7 @@ exports.ErrorList[3] = {
 	Severity: 7, //?
 };
 exports.ErrorList[4] = {
+	Language: "JavaScript",
 	Name: "no new func",
 	Description:
 		"Usage of new Function() was detected, which is prone to code execution.",
@@ -40,12 +45,14 @@ exports.ErrorList[4] = {
 	Severity: 7, //?
 };
 exports.ErrorList[5] = {
+	Language: "JavaScript",
 	Name: "node/no deprecated api",
 	Description: "Usage of deprecated API in Node was detected.",
 	//OG Description: node/no-deprecated-api, Bans usage of deprecated APIs in Node.
 	Severity: 5, //?
 };
 exports.ErrorList[6] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no angular bypass sanitizer",
 	Description:
 		"Call to bypassSecurityTrustHtml, bypassSecurityTrustScript or a similar method was detected, which could bypass DomSanitizer in Angular.",
@@ -53,6 +60,7 @@ exports.ErrorList[6] = {
 	Severity: 6, //?
 };
 exports.ErrorList[7] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no angularjs bypass sce",
 	Description:
 		"Call to $sceProvider.enabled(false), $sceDelegate.trustAs(), $sce.trustAs() or a relevant shorthand method was detected, which could bypass Strict Contextual Escaping (SCE) in AngularJS.",
@@ -60,6 +68,7 @@ exports.ErrorList[7] = {
 	Severity: 8, //?
 };
 exports.ErrorList[8] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no angularjs enable svg",
 	Description:
 		"Call to $sanitizeProvider.enableSvg(true) was detected, which could increase attack surface of the application by enabling SVG support in AngularJS sanitizer",
@@ -67,6 +76,7 @@ exports.ErrorList[8] = {
 	Severity: 2, //?
 };
 exports.ErrorList[9] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no angularjs sanitization whitelist",
 	Description:
 		"Call to $compileProvider.aHrefSanitizationWhitelist or $compileProvider.imgSrcSanitizationWhitelist was detected, which could configure whitelists in AngularJS sanitizer",
@@ -74,6 +84,7 @@ exports.ErrorList[9] = {
 	Severity: 6, //?
 };
 exports.ErrorList[10] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no cookies",
 	Description:
 		"HTTP cookies were detected, which are an old client-side storage mechanism with inherent risks and limitations. Use Web Storage, IndexedDB or other modern methods instead.",
@@ -81,6 +92,7 @@ exports.ErrorList[10] = {
 	Severity: 4, //?
 };
 exports.ErrorList[11] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no document domain",
 	Description:
 		"Write to document.domain property was detected, which must be reviewed to avoid bypass of same-origin checks, or usage of top level domains such as azurewebsites.net was detected.",
@@ -88,6 +100,7 @@ exports.ErrorList[11] = {
 	Severity: 6, //?
 };
 exports.ErrorList[12] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no document write",
 	Description:
 		"Call to document.write or document.writeln was detected, which manipulate DOM directly without any sanitization and should be avoided. Use document.createElement() or similar methods instead.",
@@ -95,6 +108,7 @@ exports.ErrorList[12] = {
 	Severity: 9, //?
 };
 exports.ErrorList[13] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no electron node integration",
 	Description:
 		"Node.js Integration was detected, which must not be enabled in any renderer that loads remote content to avoid remote code execution attacks.",
@@ -102,6 +116,7 @@ exports.ErrorList[13] = {
 	Severity: 8, //?
 };
 exports.ErrorList[14] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no html method",
 	Description:
 		"Direct call to method html() was detected, which often manipulate DOM without any sanitization and should be avoided. Use document.createElement() or similar methods instead.",
@@ -109,6 +124,7 @@ exports.ErrorList[14] = {
 	Severity: 6, //?
 };
 exports.ErrorList[15] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no inner html",
 	Description:
 		"Assignment to innerHTML or outerHTML properties was detected, which manipulate DOM directly without any sanitization and should be avoided. Use document.createElement() or similar methods instead.",
@@ -116,6 +132,7 @@ exports.ErrorList[15] = {
 	Severity: 6, //?
 };
 exports.ErrorList[16] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no insecure url",
 	Description:
 		"Insecure protocols such as HTTP or FTP were detected, which should be replaced by their encrypted counterparts (HTTPS, FTPS) to avoid sending potentially sensitive data over untrusted networks in plaintext.",
@@ -123,6 +140,7 @@ exports.ErrorList[16] = {
 	Severity: 5, //?
 };
 exports.ErrorList[17] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no msapp exec unsafe",
 	Description:
 		"Call to MSApp.execUnsafeLocalFunction() was detected, which bypasses script injection validation and should be avoided.",
@@ -130,6 +148,7 @@ exports.ErrorList[17] = {
 	Severity: 8, //?
 };
 exports.ErrorList[18] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no postmessage star origin",
 	Description:
 		"Use of * instead of specific target origin was detected, which should be avoided when sending data to other windows using postMessage to avoid data leakage outside of trust boundary.",
@@ -137,6 +156,7 @@ exports.ErrorList[18] = {
 	Severity: 6, //?
 };
 exports.ErrorList[19] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no unsafe alloc",
 	Description:
 		"Use of Buffer.allocUnsafe or Buffer.allocUnsafeSlow was detected. When calling Buffer.allocUnsafe and Buffer.allocUnsafeSlow, the allocated memory is not wiped-out and can contain old, potentially sensitive data.",
@@ -144,6 +164,7 @@ exports.ErrorList[19] = {
 	Severity: 6, //?
 };
 exports.ErrorList[20] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/no winjs html unsafe",
 	Description:
 		"Call to WinJS.Utilities.setInnerHTMLUnsafe() or similar method was detected, which does not perform any input validation and should be avoided. Use WinJS.Utilities.setInnerHTML() instead.",
@@ -151,6 +172,7 @@ exports.ErrorList[20] = {
 	Severity: 7, //?
 };
 exports.ErrorList[21] = {
+	Language: "JavaScript",
 	Name: "@microsoft/sdl/react iframe missing sandbox",
 	Description:
 		"The sandbox attribute enables an extra set of restrictions for the content in the iframe and should always be specified.",
@@ -158,6 +180,7 @@ exports.ErrorList[21] = {
 	Severity: 4, //?
 };
 exports.ErrorList[22] = {
+	Language: "JavaScript",
 	Name: "react/no danger",
 	Description:
 		"Usage of dangerouslySetInnerHTML property in React was detected, which allows passing unsanitized HTML in DOM.",
@@ -165,12 +188,22 @@ exports.ErrorList[22] = {
 	Severity: 7, //?
 };
 exports.ErrorList[23] = {
+	Language: "JavaScript",
 	Name: "no implied eval",
 	Description:
 		"Usage of setTimeout(), setInterval(), setImmediate(), execScript() or new Function() was detected, which may allow code execution from string arguments.",
 	//OG Description: @typescript-eslint/no-implied-eval, Similar to built-in ESLint rule no-implied-eval. Bans usage of setTimeout(), setInterval(), setImmediate(), execScript() or new Function() as they are similar to eval() and allow code execution from string arguments.
 	Severity: 9, //?
 };
+//TO-DO: add all python errors
+// exports.ErrorList[101] = {
+// 	Language: "Python",
+// 	Name: "",
+// 	Description:
+// 		"",
+// 	//OG Description: @typescript-eslint/no-implied-eval, Similar to built-in ESLint rule no-implied-eval. Bans usage of setTimeout(), setInterval(), setImmediate(), execScript() or new Function() as they are similar to eval() and allow code execution from string arguments.
+// 	Severity: 9, //?
+// };
 //If it returns -1 then it is a normal ESLINT Error and not a Security Error
 exports.convertRuleIDToErrorType = (ErrorID) => {
 	if (!ErrorID) {
