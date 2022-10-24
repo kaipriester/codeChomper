@@ -469,7 +469,7 @@ app.post("/generateReport", async (req, res) => {
 		let files = [];
 		for (let i = 0; i < req.body.zipFiles.length; i++)
 		{
-			file = await DAO.getZipFileRaw(req.body.zipFiles[i]);
+			file = await DAO.getZipFile(req.body.zipFiles[i]);
 			if (!file || (file.Owner !== req.session.username))
 			{
 				res.status(403).json(false); // 403 notwithstanding to prevent the existence of a file with the specified ID from being ascertained
@@ -489,19 +489,19 @@ app.post("/generateReport", async (req, res) => {
 		files.forEach((file) => {
 			file.Errors.forEach((err) => {
 				numErrors++;
-				if (map.has(err.ErrorType)) {
-					var newObj = map.get(err.ErrorType);
+				if (map.has(err.ErrorType.Name)) {
+					var newObj = map.get(err.ErrorType.Name);
 					newObj.frequency++;
-					map.set(err.ErrorType, newObj);
+					map.set(err.ErrorType.Name, newObj);
 				}
 				else {
 					var newObj = {
-				  	ErrorType: err.ErrorType,
-						Message: err.Message.replace(",", ""),
-						Severity: err.Severity,
+				  		Name: err.ErrorType.Name,
+						Description: ("\"" + err.ErrorType.Description + "\""),
+						Severity: err.ErrorType.Severity,
 						frequency: 1
 					}
-					map.set(err.ErrorType, newObj);
+					map.set(err.ErrorType.Name, newObj);
 				}
 			}	);	
 		});
@@ -510,7 +510,7 @@ app.post("/generateReport", async (req, res) => {
 		var errors = [...map.values()];
 		errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
 		errors.forEach((error) => {
-			response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/files.length + "," + error.frequency/numErrors+"\n";
+			response += error.Name + "," + error.Description + "," + error.Severity + "," + error.frequency/files.length + "," + error.frequency/numErrors+"\n";
 		})
 		res.json(response);
 	}
