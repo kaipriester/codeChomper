@@ -282,11 +282,16 @@ app.post("/upload", async (req, res) => {
 
 			console.log("JSON FORMAT??");
 			console.log(mytest.toString());
+
+
+			const result = mytest.toString()
+			const obj = JSON.parse(mytest.toString());
+
 			console.log("Through dir is: ");
 			console.log(throughDirectory("./extracted"));
 
 			console.log("num files tested is:");
-			console.log(mytest.metrics.length -1 );
+			console.log(obj.metrics);
 
 			//console.log(results.map((result) => getRelativePath(result.filePath)));
 			/*
