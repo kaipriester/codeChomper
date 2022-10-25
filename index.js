@@ -267,9 +267,29 @@ app.post("/upload", async (req, res) => {
 			// there is at least 1 py file in the zipfile uploaded
 			console.log("inside .py only code section");
 			
-			let mytest = await Bandit.runBandit("./extracted/", true);
+			const mytest = await Bandit.runBandit("./extracted/", true);
+			///console.log(mytest[metrics]);
 			console.log("my childs output is: ");
-			console.log(mytest);
+			
+			console.dir(mytest, {'maxArrayLength': null});
+
+			console.log("JSON FORMAT??");
+			console.log(mytest.toString());
+			console.log("Through dir is: ");
+			console.log(throughDirectory("./extracted"));
+
+			console.log("num files tested is:");
+			console.log(mytest.metrics.length -1 );
+
+			//console.log(results.map((result) => getRelativePath(result.filePath)));
+			/*
+			const zipFileRecord = await DAO.addZipFile(
+			zipFileName,
+			new Date(),
+			
+		);
+			*/
+
 
 			//clear out the dir
 			fsExtra.emptyDirSync("./extracted");
