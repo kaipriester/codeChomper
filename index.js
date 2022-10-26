@@ -16,6 +16,8 @@ const DAO = require("./dao/DAO.js");
 const convertErrorIDToType = require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
+var passport = require('passport');
+var FacebookStrategy = require('passport-facebook');
 
 const app = express();
 const port = process.env.PORT;
@@ -49,7 +51,8 @@ app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "build")));
-
+app.use(passport.initialize());
+app.use(passport.session());
 database.connect();
 
 (async () =>
@@ -65,6 +68,36 @@ database.connect();
 	delete process.env.MASTER_USERNAME;
 	delete process.env.MASTER_PASSWORD;
 })();
+
+passport.use(new FacebookStrategy({
+  clientID: process.env.FACEBOOK_APP_ID,
+  clientSecret: process.env.FACEBOOK_APP_SECRET,
+  callbackURL: 'http://localhost:8080/auth/facebook/callback'
+},
+function(accessToken, refreshToken, profile, cb) {
+  console.log(accessToken);
+  console.log(refreshToken);
+  console.log(profile); 
+  
+  //User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+  //  return cb(err, user);
+  //});
+	return cb(null, profile);
+}
+));
+
+passport.serializeUser(function(user, cb) {
+  //process.nextTick(function() {
+    cb(null, user.id);
+ // });
+});
+
+passport.deserializeUser(function(id, cb) {
+ // process.nextTick(function() {
+    return cb(null, id);
+  //});
+});
+
 
 //takes the string of the filepath from canvas and extracts the students name from it
 function getStudentIDFromRelPath(target, map) {
@@ -423,6 +456,22 @@ app.post("/upload", async (req, res) => {
 	});
 });
 
+app.get('/auth/facebook',passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { 
+		successRedirect: '/loggedIn',
+		failureRedirect: '/failedLogIn' 
+	}));
+
+app.get('/loggedIn', (req, res) => {
+	res.json("looged in");
+});
+
+app.get('/failedLogIn', (req, res) => {
+	res.json("failed log in");
+});
+
 app.get("/ping", (req, res) =>
 {
   res.status(200);
@@ -435,6 +484,8 @@ app.get("/ping", (req, res) =>
     res.json(false);
   }
 });
+
+app.get('/login/federated/facebook', passport.authenticate('facebook'));
 
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) =>

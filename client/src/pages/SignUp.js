@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Form, Grid, Input, Button, Message } from "semantic-ui-react";
-import { signup } from "../client/API.js";
+import { Form, Grid, Input, Button, Message, GridRow } from "semantic-ui-react";
+import { signup, federateFacebook } from "../client/API.js";
 import { useCookies } from "react-cookie";
 import { List } from "semantic-ui-react";
 
@@ -11,6 +11,11 @@ function SignUp(props) {
 	const [cookies, setCookie] = useCookies(["loggedIn"]);
 	const { updateRouteHandler } = props;
 	const [wrong, setWrong] = useState([]);
+
+	const facebookAuth = async () => {
+		if (process.env.NODE_ENV == "development") 
+			window.open("http://localhost:8080/auth/facebook");
+	};
 
 	const createAccount = async () => {
 		setWrong([]);
@@ -84,6 +89,9 @@ function SignUp(props) {
 			</Grid.Row>
 			<Grid.Row>
 				<Button onClick={() => createAccount()}>Sign Up</Button>
+			</Grid.Row>
+			<Grid.Row>
+				<Button onClick={() => facebookAuth()}>facebook</Button>
 			</Grid.Row>
 			<Grid.Row>
 				{wrong.length > 0 && (

@@ -28,6 +28,8 @@
     "node-stream-zip": "^1.15.0",
     "nodemon": "^2.0.15",
     "package.json": "^2.0.1",
+    "passport": "^0.6.0",
+    "passport-facebook": "^3.0.0",
     "python-shell": "^3.0.1"
   },
   "nodemonConfig": {
