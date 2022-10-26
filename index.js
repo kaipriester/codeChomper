@@ -277,14 +277,14 @@ app.post("/upload", async (req, res) => {
 			console.log(mytest.toString());
 
 
-			const result = mytest.toString()
-			const obj = JSON.parse(mytest.toString());
-
+			const pyResultsJSON = JSON.parse(mytest.toString());
+			const results = pyResultsJSON.results;
+			
 			console.log("Through dir is: ");
 			console.log(throughDirectory("./extracted"));
 
 			console.log("num files tested is:");
-			console.log(obj.metrics);
+			//console.log(Object.keys(pyResultsJSON.metrics).length - 1); // num files tested
 
 			//console.log(results.map((result) => getRelativePath(result.filePath)));
 			/*
@@ -295,6 +295,73 @@ app.post("/upload", async (req, res) => {
 		);
 			*/
 
+			const zipFileRecord = await DAO.addZipFile(
+				zipFileName,
+				new Date(),
+				req.session.username,
+				Object.keys(pyResultsJSON.metrics).length - 1 // num files tested
+			);
+			
+			await Promise.all(
+				results.map(async (result) => {
+					const relativePath = getRelativePath(result.filename);
+					const severityScores = [];
+
+					//add Errors to database
+					const errors = await Promise.all(
+						result.messages.map((message) => {
+							const currentErrorType = convertErrorIDToType(
+								message.ruleId
+							);
+							severityScores.push(
+								ErrorTypes[currentErrorType]["Severity"]
+							);
+							return DAO.addError(
+								currentErrorType,
+								message.ruleId,
+								message.severity,
+								message.message,
+								message.line,
+								message.column,
+								message.nodeType,
+								message.messageId,
+								message.endLine,
+								message.endColumn
+							);
+						})
+					);
+
+					//TODO TEST THIS FUNCTION
+					//gets the severity score of current file
+					const fileSeverity = getSeverityScore(severityScores, -1);
+
+					//Stores file on the database
+					const fileRecord = await DAO.addFile(
+						relativePath,
+						result.errorCount,
+						result.fatalErrorCount,
+						result.warningCount,
+						result.fixableErrorCount,
+						result.fixableWarningCount,
+						result.source,
+						errors,
+						fileSeverity
+					);
+
+					//Gets the current student
+					const currentStudentID = getStudentIDFromRelPath(
+						relativePath,
+						studentIDsByName
+					);
+
+					//adding files severity scores to the student so we can calculate the students severity score
+					listOfSeverityScoreFilesOwnedByStudents
+						.get(currentStudentID)
+						.push(fileSeverity);
+					DAO.addFileToStudent(currentStudentID, fileRecord._id);
+				})
+			);
+				//skipping linking student iDS w student names, havent decided on how to handle null names
 
 			//clear out the dir
 			fsExtra.emptyDirSync("./extracted");
