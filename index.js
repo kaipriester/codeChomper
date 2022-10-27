@@ -74,18 +74,25 @@ passport.use(new FacebookStrategy({
   clientSecret: process.env.FACEBOOK_APP_SECRET,
   callbackURL: 'http://localhost:8080/auth/facebook/callback'
 },
-function(accessToken, refreshToken, profile, cb) {
- 
-	return cb(null, profile);
+async function(accessToken, refreshToken, profile, cb) {
+	var doc = await DAO.findFacebookUser(profile.id);
+	if (!doc) {
+		var user = await DAO.addFacebookUser(profile.id, profile.displayName);
+		cb(null, user);
+	}
+	else {
+		cb(null, doc._id);
+	}
 }
 ));
 
 passport.serializeUser(function(user, cb) {
-  cb(null, user.id);
+  return cb(null, user._id);
 });
 
-passport.deserializeUser(function(id, cb) {
-  return cb(null, id);
+passport.deserializeUser(async function(id, cb) {
+  var user = await DAO.getUserById(id);
+	cb(null, user);
 });
 
 
@@ -447,20 +454,19 @@ app.post("/upload", async (req, res) => {
 });
 
 app.get('/getUser', (req, res) => {
-	if (req.user) {
-		res.json(req.user);
-	}
-	else 
 		res.json(req.session.username);
-})
+});
 
 app.get('/auth/facebook',passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { 
-		successRedirect: 'http://localhost:3000',
-		failureRedirect: 'http://localhost:3000'
-	}));
+		failureRedirect: 'http://localhost:3000', session: true}),
+		function (req, res) {
+			req.session.username = req.user;
+			res.redirect('http://localhost:3000');
+		}
+	);
 
 app.get('/loggedIn', (req, res) => {
 	res.json("looged in");
@@ -517,7 +523,7 @@ app.post("/generateReport", async (req, res) => {
 		let file = null;
 		let files = [];
 		for (let i = 0; i < req.body.zipFiles.length; i++)
-		{
+		{		
 			file = await DAO.getZipFile(req.body.zipFiles[i]);
 			if (!file || (file.Owner !== req.session.username))
 			{
@@ -637,8 +643,18 @@ app.post("/signup", async (req, res) =>
 	}
 });
 
-app.post("/logout", (req, res) =>
+app.post("/logout", (req, res, cb) =>
 {
+	if (req.user) {
+		req.logOut((err) => {
+			if (err) {
+				return cb(err);
+			}
+			if (req.session.username)
+				req.session.destroy();
+			res.status(200).send();
+		});
+	}
 	if (req.session.username)
 	{
 		req.session.destroy();

@@ -9,8 +9,23 @@ exports.getUser = async (username) =>
 {
 	return User.findOne({ Username: username }).exec();
 };
+
 exports.getStudent = async (id) => {
 	return Student.find();
+};
+
+exports.findFacebookUser = async (id) => 
+{
+	return User.findOne({facebookId: id});
+};
+
+exports.getUserById = async (id) => {
+	return User.findById(id);
+};
+
+exports.addFacebookUser = async (fbId, name) =>
+{
+	return await User.create({ Username: name, facebookId: fbId, Admin: false });
 };
 
 exports.getFile = async (id) => {
