@@ -14,7 +14,7 @@ function SignUp(props) {
 
 	const facebookAuth = async () => {
 		if (process.env.NODE_ENV == "development") 
-			window.open("http://localhost:8080/auth/facebook");
+			window.open("http://localhost:8080/auth/facebook", "_self");
 	};
 
 	const createAccount = async () => {
@@ -41,7 +41,6 @@ function SignUp(props) {
 				const result = await signup(username, password);
 				if (result.data)
 				{
-					setCookie("loggedIn", true, { path: "/" });
 					updateRouteHandler("main");
 				}
 			}

@@ -1,32 +1,32 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Dropdown, Icon, Menu } from "semantic-ui-react";
 import { useCookies } from "react-cookie";
 import { logout } from "../client/API.js";
+import { appContext } from "../Context";
 
 function TopBar(props) {
 
 	const { updateZipFileHandler, updateRouteHandler } = props;
-	const [cookies, setCookie, removeCookie] = useCookies(["loggedIn"]);
-
+	const userObject = useContext(appContext);
 	const logout_wrapper = async (updateRouteHandler) =>
 	{
 		await logout();
-		removeCookie("loggedIn", { path: "/" });
+		
 		updateZipFileHandler("undefined");
-		updateRouteHandler("LogIn");
+		window.location.reload();
 	};
 	return (
 		<div>
 			<Menu inverted attached="top">
 				<Menu.Menu position="right">
-					{ (cookies.loggedIn) &&
+					{ (userObject) &&
 						<Menu.Item
 							name="logout"
 							active
 							onClick={() => logout_wrapper(updateRouteHandler) }
 						></Menu.Item>
 					}
-					{ (!cookies.loggedIn) &&
+					{ (!userObject) &&
 						<>
 							<Menu.Item
 								name="SignUp"

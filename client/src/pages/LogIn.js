@@ -14,8 +14,7 @@ function LogIn(props) {
 		setWrong(false);
 		const result = await login(username, password);
 		if (result.data) {
-			setCookie("loggedIn", true, { path: "/" });
-			updateRouteHandler("main");
+			window.location.reload();
 		} else {
 			setWrong(true);
 		}

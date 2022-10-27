@@ -24,6 +24,14 @@ else
 	}
 }
 
+const getUser = async () => {
+	return await axios.get((url + "getUser"));
+}
+
+const federateFacebook = async () => {
+	return await axios.get((url + "auth/facebook"));
+};
+
 const generateReport = async (zipFiles) => {
 	return await axios.post((url + "generateReport"), { zipFiles: zipFiles });
 };
@@ -85,4 +93,6 @@ export {
 	getErrorTypesNum,
 	deleteZipFolder,
 	generateReport,
+	federateFacebook,
+	getUser
 };

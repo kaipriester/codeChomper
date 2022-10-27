@@ -75,27 +75,17 @@ passport.use(new FacebookStrategy({
   callbackURL: 'http://localhost:8080/auth/facebook/callback'
 },
 function(accessToken, refreshToken, profile, cb) {
-  console.log(accessToken);
-  console.log(refreshToken);
-  console.log(profile); 
-  
-  //User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-  //  return cb(err, user);
-  //});
+ 
 	return cb(null, profile);
 }
 ));
 
 passport.serializeUser(function(user, cb) {
-  //process.nextTick(function() {
-    cb(null, user.id);
- // });
+  cb(null, user.id);
 });
 
 passport.deserializeUser(function(id, cb) {
- // process.nextTick(function() {
-    return cb(null, id);
-  //});
+  return cb(null, id);
 });
 
 
@@ -456,12 +446,20 @@ app.post("/upload", async (req, res) => {
 	});
 });
 
+app.get('/getUser', (req, res) => {
+	if (req.user) {
+		res.json(req.user);
+	}
+	else 
+		res.json(req.session.username);
+})
+
 app.get('/auth/facebook',passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { 
-		successRedirect: '/loggedIn',
-		failureRedirect: '/failedLogIn' 
+		successRedirect: 'http://localhost:3000',
+		failureRedirect: 'http://localhost:3000'
 	}));
 
 app.get('/loggedIn', (req, res) => {

@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Grid } from "semantic-ui-react";
 import moment from "moment";
 import TopBar from "./components/TopBar";
@@ -13,16 +13,23 @@ import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
 import DownloadReportPage from "./pages/DownloadReportPage";
-import { useCookies } from "react-cookie";
+import { appContext } from "./Context";
 
 function App() {
-	const [cookies, setCookie] = useCookies(["loggedIn"]);
+	const userObject = useContext(appContext);
 	let defaultRoute = "LogIn";
-	if (cookies.loggedIn) {defaultRoute = "main";}
+	if (userObject) {defaultRoute = "main";}
 	const [currentRoute, setCurrentRoute] = useState(defaultRoute);
 	const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
 
 	const getCurrentRoute = () => {
+		if (userObject && (currentRoute == "LogIn" || currentRoute == "SignUp")) {
+			setCurrentRoute("main");
+		}
+		else if (!userObject && currentRoute != "LogIn" && currentRoute != "SignUp") {
+			setCurrentRoute("LogIn");
+		}
+
 		if (currentZipFileId !== "undefined") {
 			return (
 				<ViewMorePage
@@ -60,7 +67,7 @@ function App() {
 
 	return (
 		<div>
-			{(cookies.loggedIn) && (
+			{(userObject) && (
 			<Grid>
 				<Grid.Column width={3} style={{ paddingRight: 0 }}>
 						<Sidebar
@@ -78,11 +85,12 @@ function App() {
 				</Grid.Column>
 				</Grid>
 			)}
-			{(!cookies.loggedIn) && (
+			{(!userObject) && (
 				<>
 					<TopBar updateRouteHandler={setCurrentRoute} />
 					<div style={{paddingLeft: "20%", paddingRight: "15%", paddingTop: "5%"}}>
 						{getCurrentRoute()}
+						<p>{userObject}</p>
 					</div>
 				</>
 				)
