@@ -284,7 +284,7 @@ app.post("/upload", async (req, res) => {
 			console.log(throughDirectory("./extracted"));
 
 			console.log("num files tested is:");
-			//console.log(Object.keys(pyResultsJSON.metrics).length - 1); // num files tested
+			console.log(Object.keys(pyResultsJSON.metrics).length - 1); // num files tested
 
 			//console.log(results.map((result) => getRelativePath(result.filePath)));
 			/*
