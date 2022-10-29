@@ -17,6 +17,9 @@ const convertErrorIDToType = require("./models/ErrorTypes.js").convertRuleIDToEr
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
+const PYErrorTypes = require("./models/PYErrorTypes.js").PYErrorList;
+const PYErrorTypeDetail = require("./models/PYErrorTypes.js");
+
 const app = express();
 const port = process.env.PORT;
 const reactPort = 3000;
@@ -726,6 +729,30 @@ app.get("/ErrorTypes", async (req, res) =>
 		res.status(403).json(false);
 	}
 });
+
+app.get("/PYErrorTypes", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(PYErrorTypeDetail.ReturnPYErrorTypeInformation(req.query.id));
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
+});
+
+// app.get("/PYErrorIDs", async (req, res) =>
+// {
+// 	if (req.session.username)
+// 	{
+// 		res.status(200).json(PYErrorTypeDetail.getPYErrorIDs());
+// 	}
+// 	else
+// 	{
+// 		res.status(403).json(false);
+// 	}
+// });
 
 app.get("/ErrorTypesNum", async (req, res) =>
 {
