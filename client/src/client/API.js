@@ -64,9 +64,9 @@ const getErrorTypesNum = async () => {
 	return await axios.get(url + "ErrorTypesNum");
 };
 
-// const getPYErrorIDs = async () => {
-// 	return await axios.get(url + "PYErrorIDs");
-// };
+const getPYErrorIDs = async () => {
+	return await axios.get(url + "PYErrorIDs");
+};
 
 const getZipFile = async (id) => {
 	return await axios.get(url + "studentfiles?id=" + id);
@@ -92,6 +92,7 @@ export {
 	getErrorTypes,
 	getErrorTypesPY,
 	getErrorTypesNum,
+	getPYErrorIDs,
 	deleteZipFolder,
 	generateReport,
 };

@@ -742,17 +742,17 @@ app.get("/PYErrorTypes", async (req, res) =>
 	}
 });
 
-// app.get("/PYErrorIDs", async (req, res) =>
-// {
-// 	if (req.session.username)
-// 	{
-// 		res.status(200).json(PYErrorTypeDetail.getPYErrorIDs());
-// 	}
-// 	else
-// 	{
-// 		res.status(403).json(false);
-// 	}
-// });
+app.get("/PYErrorIDs", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(PYErrorTypeDetail.getPYErrorIDs());
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
+});
 
 app.get("/ErrorTypesNum", async (req, res) =>
 {

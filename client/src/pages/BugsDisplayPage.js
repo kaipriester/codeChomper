@@ -13,7 +13,7 @@ import {
 
 //TO-DO redesign this
 
-import { getErrorTypes, getErrorTypesNum, getErrorTypesPY} from "../client/API.js";
+import { getErrorTypes, getErrorTypesNum, getErrorTypesPY, getPYErrorIDs} from "../client/API.js";
 
 function BugsPage() {
 	const [nameArrayJS, setNameArrayJS] = useState([]);
@@ -21,13 +21,13 @@ function BugsPage() {
 	const [descriptionArrayJS, setDescriptionArrayJS] = useState([]);
 
 	const [nameArrayPY, setNameArrayPY] = useState([]);
-	// const [severityArrayPY, setSeverityArrayPY] = useState([]);
+	const [severityArrayPY, setSeverityArrayPY] = useState([]);
 	const [descriptionArrayPY, setDescriptionArrayPY] = useState([]);
 	const [CWEArrayPY, setCWEArrayPY] = useState([]);
 	const [moreInfoArrayPY, setMoreInfoArrayPY] = useState([]);
 	const [groupArrayPY, setGroupArrayPY] = useState([]);
 
-	const pyIndexes = [101,102,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101]
+	const pyIndexes = [101,102,103,104,105,106,107,108,109,110,111,112,113,201,202,324,501,501,503,504,505,506,507,508,509,601,602,603,604,605,606,607,608,609,610,611,612,701,702,703]
 
 
 
@@ -41,10 +41,10 @@ function BugsPage() {
 		]);
 	}
 
-	function ArrayAdderPY(name, description, CWE, moreInfo, group) {
+	function ArrayAdderPY(name, severity, description, CWE, moreInfo, group) {
 		// Delete this later
 		setNameArrayPY((nameArrayPY) => [...nameArrayPY, name]);
-		// setSeverityArray((severityArray) => [...severityArray, severity]);
+		setSeverityArrayPY((severityArray) => [...severityArray, severity]);
 		setDescriptionArrayPY((descriptionArrayPY) => [...descriptionArrayPY, description]);
 		setCWEArrayPY((CWEArrayPY) => [...CWEArrayPY, CWE]);
 		setMoreInfoArrayPY((moreInfoArrayPY) => [...moreInfoArrayPY, moreInfo]);
@@ -61,10 +61,11 @@ function BugsPage() {
 		}
 		// var counterPY = await getErrorTypesNumPY();
 		console.log(counter.data);
-		// var pyIndexesTesting = await getPYErrorIDs();
+		const pyIndexesTesting = await getPYErrorIDs();
+
 		for (const indexPY of pyIndexes) {
 			const resultsPy = (await getErrorTypesPY(indexPY)).data;
-			ArrayAdderPY(resultsPy.Name, resultsPy.Description, resultsPy.CWE, resultsPy.MoreInfo, resultsPy.Group);
+			ArrayAdderPY(resultsPy.Name, resultsPy.Severity, resultsPy.Description, resultsPy.CWE, resultsPy.MoreInfo, resultsPy.Group);
 			console.log(resultsPy.Name);
 		}
 		
@@ -107,8 +108,9 @@ function BugsPage() {
 						<Table bordered hover>
 							<td>
 								<tr><b>  {nameArrayPY[index]} </b></tr>
-								<tr>CWE: {CWEArrayPY[index]} </tr>
-								<tr>More Info: {moreInfoArrayPY[index]} </tr>
+								<tr>Severity Level: {severityArrayPY[index]} </tr>
+								<tr>CWE: <a href="url">{CWEArrayPY[index]}</a> </tr>
+								<tr>More Info: <a href="url">{moreInfoArrayPY[index]}</a> </tr>
 								<tr>Group: {groupArrayPY[index]} </tr>
 							</td>
 						</Table>
