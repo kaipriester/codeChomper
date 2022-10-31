@@ -1,5 +1,5 @@
 import axios from "axios";
-let devmode = false;
+let devmode = true;
 let url;
 const development_url = "http://localhost";
 const development_port = 8080;
@@ -56,8 +56,16 @@ const getErrorTypes = async (id) => {
 	return await axios.get(url + "ErrorTypes?id=" + id);
 };
 
+const getErrorTypesPY = async (id) => {
+	return await axios.get(url + "PYErrorTypes?id=" + id);
+};
+
 const getErrorTypesNum = async () => {
 	return await axios.get(url + "ErrorTypesNum");
+};
+
+const getPYErrorIDs = async () => {
+	return await axios.get(url + "PYErrorIDs");
 };
 
 const getZipFile = async (id) => {
@@ -82,7 +90,9 @@ export {
 	ping,
 	upload,
 	getErrorTypes,
+	getErrorTypesPY,
 	getErrorTypesNum,
+	getPYErrorIDs,
 	deleteZipFolder,
 	generateReport,
 };
