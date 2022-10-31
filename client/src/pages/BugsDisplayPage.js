@@ -109,8 +109,8 @@ function BugsPage() {
 							<td>
 								<tr><b>  {nameArrayPY[index]} </b></tr>
 								<tr>Severity Level: {severityArrayPY[index]} </tr>
-								<tr>CWE: <a href="url">{CWEArrayPY[index]}</a> </tr>
-								<tr>More Info: <a href="url">{moreInfoArrayPY[index]}</a> </tr>
+								<tr>CWE: <a href={CWEArrayPY[index]} target="_blank" rel="noopener noreferrer">Link</a> </tr>
+								<tr>More Info: <a href={moreInfoArrayPY[index]} target="_blank" rel="noopener noreferrer">Link</a> </tr>
 								<tr>Group: {groupArrayPY[index]} </tr>
 							</td>
 						</Table>
@@ -216,6 +216,18 @@ function BugsPage() {
 			<Table striped bordered hover>
 					<thead>
 						<tr>
+							<th>Python Security Issue Types</th>
+						</tr>
+					</thead>
+					<tbody>{getTableRowsPython()}</tbody>
+	
+					<br></br>
+
+				</Table>
+
+			<Table striped bordered hover>
+					<thead>
+						<tr>
 							<th>JavaScript Security Issue Types</th>
 						</tr>
 					</thead>
@@ -225,17 +237,6 @@ function BugsPage() {
 
 				</Table>
 
-				<Table striped bordered hover>
-					<thead>
-						<tr>
-							<th>Python Security Issue Types</th>
-						</tr>
-					</thead>
-					<tbody>{getTableRowsPython()}</tbody>
-	
-					<br></br>
-
-				</Table>
 		</Grid>
 	);
 }

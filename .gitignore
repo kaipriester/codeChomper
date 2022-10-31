@@ -24,6 +24,7 @@ client/build
 .env.development.local
 .env.test.local
 .env.production.local
+config.js
 
 client/.DS_Store
 client/.env.local
