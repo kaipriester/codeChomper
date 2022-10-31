@@ -52,8 +52,9 @@ function BugsPage() {
 	}
 
 	useEffect(async () => {
-		var counter = 25;
-		for (let i = 0; i < counter; i++) {
+		var counter = await getErrorTypesNum();
+		console.log(counter.data);
+		for (let i = 0; i < counter.data; i++) {
 			const results = (await getErrorTypes(i)).data;
 			ArrayAdderJS(results.Name, results.Severity, results.Description);
 			console.log(results.Name)
