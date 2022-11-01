@@ -282,7 +282,11 @@ app.post("/upload", async (req, res) => {
 
 			const pyResultsJSON = JSON.parse(mytest.toString());
 			const results = pyResultsJSON.results;
-			
+			//console.log("results");
+			//console.log(results);
+
+
+
 			console.log("Through dir is: ");
 			console.log(throughDirectory("./extracted"));
 
@@ -290,13 +294,7 @@ app.post("/upload", async (req, res) => {
 			console.log(Object.keys(pyResultsJSON.metrics).length - 1); // num files tested
 
 			//console.log(results.map((result) => getRelativePath(result.filePath)));
-			/*
-			const zipFileRecord = await DAO.addZipFile(
-			zipFileName,
-			new Date(),
 			
-		);
-			*/
 
 			const zipFileRecord = await DAO.addZipFile(
 				zipFileName,
@@ -388,10 +386,7 @@ app.post("/upload", async (req, res) => {
 			await Promise.all(
 				[...studentNames].map(async (studentName) =>
 					studentIDsByName.set(
-						studentName,
-						(
-							await DAO.addStudent(studentName, zipFileRecord._id)
-						)._id
+						studentName,(await DAO.addStudent(studentName, zipFileRecord._id))._id
 					)
 				)
 			);
