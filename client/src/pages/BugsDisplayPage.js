@@ -60,8 +60,7 @@ function BugsPage() {
 			const results = (await getErrorTypes(i)).data;
 			ArrayAdderJS(results.Name, results.Severity, results.Description);
 			console.log(results.Name);
-                        arrayJS.push({ CWE: results.CWE, MoreInfo: results
-.MoreInfo });
+                        arrayJS.push({ CWE: results.CWE, MoreInfo: results.MoreInfo });
 		}
 		setArrayJS(arrayJS);
 		// var counterPY = await getErrorTypesNumPY();
@@ -96,8 +95,8 @@ function BugsPage() {
 							<td>
 								<tr><b>  {nameArrayJS[index]} </b></tr>
 								<tr>Severity Level: {severityArrayJS[index]}</tr>
-								{arrayJS[index] && arrayJS[index].CWE && <tr>CWE: <a href="url">{arrayJS[index].CWE}</a></tr>}
-								{arrayJS[index] && arrayJS[index].MoreInfo && <tr>More Info: <a href="url">{arrayJS[index].MoreInfo}</a></tr>}
+								{arrayJS[index] && arrayJS[index].CWE && <tr>CWE: <a href={arrayJS[index].CWE} target="_blank" rel="noopener noreferrer">Link</a></tr>}
+								{arrayJS[index] && arrayJS[index].MoreInfo && <tr>More Info: <a href={arrayJS[index].MoreInfo} target="_blank" rel="noopener noreferrer">Link</a></tr>}
 							</td>
 						</Table>
 						<td>Description: {descriptionArrayJS[index]}</td>
