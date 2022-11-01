@@ -3,6 +3,7 @@ import { Form, Grid, Input, Button, Message, GridRow } from "semantic-ui-react";
 import { signup, federateFacebook } from "../client/API.js";
 import { useCookies } from "react-cookie";
 import { List } from "semantic-ui-react";
+import FederatedOAuth from "../components/FederatedOAuth";
 
 function SignUp(props) {
 	const [username, setUsername] = useState("");
@@ -90,7 +91,9 @@ function SignUp(props) {
 				<Button onClick={() => createAccount()}>Sign Up</Button>
 			</Grid.Row>
 			<Grid.Row>
-				<Button onClick={() => facebookAuth()}>facebook</Button>
+				<FederatedOAuth/>
+			</Grid.Row>
+			<Grid.Row>
 			</Grid.Row>
 			<Grid.Row>
 				{wrong.length > 0 && (
