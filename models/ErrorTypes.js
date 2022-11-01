@@ -124,7 +124,6 @@ exports.ErrorList[11] = {
 	Severity: 6, //?
 	CWE: "https://cwe.mitre.org/data/definitions/20.html",
 	MoreInfo: "https://github.com/microsoft/eslint-plugin-sdl/blob/main/docs/rules/no-document-domain.md"
-	
 };
 exports.ErrorList[12] = {
 	Language: "JavaScript",
@@ -202,7 +201,7 @@ exports.ErrorList[19] = {
 	Description:
 		"Use of Buffer.allocUnsafe or Buffer.allocUnsafeSlow was detected. When calling Buffer.allocUnsafe and Buffer.allocUnsafeSlow, the allocated memory is not wiped-out and can contain old, potentially sensitive data.",
 	//OG Description: @microsoft/sdl/no-unsafe-alloc, When calling Buffer.allocUnsafe and Buffer.allocUnsafeSlow, the allocated memory is not wiped-out and can contain old, potentially sensitive data.
-	Severity: 6, //?,
+	Severity: 6, //?
 	CWE: "https://cwe.mitre.org/data/definitions/212.html",
 	MoreInfo: "https://github.com/microsoft/eslint-plugin-sdl/blob/main/docs/rules/no-unsafe-alloc.md"
 };
