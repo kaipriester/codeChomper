@@ -11,52 +11,122 @@ import {
 	Table,
 } from "semantic-ui-react";
 
-import { getErrorTypes, getErrorTypesNum } from "../client/API.js";
+//TO-DO redesign this
+
+import { getErrorTypes, getErrorTypesNum, getErrorTypesPY, getPYErrorIDs } from "../client/API.js";
 
 function BugsPage() {
-	const [nameArray, setNameArray] = useState([]);
-	const [severityArray, setSeverityArray] = useState([]);
-	const [descriptionArray, setDescriptionArray] = useState([]);
+	const [nameArrayJS, setNameArrayJS] = useState([]);
+	const [severityArrayJS, setSeverityArrayJS] = useState([]);
+	const [descriptionArrayJS, setDescriptionArrayJS] = useState([]);
+	const [arrayJS, setArrayJS] = useState([]);
 
-	function ArrayAdder(name, severity, description) {
+	const [nameArrayPY, setNameArrayPY] = useState([]);
+	const [severityArrayPY, setSeverityArrayPY] = useState([]);
+	const [descriptionArrayPY, setDescriptionArrayPY] = useState([]);
+	const [CWEArrayPY, setCWEArrayPY] = useState([]);
+	const [moreInfoArrayPY, setMoreInfoArrayPY] = useState([]);
+	const [groupArrayPY, setGroupArrayPY] = useState([]);
+
+	const pyIndexes = [101,102,103,104,105,106,107,108,109,110,111,112,113,201,202,324,501,501,503,504,505,506,507,508,509,601,602,603,604,605,606,607,608,609,610,611,612,701,702,703]
+
+
+
+	function ArrayAdderJS(name, severity, description) {
 		// Delete this later
-		setNameArray((nameArray) => [...nameArray, name]);
-		setSeverityArray((severityArray) => [...severityArray, severity]);
-		setDescriptionArray((descriptionArray) => [
-			...descriptionArray,
+		setNameArrayJS((nameArrayJS) => [...nameArrayJS, name]);
+		setSeverityArrayJS((severityArrayJS) => [...severityArrayJS, severity]);
+		setDescriptionArrayJS((descriptionArrayJS) => [
+			...descriptionArrayJS,
 			description,
 		]);
+	}
+
+	function ArrayAdderPY(name, severity, description, CWE, moreInfo, group) {
+		// Delete this later
+		setNameArrayPY((nameArrayPY) => [...nameArrayPY, name]);
+		setSeverityArrayPY((severityArray) => [...severityArray, severity]);
+		setDescriptionArrayPY((descriptionArrayPY) => [...descriptionArrayPY, description]);
+		setCWEArrayPY((CWEArrayPY) => [...CWEArrayPY, CWE]);
+		setMoreInfoArrayPY((moreInfoArrayPY) => [...moreInfoArrayPY, moreInfo]);
+		setGroupArrayPY((groupArrayPY) => [...groupArrayPY, group]);
 	}
 
 	useEffect(async () => {
 		var counter = await getErrorTypesNum();
 		console.log(counter.data);
+                let arrayJS = [];
 		for (let i = 0; i < counter.data; i++) {
 			const results = (await getErrorTypes(i)).data;
-			ArrayAdder(results.Name, results.Severity, results.Description);
+			ArrayAdderJS(results.Name, results.Severity, results.Description);
+			console.log(results.Name);
+                        arrayJS.push({ CWE: results.CWE, MoreInfo: results.MoreInfo });
 		}
-		console.log(results);
+		setArrayJS(arrayJS);
+		// var counterPY = await getErrorTypesNumPY();
+		console.log(counter.data);
+		const pyIndexesTesting = await getPYErrorIDs();
+
+		for (const indexPY of pyIndexes) {
+			const resultsPy = (await getErrorTypesPY(indexPY)).data;
+			ArrayAdderPY(resultsPy.Name, resultsPy.Severity, resultsPy.Description, resultsPy.CWE, resultsPy.MoreInfo, resultsPy.Group);
+			console.log(resultsPy.Name);
+		}
+		
 	}, []);
 
+	// useEffect(async () => {
+	// 	var counter = await getErrorTypesNumPY();
+	// 	console.log(counter.data);
+	// 	for (let i = 0; i < counter.data; i++) {
+	// 		const results = (await getErrorTypesPY(B102)).data;
+	// 		ArrayAdderPY(results.Name, results.Description, results.CWE, results.MoreInfo, results.Group);
+	// 	}
+	// 	console.log(results);
+	// }, []);
+
 	//TODO: END GAME add Checkboxs to columns that allow the user to turn on and off the displaying of those detections
-	const getTableRows = () => {
+	const getTableRowsJavaScript = () => {
 		return (
 			<div>
 				{Array.from({ length: 24 }).map((_, index) => (
 					<tr>
 						<Table bordered hover>
 							<td>
-								<tr>Name: {nameArray[index]} </tr>
-								<tr>Severity: {severityArray[index]} </tr>
-								<tr>Type: </tr>
+								<tr><b>  {nameArrayJS[index]} </b></tr>
+								<tr>Severity Level: {severityArrayJS[index]}</tr>
+								{arrayJS[index] && arrayJS[index].CWE && <tr>CWE: <a href={arrayJS[index].CWE} target="_blank" rel="noopener noreferrer">Link</a></tr>}
+								{arrayJS[index] && arrayJS[index].MoreInfo && <tr>More Info: <a href={arrayJS[index].MoreInfo} target="_blank" rel="noopener noreferrer">Link</a></tr>}
 							</td>
 						</Table>
-						<td>Description: {descriptionArray[index]}</td>
+						<td>Description: {descriptionArrayJS[index]}</td>
 					</tr>
 				))}
 			</div>
 		);
 	};
+
+	const getTableRowsPython = () => {
+		return (
+			<div>
+				{Array.from({ length: 40 }).map((_, index) => (
+					<tr>
+						<Table bordered hover>
+							<td>
+								<tr><b>  {nameArrayPY[index]} </b></tr>
+								<tr>Severity Level: {severityArrayPY[index]} </tr>
+								<tr>CWE: <a href={CWEArrayPY[index]} target="_blank" rel="noopener noreferrer">Link</a> </tr>
+								<tr>More Info: <a href={moreInfoArrayPY[index]} target="_blank" rel="noopener noreferrer">Link</a> </tr>
+								<tr>Group: {groupArrayPY[index]} </tr>
+							</td>
+						</Table>
+						<td>Description: {descriptionArrayPY[index]}</td>
+					</tr>
+				))}
+			</div>
+		);
+	};
+	
 
 	return (
 		<Grid style={{ padding: "1.5vw" }}>
@@ -73,18 +143,7 @@ function BugsPage() {
 				</Segment>
 			</Grid.Row>
 			<Grid.Row>
-				<Table striped bordered hover>
-					<thead>
-						<tr>
-							<th>Info</th>
-							<th>Description</th>
-						</tr>
-					</thead>
-					<tbody>{getTableRows()}</tbody>
-	
-					<br></br>
 
-				</Table>
 
 				<Table>
 
@@ -154,10 +213,36 @@ function BugsPage() {
             <td>10</td>
             <td>Major Security Concerns (Can lead to complete access to the entire server/allow for foreign code to be executed) </td>
         </tr>
+		
     </tbody>
+	
 	<br></br>
 				</Table>
 			</Grid.Row>
+			<Table striped bordered hover>
+					<thead>
+						<tr>
+							<th>Python Security Issue Types</th>
+						</tr>
+					</thead>
+					<tbody>{getTableRowsPython()}</tbody>
+	
+					<br></br>
+
+				</Table>
+
+			<Table striped bordered hover>
+					<thead>
+						<tr>
+							<th>JavaScript Security Issue Types</th>
+						</tr>
+					</thead>
+					<tbody>{getTableRowsJavaScript()}</tbody>
+	
+					<br></br>
+
+				</Table>
+
 		</Grid>
 	);
 }

@@ -19,6 +19,9 @@ const ErrorTypeDetail = require("./models/ErrorTypes.js");
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook');
 
+const PYErrorTypes = require("./models/PYErrorTypes.js").PYErrorList;
+const PYErrorTypeDetail = require("./models/PYErrorTypes.js");
+
 const app = express();
 const port = process.env.PORT;
 const reactPort = 3000;
@@ -297,9 +300,101 @@ app.post("/upload", async (req, res) => {
 			// there is at least 1 py file in the zipfile uploaded
 			console.log("inside .py only code section");
 			
-			let mytest = await Bandit.runBandit("./extracted/", true);
+			const mytest = await Bandit.runBandit("./extracted/", true);
+			///console.log(mytest[metrics]);
 			console.log("my childs output is: ");
-			console.log(mytest);
+			
+			console.dir(mytest, {'maxArrayLength': null});
+
+			console.log("JSON FORMAT??");
+			console.log(mytest.toString());
+
+
+			const pyResultsJSON = JSON.parse(mytest.toString());
+			const results = pyResultsJSON.results;
+			
+			console.log("Through dir is: ");
+			console.log(throughDirectory("./extracted"));
+
+			console.log("num files tested is:");
+			console.log(Object.keys(pyResultsJSON.metrics).length - 1); // num files tested
+
+			//console.log(results.map((result) => getRelativePath(result.filePath)));
+			/*
+			const zipFileRecord = await DAO.addZipFile(
+			zipFileName,
+			new Date(),
+			
+		);
+			*/
+
+			const zipFileRecord = await DAO.addZipFile(
+				zipFileName,
+				new Date(),
+				req.session.username,
+				Object.keys(pyResultsJSON.metrics).length - 1 // num files tested
+			);
+			
+			await Promise.all(
+				results.map(async (result) => {
+					const relativePath = getRelativePath(result.filename);
+					const severityScores = [];
+
+					//add Errors to database
+					const errors = await Promise.all(
+						result.messages.map((message) => {
+							const currentErrorType = convertErrorIDToType(
+								message.ruleId
+							);
+							severityScores.push(
+								ErrorTypes[currentErrorType]["Severity"]
+							);
+							return DAO.addError(
+								currentErrorType,
+								message.ruleId,
+								message.severity,
+								message.message,
+								message.line,
+								message.column,
+								message.nodeType,
+								message.messageId,
+								message.endLine,
+								message.endColumn
+							);
+						})
+					);
+
+					//TODO TEST THIS FUNCTION
+					//gets the severity score of current file
+					const fileSeverity = getSeverityScore(severityScores, -1);
+
+					//Stores file on the database
+					const fileRecord = await DAO.addFile(
+						relativePath,
+						result.errorCount,
+						result.fatalErrorCount,
+						result.warningCount,
+						result.fixableErrorCount,
+						result.fixableWarningCount,
+						result.source,
+						errors,
+						fileSeverity
+					);
+
+					//Gets the current student
+					const currentStudentID = getStudentIDFromRelPath(
+						relativePath,
+						studentIDsByName
+					);
+
+					//adding files severity scores to the student so we can calculate the students severity score
+					listOfSeverityScoreFilesOwnedByStudents
+						.get(currentStudentID)
+						.push(fileSeverity);
+					DAO.addFileToStudent(currentStudentID, fileRecord._id);
+				})
+			);
+				//skipping linking student iDS w student names, havent decided on how to handle null names
 
 			//clear out the dir
 			fsExtra.emptyDirSync("./extracted");
@@ -693,6 +788,30 @@ app.get("/ErrorTypes", async (req, res) =>
 	if (req.session.username)
 	{
 		res.status(200).json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
+});
+
+app.get("/PYErrorTypes", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(PYErrorTypeDetail.ReturnPYErrorTypeInformation(req.query.id));
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
+});
+
+app.get("/PYErrorIDs", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(PYErrorTypeDetail.getPYErrorIDs());
 	}
 	else
 	{
