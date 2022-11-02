@@ -16,8 +16,6 @@ const DAO = require("./dao/DAO.js");
 const convertErrorIDToType = require("./models/ErrorTypes.js").convertRuleIDToErrorType;
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
-var passport = require('passport');
-var FacebookStrategy = require('passport-facebook');
 
 const PYErrorTypes = require("./models/PYErrorTypes.js").PYErrorList;
 const PYErrorTypeDetail = require("./models/PYErrorTypes.js");
@@ -54,8 +52,6 @@ app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "build")));
-app.use(passport.initialize());
-app.use(passport.session());
 database.connect();
 
 (async () =>
@@ -71,33 +67,6 @@ database.connect();
 	delete process.env.MASTER_USERNAME;
 	delete process.env.MASTER_PASSWORD;
 })();
-
-passport.use(new FacebookStrategy({
-  clientID: process.env.FACEBOOK_APP_ID,
-  clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: 'http://localhost:8080/auth/facebook/callback'
-},
-async function(accessToken, refreshToken, profile, cb) {
-	var doc = await DAO.findFacebookUser(profile.id);
-	if (!doc) {
-		var user = await DAO.addFacebookUser(profile.id, profile.displayName);
-		cb(null, user);
-	}
-	else {
-		cb(null, doc._id);
-	}
-}
-));
-
-passport.serializeUser(function(user, cb) {
-  return cb(null, user._id);
-});
-
-passport.deserializeUser(async function(id, cb) {
-  var user = await DAO.getUserById(id);
-	cb(null, user);
-});
-
 
 //takes the string of the filepath from canvas and extracts the students name from it
 function getStudentIDFromRelPath(target, map) {
@@ -552,25 +521,6 @@ app.get('/getUser', (req, res) => {
 		res.json(req.session.username);
 });
 
-app.get('/auth/facebook',passport.authenticate('facebook'));
-
-app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { 
-		failureRedirect: 'http://localhost:3000', session: true}),
-		function (req, res) {
-			req.session.username = req.user;
-			res.redirect('http://localhost:3000');
-		}
-	);
-
-app.get('/loggedIn', (req, res) => {
-	res.json("looged in");
-});
-
-app.get('/failedLogIn', (req, res) => {
-	res.json("failed log in");
-});
-
 app.get("/ping", (req, res) =>
 {
   res.status(200);
@@ -583,8 +533,6 @@ app.get("/ping", (req, res) =>
     res.json(false);
   }
 });
-
-app.get('/login/federated/facebook', passport.authenticate('facebook'));
 
 // overview page- return all uploaded zip files
 app.get("/overview/zipfiles", async (req, res) =>
@@ -740,16 +688,6 @@ app.post("/signup", async (req, res) =>
 
 app.post("/logout", (req, res, cb) =>
 {
-	if (req.user) {
-		req.logOut((err) => {
-			if (err) {
-				return cb(err);
-			}
-			if (req.session.username)
-				req.session.destroy();
-			res.status(200).send();
-		});
-	}
 	if (req.session.username)
 	{
 		req.session.destroy();
