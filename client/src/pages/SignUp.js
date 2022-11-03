@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Grid, Input, Button, Message } from "semantic-ui-react";
+import { Form, Grid, Input, Button, Message, GridRow } from "semantic-ui-react";
 import { signup } from "../client/API.js";
 import { useCookies } from "react-cookie";
 import { List } from "semantic-ui-react";
@@ -9,7 +9,7 @@ function SignUp(props) {
 	const [password, setPassword] = useState("");
 	const [rePassword, setRePassword] = useState("");
 	const [cookies, setCookie] = useCookies(["loggedIn"]);
-	const { updateRouteHandler } = props;
+	const { updateRouteHandler, callUpdateUserObject } = props;
 	const [wrong, setWrong] = useState([]);
 
 	const createAccount = async () => {
@@ -36,7 +36,7 @@ function SignUp(props) {
 				const result = await signup(username, password);
 				if (result.data)
 				{
-					setCookie("loggedIn", true, { path: "/" });
+					callUpdateUserObject();
 					updateRouteHandler("main");
 				}
 			}

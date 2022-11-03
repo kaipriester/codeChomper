@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Grid } from "semantic-ui-react";
 import moment from "moment";
 import TopBar from "./components/TopBar";
@@ -13,16 +13,34 @@ import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
 import DownloadReportPage from "./pages/DownloadReportPage";
-import { useCookies } from "react-cookie";
+import FederatedOAuth from "./components/FederatedOAuth";
+import { getUser } from "./client/API";
 
 function App() {
-	const [cookies, setCookie] = useCookies(["loggedIn"]);
 	let defaultRoute = "LogIn";
-	if (cookies.loggedIn) {defaultRoute = "main";}
+	const [userObject, setUserObject] = useState();
+	if (userObject) {defaultRoute = "main";}
 	const [currentRoute, setCurrentRoute] = useState(defaultRoute);
 	const [currentZipFileId, setCurrentZipFileId] = useState("undefined");
 
+  useEffect(async () => {
+      callUpdateUserObject();
+  }, []);
+
+	const callUpdateUserObject = async () => {
+		var response = await getUser();
+    console.log(response);
+    setUserObject(response.data);
+	};
+
 	const getCurrentRoute = () => {
+		if (userObject && (currentRoute == "LogIn" || currentRoute == "SignUp")) {
+			setCurrentRoute("main");
+		}
+		else if (!userObject && currentRoute != "LogIn" && currentRoute != "SignUp") {
+			setCurrentRoute("LogIn");
+		}
+
 		if (currentZipFileId !== "undefined") {
 			return (
 				<ViewMorePage
@@ -35,9 +53,15 @@ function App() {
 
 		switch (currentRoute) {
 			case "LogIn":
-				return <LogIn updateRouteHandler={setCurrentRoute} />;
+				return <LogIn 
+					updateRouteHandler={setCurrentRoute} 
+					callUpdateUserObject={callUpdateUserObject}
+					/>;
 			case "SignUp":
-				return <SignUp updateRouteHandler={setCurrentRoute} />;
+				return <SignUp 
+					updateRouteHandler={setCurrentRoute} 
+					callUpdateUserObject={callUpdateUserObject}
+					/>;
 			case "Landing":
 				return <Landing updateRouteHandler={setCurrentRoute}/>;
 			case "main":
@@ -60,7 +84,7 @@ function App() {
 
 	return (
 		<div>
-			{(cookies.loggedIn) && (
+			{(userObject) && (
 			<Grid>
 				<Grid.Column width={3} style={{ paddingRight: 0 }}>
 						<Sidebar
@@ -73,16 +97,22 @@ function App() {
 					<TopBar
 						updateZipFileHandler={setCurrentZipFileId}
 						updateRouteHandler={setCurrentRoute}
+						userObject={userObject} 
+						callUpdateUserObject={callUpdateUserObject}
 					/>
 					{getCurrentRoute()}
 				</Grid.Column>
 				</Grid>
 			)}
-			{(!cookies.loggedIn) && (
+			{(!userObject) && (
 				<>
-					<TopBar updateRouteHandler={setCurrentRoute} />
+					<TopBar updateRouteHandler={setCurrentRoute} 
+						userObject={userObject} 
+						updateZipFileHandler={setCurrentZipFileId} 
+						callUpdateUserObject={callUpdateUserObject}/>
 					<div style={{paddingLeft: "20%", paddingRight: "15%", paddingTop: "5%"}}>
 						{getCurrentRoute()}
+						<FederatedOAuth callUpdateUserObject={callUpdateUserObject}/>
 					</div>
 				</>
 				)

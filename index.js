@@ -52,7 +52,6 @@ app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "build")));
-
 database.connect();
 
 (async () =>
@@ -518,6 +517,10 @@ app.post("/upload", async (req, res) => {
 	});
 });
 
+app.get('/getUser', (req, res) => {
+		res.json(req.session.username);
+});
+
 app.get("/ping", (req, res) =>
 {
   res.status(200);
@@ -563,9 +566,9 @@ app.post("/generateReport", async (req, res) => {
 		let file = null;
 		let files = [];
 		for (let i = 0; i < req.body.zipFiles.length; i++)
-		{
+		{		
 			file = await DAO.getZipFile(req.body.zipFiles[i]);
-			if (!file || (file.Owner !== req.session.username))
+			if (!req.session.admin && (!file || (file.Owner !== req.session.username)))
 			{
 				res.status(403).json(false); // 403 notwithstanding to prevent the existence of a file with the specified ID from being ascertained
 				return;
@@ -634,7 +637,7 @@ app.post("/login", async (req, res) =>
 					res.status(200);
 					if (result)
 					{
-						req.session.username = req.body.username;
+						req.session.username = user._id;
 						if (user.Admin)
 						{
 							req.session.admin = true;
@@ -661,14 +664,16 @@ app.post("/login", async (req, res) =>
 
 app.post("/signup", async (req, res) =>
 {
-	if (req.body.username && req.body.password && /^[a-zA-Z0-9]+$/.test(req.body.username) && /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
+	if (req.body.username && req.body.password 
+		&& /^[a-zA-Z0-9]+$/.test(req.body.username) 
+		&& /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
 	{
 		try
 		{
 			const salt = await bcrypt.genSalt(saltRounds);
 			const hash = await bcrypt.hash(req.body.password, salt);
-			await DAO.addUser(req.body.username, hash, false);
-			req.session.username = req.body.username;
+			var newUser = await DAO.addUser(req.body.username, hash, false);
+			req.session.username = newUser._id;
 			res.status(200).json(true);
 		}
 		catch (err)
@@ -680,6 +685,52 @@ app.post("/signup", async (req, res) =>
 	{
 		console.log(req.body);
 		res.status(400).json(false);
+	}
+});
+
+app.post("/facebookLogin", async (req, res) => {
+	if (req.body.facebookId && req.body.username) {
+		console.log(req.body);
+		var user = await DAO.findFacebookUser(req.body.facebookId);
+		console.log(user);
+		if (user._id) {
+			res.status(200);
+			req.session.username = user._id;
+			
+	    res.json(true);
+		}
+		else {
+			var response = await DAO.addFacebookUser(req.body.facebookId, req.body.username);
+			if (response._id) {
+				res.status(200);
+				req.session.username = user._id;
+				res.json(true);
+			}
+			else
+				res.status(400).json(false);
+		}
+	}
+});
+
+app.post("/googleLogin", async (req, res) => {
+	if (req.body.googleId && req.body.username) {
+		var user = await DAO.findGoogleUser(req.body.googleId);
+		if (user) {
+			res.status(200);
+			req.session.username = user._id;
+	    res.json(true);
+		}
+		else {
+			var response = await DAO.addGoogleUser(req.body.googleId, req.body.username);
+			if (response._id) {
+				res.status(200);
+				req.session.username = user._id;
+				res.json(true);
+			}
+			else
+				res.status(400).json(false);
+		}
+		console.log(req.session);
 	}
 });
 
@@ -702,7 +753,7 @@ app.get("/studentfiles", async (req, res) =>
 	if (req.session.username)
 	{
 		const file = await DAO.getZipFile(req.query.id);
-		if (file.Owner === req.session.username)
+		if (req.session.admin || file.Owner === req.session.username)
 		{
 			res.status(200).json(file);
 		}

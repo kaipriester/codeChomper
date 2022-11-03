@@ -7,18 +7,19 @@ function LogIn(props) {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [cookies, setCookie] = useCookies(["loggedIn"]);
-	const { updateRouteHandler } = props;
+	const { updateRouteHandler, callUpdateUserObject } = props;
 	const [wrong, setWrong] = useState(false);
 
 	const submitCredentials = async () => {
 		setWrong(false);
 		const result = await login(username, password);
 		if (result.data) {
-			setCookie("loggedIn", true, { path: "/" });
+			callUpdateUserObject();
 			updateRouteHandler("main");
 		} else {
 			setWrong(true);
 		}
+		callUpdateUserObject();
 	};
 	const signUpPage = async () => {
 		updateRouteHandler("SignUp");

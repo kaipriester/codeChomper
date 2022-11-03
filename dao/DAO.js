@@ -7,10 +7,31 @@ const ErrorList = require("../models/ErrorTypes.js").ErrorList;
 
 exports.getUser = async (username) =>
 {
-	return User.findOne({ Username: username }).exec();
+	return User.findOne({ Username: username, googleId: null, facebookId: null }).exec();
 };
+
 exports.getStudent = async (id) => {
 	return Student.find();
+};
+
+exports.findFacebookUser = async (id) => {
+	return User.findOne({facebookId: id});
+};
+
+exports.findGoogleUser = async (id) => {
+	return User.findOne({googleId: id});
+};
+
+exports.getUserById = async (id) => {
+	return User.findById(id);
+};
+
+exports.addFacebookUser = async (id, name) => {
+	return await User.create({ Username: name, facebookId: id, Admin: false });
+};
+
+exports.addGoogleUser = async (id, name) => {
+	return await User.create({ Username: name, googleId: id, Admin: false });
 };
 
 exports.getFile = async (id) => {
