@@ -40,6 +40,14 @@ const signup = async (username, password) => {
 	return await axios.post((url + "signup"), { username: username, password: password });
 };
 
+const facebookLogin = async (id, username) => {
+	return await axios.post((url + "facebookLogin"), { username: username, facebookId: id });
+};
+
+const googleLogin = async (id, username) => {
+	return await axios.post((url + "googleLogin"), { username: username, googleId: id });
+};
+
 const logout = async () => {
 	return await axios.post(url + "logout");
 };
@@ -99,5 +107,7 @@ export {
 	getPYErrorIDs,
 	deleteZipFolder,
 	generateReport,
-	getUser
+	getUser,
+	facebookLogin,
+	googleLogin
 };

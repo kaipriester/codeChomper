@@ -5,8 +5,7 @@ const Schema = new mongoose.Schema({
 	Hash: String,
 	Admin: Boolean,
 	googleId: { required: false, type: String },
-	facebookId: { required: false, type: String },
-	githubId: { required: false, type: String }
+	facebookId: { required: false, type: String }
 });
 
 exports.Model = mongoose.model("User", Schema);

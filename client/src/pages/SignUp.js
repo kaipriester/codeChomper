@@ -3,14 +3,13 @@ import { Form, Grid, Input, Button, Message, GridRow } from "semantic-ui-react";
 import { signup } from "../client/API.js";
 import { useCookies } from "react-cookie";
 import { List } from "semantic-ui-react";
-import FederatedOAuth from "../components/FederatedOAuth";
 
 function SignUp(props) {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [rePassword, setRePassword] = useState("");
 	const [cookies, setCookie] = useCookies(["loggedIn"]);
-	const { updateRouteHandler } = props;
+	const { updateRouteHandler, callUpdateUserObject } = props;
 	const [wrong, setWrong] = useState([]);
 
 	const createAccount = async () => {
@@ -37,6 +36,7 @@ function SignUp(props) {
 				const result = await signup(username, password);
 				if (result.data)
 				{
+					callUpdateUserObject();
 					updateRouteHandler("main");
 				}
 			}
@@ -84,11 +84,6 @@ function SignUp(props) {
 			</Grid.Row>
 			<Grid.Row>
 				<Button onClick={() => createAccount()}>Sign Up</Button>
-			</Grid.Row>
-			<Grid.Row>
-				<FederatedOAuth/>
-			</Grid.Row>
-			<Grid.Row>
 			</Grid.Row>
 			<Grid.Row>
 				{wrong.length > 0 && (

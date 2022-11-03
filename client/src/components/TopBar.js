@@ -1,19 +1,17 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Dropdown, Icon, Menu } from "semantic-ui-react";
 import { useCookies } from "react-cookie";
 import { logout } from "../client/API.js";
-import { appContext } from "../Context";
 
 function TopBar(props) {
 
-	const { updateZipFileHandler, updateRouteHandler } = props;
-	const userObject = useContext(appContext);
+	const { updateZipFileHandler, updateRouteHandler, userObject, callUpdateUserObject} = props;
 	const logout_wrapper = async (updateRouteHandler) =>
 	{
 		await logout();
-		
+		callUpdateUserObject();
 		updateZipFileHandler("undefined");
-		window.location.reload();
+		updateRouteHandler("login");
 	};
 	return (
 		<div>
