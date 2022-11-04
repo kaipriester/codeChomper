@@ -693,7 +693,7 @@ app.post("/facebookLogin", async (req, res) => {
 		console.log(req.body);
 		var user = await DAO.findFacebookUser(req.body.facebookId);
 		console.log(user);
-		if (user._id) {
+		if (user) {
 			res.status(200);
 			req.session.username = user._id;
 			
@@ -701,9 +701,9 @@ app.post("/facebookLogin", async (req, res) => {
 		}
 		else {
 			var response = await DAO.addFacebookUser(req.body.facebookId, req.body.username);
-			if (response._id) {
+			if (response) {
 				res.status(200);
-				req.session.username = user._id;
+				req.session.username = response._id;
 				res.json(true);
 			}
 			else
@@ -722,9 +722,9 @@ app.post("/googleLogin", async (req, res) => {
 		}
 		else {
 			var response = await DAO.addGoogleUser(req.body.googleId, req.body.username);
-			if (response._id) {
+			if (response) {
 				res.status(200);
-				req.session.username = user._id;
+				req.session.username = response._id;
 				res.json(true);
 			}
 			else
