@@ -266,6 +266,9 @@ app.post("/upload", async (req, res) => {
 			else return false;
 		}
 
+		console.log("Through dir is: ");
+			console.log(throughDirectory("./extracted"));
+
 		if(fileNamesInZipFolder.some(hasPyFiles)){
 			// there is at least 1 py file in the zipfile uploaded
 			console.log("inside .py only code section");
@@ -276,14 +279,19 @@ app.post("/upload", async (req, res) => {
 			
 			console.dir(mytest, {'maxArrayLength': null});
 
-			console.log("JSON FORMAT??");
-			console.log(mytest.toString());
+			//console.log("JSON FORMAT??");
+			//console.log(mytest.toString());
 
 
 			const pyResultsJSON = JSON.parse(mytest.toString());
 			const results = pyResultsJSON.results;
-			//console.log("results");
-			//console.log(results);
+			const metrics = pyResultsJSON.metrics;
+			console.log("metrics");
+			console.log(metrics);
+
+
+			console.log("results");
+			console.log(results);
 
 
 
@@ -303,42 +311,56 @@ app.post("/upload", async (req, res) => {
 				Object.keys(pyResultsJSON.metrics).length - 1 // num files tested
 			);
 			
+			// This map is used to link student IDs with student names
+			const studentIDsByName = new Map();
+			await Promise.all(
+				[...studentNames].map(async (studentName) =>
+					studentIDsByName.set(
+						studentName,(await DAO.addStudent(studentName, zipFileRecord._id))._id
+					)
+				)
+			);
+
+			// This map is used to keep the scores of each student in an array
+			const listOfSeverityScoreFilesOwnedByStudents = new Map();
+			studentIDsByName.forEach((value, key) => {
+				listOfSeverityScoreFilesOwnedByStudents.set(value, []);
+			});
+
 			await Promise.all(
 				results.map(async (result) => {
-					const relativePath = getRelativePath(result.filename);
+					const relativePath = result.filename;
 					const severityScores = [];
+					console.log(relativePath);
 
 					//add Errors to database
-					const errors = await Promise.all(
-						result.messages.map((message) => {
-							const currentErrorType = convertErrorIDToType(
-								message.ruleId
-							);
-							severityScores.push(
-								ErrorTypes[currentErrorType]["Severity"]
-							);
-							return DAO.addError(
-								currentErrorType,
-								message.ruleId,
-								message.severity,
-								message.message,
-								message.line,
-								message.column,
-								message.nodeType,
-								message.messageId,
-								message.endLine,
-								message.endColumn
-							);
-						})
-					);
 
-					//TODO TEST THIS FUNCTION
-					//gets the severity score of current file
+					//get numerical PYError type
+					const currentErrorType = parseInt(result.test_id.substring(1));
+
+					severityScores.push(
+						PYErrorTypes[currentErrorType]["Severity"]
+					);
+					return DAO.addPYError(
+						currentErrorType,
+						PYErrorTypes[currentErrorType]["Severity"],
+						result.filename.substring(12), //rework if make separate folders for extracted py and js files
+						result.issue_text,
+						result.issue_confidence,
+						result.issue_severity,
+						result.issue_cwe.link,
+						result.line_number,
+						result.line_range,
+						result.test_name,
+						result.test_id
+					);
 					const fileSeverity = getSeverityScore(severityScores, -1);
+					
+					const pyFileErrorCount = 
 
 					//Stores file on the database
 					const fileRecord = await DAO.addFile(
-						relativePath,
+						result.filename.substring(12),
 						result.errorCount,
 						result.fatalErrorCount,
 						result.warningCount,
@@ -349,17 +371,6 @@ app.post("/upload", async (req, res) => {
 						fileSeverity
 					);
 
-					//Gets the current student
-					const currentStudentID = getStudentIDFromRelPath(
-						relativePath,
-						studentIDsByName
-					);
-
-					//adding files severity scores to the student so we can calculate the students severity score
-					listOfSeverityScoreFilesOwnedByStudents
-						.get(currentStudentID)
-						.push(fileSeverity);
-					DAO.addFileToStudent(currentStudentID, fileRecord._id);
 				})
 			);
 				//skipping linking student iDS w student names, havent decided on how to handle null names

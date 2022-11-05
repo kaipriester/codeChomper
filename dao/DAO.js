@@ -4,6 +4,8 @@ const ZipFile = require("../models/ZipFile.js").Model;
 const File = require("../models/File.js").Model;
 const Error = require("../models/JSError.js").Model;
 const ErrorList = require("../models/ErrorTypes.js").ErrorList;
+const PYError = require("../models/PYError.js").Model;
+
 
 exports.getUser = async (username) =>
 {
@@ -65,6 +67,36 @@ exports.addError = async (
 	});
 	return error._id;
 };
+
+exports.addPYError = async (
+	ErrorType,
+	Severity,
+	Filename,
+	Message,
+	Confidence,
+	SeverityText,
+	CweLink,
+	LineNumber,
+	LineRange,
+	TestName,
+	TestID
+) => {
+	const PYerror = await PYError.create({
+		ErrorType,
+		Severity,
+		Filename,
+		Message,
+		Confidence,
+		SeverityText,
+		CweLink,
+		LineNumber,
+		LineRange,
+		TestName,
+		TestID
+	});
+	return PYerror._id;
+};
+
 
 exports.addFile = async (
 	Name,
