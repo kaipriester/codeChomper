@@ -234,6 +234,9 @@ app.post("/upload", async (req, res) => {
 	//extract files into this folder
 	zipFile.mv(fileLocation, async (err) => {
 		// extract all student submissions from main zip file
+
+		fsExtra.emptyDirSync("./extracted"); // REMOVE??
+
 		const zipExtractor = new AdmZip(fileLocation);
 		zipExtractor.extractAllTo("./extracted", true);
 
@@ -327,8 +330,8 @@ app.post("/upload", async (req, res) => {
 			});
 
 			const fileErrorsMap = new Map();
-			const fileErrors = [];
-			await Promise.all(
+			let fileErrors = [];
+			const fileErrorsMap2 = await Promise.all(
 				results.map(async (result) => {
 					const relativePath = result.filename;
 									
@@ -340,7 +343,7 @@ app.post("/upload", async (req, res) => {
 					const currentErrorType = parseInt(result.test_id.substring(1));
 
 					//add Errors to database
-					let error = DAO.addPYError(
+					const  error = await DAO.addPYError(
 						currentErrorType,
 						PYErrorTypes[currentErrorType]["Severity"],
 						result.filename.substring(12), //rework if make separate folders for extracted py and js files
@@ -367,47 +370,100 @@ app.post("/upload", async (req, res) => {
 						fileErrorsMap.set(result.filename, fileErrors);
 					}
 					
+					return fileErrorsMap;
 				})
-			);
-			(async () => {
-				const fileSeverity = getSeverityScore(severityScores, -1);
+			);	
+
+				//connect errors to fileRecord
 				for (let [key, value] of  fileErrorsMap.entries()) {
 					//key = filename ; val = array of mongoose schema errors and numerical pyErrorid for the coresponding file
 
 					const severityScores = [];
-					
-					value.forEach((element) => {
-
+					const PYerrors = [];
+					await value.forEach((element) =>  {
+						console.log(element.id);
+						console.log(element.err);
 						severityScores.push(
 							PYErrorTypes[element.id]["Severity"]
 						);
-
+						
+						PYerrors.push(element.err);
 					});
 					//
-
-					
-
+					console.log()
+					const fileSeverity = getSeverityScore(severityScores, -1);
+					const relativePath = getRelativePath(key, true);
 					//Stores file on the database
 					const fileRecord = await DAO.addFile(
-						result.filename.substring(12),
-						result.errorCount,
-						result.fatalErrorCount,
-						result.warningCount,
-						result.fixableErrorCount,
-						result.fixableWarningCount,
-						result.source,
-						errors,
-						fileSeverity
+						relativePath,
+						value.length,
+						null,
+						null,	//stuff that is not utilized
+						null,
+						null,
+						null, // no result source for py errors, can add later
+						null,
+						PYerrors,
+						fileSeverity,
+						true
 					);
+					console.log(relativePath);
+					const currentStudentID = getStudentIDFromRelPath(
+						relativePath,
+						studentIDsByName
+					);
+					console.log(currentStudentID);
+					console.log(listOfSeverityScoreFilesOwnedByStudents);
 
-				}
-				
-			})();
+					listOfSeverityScoreFilesOwnedByStudents
+						.get(currentStudentID)
+						.push(fileSeverity);
+					await DAO.addFileToStudent(currentStudentID, fileRecord._id);
+
+				} // out of bandit loops
+
+				//add the list of the students to the zip file on database
+			await DAO.addStudentsToZipFile(
+				zipFileRecord._id,
+				Array.from(studentIDsByName.values())
+			);
 
 
+			//Where we store the results to then further calculate the classes severity score
+			const ListOfStudentSeverityScores = [];
+			//go through students and calculate and add their severity scores
+			for (const [
+				key,
+				value,
+			] of listOfSeverityScoreFilesOwnedByStudents.entries(
+				listOfSeverityScoreFilesOwnedByStudents
+			)) {
+				temp = getSeverityScore(value);
+				//let average = value.reduce((a, b) => a + b) / value.length;
+				ListOfStudentSeverityScores.push(temp);
+				await DAO.updateStudent(key, temp);
+			}
+
+			ListOfStudentSeverityScores.sort();
+			for (
+				i = 0;
+				i < Math.ceil(ListOfStudentSeverityScores.length / 8);
+				i++
+			) {
+				ListOfStudentSeverityScores.push(
+					ListOfStudentSeverityScores[
+						Math.floor(ListOfStudentSeverityScores.length / 2)
+					]
+				);
+			}
+
+			let average = Math.ceil(
+				ListOfStudentSeverityScores.reduce((a, b) => a + b) /
+					ListOfStudentSeverityScores.length
+			);
+			//adds the error count and severity score
+			await DAO.updateZipFile(zipFileRecord._id, results.length, average);
 			
-
-				//skipping linking student iDS w student names, havent decided on how to handle null names
 
 			//clear out the dir
 			fsExtra.emptyDirSync("./extracted");
@@ -445,7 +501,9 @@ app.post("/upload", async (req, res) => {
 			//Go tThrough ESlint detected errors
 			await Promise.all(
 				results.map(async (result) => {
-					const relativePath = getRelativePath(result.filePath);
+					const relativePath = getRelativePath(result.filePath, false);
+					console.log("relative path:");
+					console.log(relativePath);
 					const severityScores = [];
 
 					//add Errors to database
@@ -475,7 +533,7 @@ app.post("/upload", async (req, res) => {
 					//TODO TEST THIS FUNCTION
 					//gets the severity score of current file
 					const fileSeverity = getSeverityScore(severityScores, -1);
-
+					console.log(relativePath);
 					//Stores file on the database
 					const fileRecord = await DAO.addFile(
 						relativePath,
@@ -486,10 +544,12 @@ app.post("/upload", async (req, res) => {
 						result.fixableWarningCount,
 						result.source,
 						errors,
-						fileSeverity
+						null,
+						fileSeverity,
+						false
 					);
 
-					//Gets the current student
+					//Gets the current student DB id
 					const currentStudentID = getStudentIDFromRelPath(
 						relativePath,
 						studentIDsByName
@@ -871,9 +931,16 @@ app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
 
-const getRelativePath = (absolutePath) => {
+const getRelativePath = (absolutePath, isPY) => {
 	const extractedFolderName = ("extracted" + path.sep);
+	if(!isPY){
 	return absolutePath.substring(
 		absolutePath.indexOf(extractedFolderName) + extractedFolderName.length
 	);
+	}
+	else{
+		return absolutePath.substring(
+			absolutePath.indexOf(extractedFolderName) + extractedFolderName.length + 3
+		);
+	}
 };

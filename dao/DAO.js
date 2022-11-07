@@ -128,7 +128,9 @@ exports.addFile = async (
 	FixableWarningCount,
 	Source,
 	Errors,
-	SeverityScore
+	PyErrors,
+	SeverityScore,
+	isPyFile
 ) => {
 	return await File.create({
 		Name,
@@ -139,7 +141,9 @@ exports.addFile = async (
 		FixableWarningCount,
 		Source,
 		Errors,
-		SeverityScore
+		PyErrors,
+		SeverityScore,
+		isPyFile
 	});
 };
 
