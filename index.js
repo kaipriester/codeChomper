@@ -327,21 +327,21 @@ app.post("/upload", async (req, res) => {
 				listOfSeverityScoreFilesOwnedByStudents.set(value, []);
 			});
 
+			const fileErrorsMap = new Map();
+			const fileErrors = [];
 			await Promise.all(
 				results.map(async (result) => {
 					const relativePath = result.filename;
-					const severityScores = [];
+									
 					console.log(relativePath);
 
-					//add Errors to database
+					
 
-					//get numerical PYError type
+					//get numerical PYError type				
 					const currentErrorType = parseInt(result.test_id.substring(1));
 
-					severityScores.push(
-						PYErrorTypes[currentErrorType]["Severity"]
-					);
-					return DAO.addPYError(
+					//add Errors to database
+					let error = DAO.addPYError(
 						currentErrorType,
 						PYErrorTypes[currentErrorType]["Severity"],
 						result.filename.substring(12), //rework if make separate folders for extracted py and js files
@@ -354,9 +354,39 @@ app.post("/upload", async (req, res) => {
 						result.test_name,
 						result.test_id
 					);
-					const fileSeverity = getSeverityScore(severityScores, -1);
+
 					
-					const pyFileErrorCount = 
+					//case: no errors for file yet recorded, so add it to map					
+					if(!fileErrorsMap.has(result.filename)){
+						fileErrors = []; // clear?
+						fileErrors.push({"err": error, "id": currentErrorType});
+						fileErrorsMap.set(result.filename, fileErrors);
+					}
+					else{
+						// file already in map
+						fileErrors.push({"err": error, "id": currentErrorType});
+						fileErrorsMap.set(result.filename, fileErrors);
+					}
+					
+				})
+			);
+			(async () => {
+				const fileSeverity = getSeverityScore(severityScores, -1);
+				for (let [key, value] of  fileErrorsMap.entries()) {
+					//key = filename ; val = array of mongoose schema errors and numerical pyErrorid for the coresponding file
+
+					const severityScores = [];
+					
+					value.forEach((element) => {
+
+						severityScores.push(
+							PYErrorTypes[element.id]["Severity"]
+						);
+
+					});
+					//
+
+					
 
 					//Stores file on the database
 					const fileRecord = await DAO.addFile(
@@ -371,8 +401,13 @@ app.post("/upload", async (req, res) => {
 						fileSeverity
 					);
 
-				})
-			);
+				}
+				
+			})();
+
+
+			
+
 				//skipping linking student iDS w student names, havent decided on how to handle null names
 
 			//clear out the dir
