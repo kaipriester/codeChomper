@@ -1,5 +1,5 @@
 import axios from "axios";
-let devmode = true;
+let devmode = false;
 let url;
 const development_url = "http://localhost";
 const development_port = 8080;
@@ -24,6 +24,10 @@ else
 	}
 }
 
+const getUser = async () => {
+	return await axios.get((url + "getUser"));
+};
+
 const generateReport = async (zipFiles) => {
 	return await axios.post((url + "generateReport"), { zipFiles: zipFiles });
 };
@@ -34,6 +38,14 @@ const login = async (username, password) => {
 
 const signup = async (username, password) => {
 	return await axios.post((url + "signup"), { username: username, password: password });
+};
+
+const facebookLogin = async (id, username) => {
+	return await axios.post((url + "facebookLogin"), { username: username, facebookId: id });
+};
+
+const googleLogin = async (id, username) => {
+	return await axios.post((url + "googleLogin"), { username: username, googleId: id });
 };
 
 const logout = async () => {
@@ -95,4 +107,7 @@ export {
 	getPYErrorIDs,
 	deleteZipFolder,
 	generateReport,
+	getUser,
+	facebookLogin,
+	googleLogin
 };

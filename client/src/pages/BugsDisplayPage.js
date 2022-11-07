@@ -13,12 +13,13 @@ import {
 
 //TO-DO redesign this
 
-import { getErrorTypes, getErrorTypesNum, getErrorTypesPY, getPYErrorIDs} from "../client/API.js";
+import { getErrorTypes, getErrorTypesNum, getErrorTypesPY, getPYErrorIDs } from "../client/API.js";
 
 function BugsPage() {
 	const [nameArrayJS, setNameArrayJS] = useState([]);
 	const [severityArrayJS, setSeverityArrayJS] = useState([]);
 	const [descriptionArrayJS, setDescriptionArrayJS] = useState([]);
+	const [arrayJS, setArrayJS] = useState([]);
 
 	const [nameArrayPY, setNameArrayPY] = useState([]);
 	const [severityArrayPY, setSeverityArrayPY] = useState([]);
@@ -54,11 +55,14 @@ function BugsPage() {
 	useEffect(async () => {
 		var counter = await getErrorTypesNum();
 		console.log(counter.data);
+                let arrayJS = [];
 		for (let i = 0; i < counter.data; i++) {
 			const results = (await getErrorTypes(i)).data;
 			ArrayAdderJS(results.Name, results.Severity, results.Description);
-			console.log(results.Name)
+			console.log(results.Name);
+                        arrayJS.push({ CWE: results.CWE, MoreInfo: results.MoreInfo });
 		}
+		setArrayJS(arrayJS);
 		// var counterPY = await getErrorTypesNumPY();
 		console.log(counter.data);
 		const pyIndexesTesting = await getPYErrorIDs();
@@ -90,7 +94,9 @@ function BugsPage() {
 						<Table bordered hover>
 							<td>
 								<tr><b>  {nameArrayJS[index]} </b></tr>
-								<tr>Severity Level: {severityArrayJS[index]} </tr>
+								<tr>Severity Level: {severityArrayJS[index]}</tr>
+								{arrayJS[index] && arrayJS[index].CWE && <tr>CWE: <a href={arrayJS[index].CWE} target="_blank" rel="noopener noreferrer">Link</a></tr>}
+								{arrayJS[index] && arrayJS[index].MoreInfo && <tr>More Info: <a href={arrayJS[index].MoreInfo} target="_blank" rel="noopener noreferrer">Link</a></tr>}
 							</td>
 						</Table>
 						<td>Description: {descriptionArrayJS[index]}</td>
@@ -109,8 +115,8 @@ function BugsPage() {
 							<td>
 								<tr><b>  {nameArrayPY[index]} </b></tr>
 								<tr>Severity Level: {severityArrayPY[index]} </tr>
-								<tr>CWE: <a href="url">{CWEArrayPY[index]}</a> </tr>
-								<tr>More Info: <a href="url">{moreInfoArrayPY[index]}</a> </tr>
+								<tr>CWE: <a href={CWEArrayPY[index]} target="_blank" rel="noopener noreferrer">Link</a> </tr>
+								<tr>More Info: <a href={moreInfoArrayPY[index]} target="_blank" rel="noopener noreferrer">Link</a> </tr>
 								<tr>Group: {groupArrayPY[index]} </tr>
 							</td>
 						</Table>
@@ -216,6 +222,18 @@ function BugsPage() {
 			<Table striped bordered hover>
 					<thead>
 						<tr>
+							<th>Python Security Issue Types</th>
+						</tr>
+					</thead>
+					<tbody>{getTableRowsPython()}</tbody>
+	
+					<br></br>
+
+				</Table>
+
+			<Table striped bordered hover>
+					<thead>
+						<tr>
 							<th>JavaScript Security Issue Types</th>
 						</tr>
 					</thead>
@@ -225,17 +243,6 @@ function BugsPage() {
 
 				</Table>
 
-				<Table striped bordered hover>
-					<thead>
-						<tr>
-							<th>Python Security Issue Types</th>
-						</tr>
-					</thead>
-					<tbody>{getTableRowsPython()}</tbody>
-	
-					<br></br>
-
-				</Table>
 		</Grid>
 	);
 }

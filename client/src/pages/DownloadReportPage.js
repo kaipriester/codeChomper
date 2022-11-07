@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { getZipFileMetadata, generateReport } from "../client/API.js";
 import FileDownload from "js-file-download";
 import 'antd/dist/antd.min.css';
-import { Button, Icon } from "semantic-ui-react";
+import { Button, Icon, Message } from "semantic-ui-react";
 
 const columns = [{
   title: 'Name',
@@ -29,9 +29,30 @@ const columns = [{
 function DownloadReport() {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function downloadReport() {
-		var result = await generateReport(selectedRowKeys);
+    if (data.length == 0) {
+      setError(true);
+      setErrorMessage("There are no zip files to generate the report");
+      return;
+    }
+    if (selectedRowKeys.length == 0) {
+      setError(true);
+      setErrorMessage("Please select at least one zip file");
+      return;
+    }
+    try {
+		  var result = await generateReport(selectedRowKeys);
+    }
+    catch (e) {
+      setError(true);
+      setErrorMessage(e);
+      return;
+    }
+
+    setError(false);
 		FileDownload(result.data, "Report.csv");
 	}
 
@@ -72,7 +93,11 @@ function DownloadReport() {
 				<Icon name="download" />
         Generate Report        
 			</Button>
-
+      {error && (
+				<Message negative>
+					<p>{errorMessage}</p>
+				</Message>
+			)}
     </div>
   );
 }
