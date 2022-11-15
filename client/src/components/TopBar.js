@@ -5,28 +5,26 @@ import { logout } from "../client/API.js";
 
 function TopBar(props) {
 
-	const { updateZipFileHandler, updateRouteHandler } = props;
-	const [cookies, setCookie, removeCookie] = useCookies(["loggedIn"]);
-
+	const { updateZipFileHandler, updateRouteHandler, userObject, callUpdateUserObject} = props;
 	const logout_wrapper = async (updateRouteHandler) =>
 	{
 		await logout();
-		removeCookie("loggedIn", { path: "/" });
+		callUpdateUserObject();
 		updateZipFileHandler("undefined");
-		updateRouteHandler("LogIn");
+		updateRouteHandler("login");
 	};
 	return (
 		<div>
 			<Menu inverted attached="top">
 				<Menu.Menu position="right">
-					{ (cookies.loggedIn) &&
+					{ (userObject) &&
 						<Menu.Item
 							name="logout"
 							active
 							onClick={() => logout_wrapper(updateRouteHandler) }
 						></Menu.Item>
 					}
-					{ (!cookies.loggedIn) &&
+					{ (!userObject) &&
 						<>
 							<Menu.Item
 								name="SignUp"

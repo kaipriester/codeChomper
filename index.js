@@ -17,6 +17,9 @@ const convertErrorIDToType = require("./models/ErrorTypes.js").convertRuleIDToEr
 const ErrorTypes = require("./models/ErrorTypes.js").ErrorList;
 const ErrorTypeDetail = require("./models/ErrorTypes.js");
 
+const PYErrorTypes = require("./models/PYErrorTypes.js").PYErrorList;
+const PYErrorTypeDetail = require("./models/PYErrorTypes.js");
+
 const app = express();
 const port = process.env.PORT;
 const reactPort = 3000;
@@ -49,7 +52,6 @@ app.use(express.static("files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "client", "build")));
-
 database.connect();
 
 (async () =>
@@ -267,9 +269,101 @@ app.post("/upload", async (req, res) => {
 			// there is at least 1 py file in the zipfile uploaded
 			console.log("inside .py only code section");
 			
-			let mytest = await Bandit.runBandit("./extracted/", true);
+			const mytest = await Bandit.runBandit("./extracted/", true);
+			///console.log(mytest[metrics]);
 			console.log("my childs output is: ");
-			console.log(mytest);
+			
+			console.dir(mytest, {'maxArrayLength': null});
+
+			console.log("JSON FORMAT??");
+			console.log(mytest.toString());
+
+
+			const pyResultsJSON = JSON.parse(mytest.toString());
+			const results = pyResultsJSON.results;
+			
+			console.log("Through dir is: ");
+			console.log(throughDirectory("./extracted"));
+
+			console.log("num files tested is:");
+			console.log(Object.keys(pyResultsJSON.metrics).length - 1); // num files tested
+
+			//console.log(results.map((result) => getRelativePath(result.filePath)));
+			/*
+			const zipFileRecord = await DAO.addZipFile(
+			zipFileName,
+			new Date(),
+			
+		);
+			*/
+
+			const zipFileRecord = await DAO.addZipFile(
+				zipFileName,
+				new Date(),
+				req.session.username,
+				Object.keys(pyResultsJSON.metrics).length - 1 // num files tested
+			);
+			
+			await Promise.all(
+				results.map(async (result) => {
+					const relativePath = getRelativePath(result.filename);
+					const severityScores = [];
+
+					//add Errors to database
+					const errors = await Promise.all(
+						result.messages.map((message) => {
+							const currentErrorType = convertErrorIDToType(
+								message.ruleId
+							);
+							severityScores.push(
+								ErrorTypes[currentErrorType]["Severity"]
+							);
+							return DAO.addError(
+								currentErrorType,
+								message.ruleId,
+								message.severity,
+								message.message,
+								message.line,
+								message.column,
+								message.nodeType,
+								message.messageId,
+								message.endLine,
+								message.endColumn
+							);
+						})
+					);
+
+					//TODO TEST THIS FUNCTION
+					//gets the severity score of current file
+					const fileSeverity = getSeverityScore(severityScores, -1);
+
+					//Stores file on the database
+					const fileRecord = await DAO.addFile(
+						relativePath,
+						result.errorCount,
+						result.fatalErrorCount,
+						result.warningCount,
+						result.fixableErrorCount,
+						result.fixableWarningCount,
+						result.source,
+						errors,
+						fileSeverity
+					);
+
+					//Gets the current student
+					const currentStudentID = getStudentIDFromRelPath(
+						relativePath,
+						studentIDsByName
+					);
+
+					//adding files severity scores to the student so we can calculate the students severity score
+					listOfSeverityScoreFilesOwnedByStudents
+						.get(currentStudentID)
+						.push(fileSeverity);
+					DAO.addFileToStudent(currentStudentID, fileRecord._id);
+				})
+			);
+				//skipping linking student iDS w student names, havent decided on how to handle null names
 
 			//clear out the dir
 			fsExtra.emptyDirSync("./extracted");
@@ -423,6 +517,10 @@ app.post("/upload", async (req, res) => {
 	});
 });
 
+app.get('/getUser', (req, res) => {
+		res.json(req.session.username);
+});
+
 app.get("/ping", (req, res) =>
 {
   res.status(200);
@@ -468,9 +566,9 @@ app.post("/generateReport", async (req, res) => {
 		let file = null;
 		let files = [];
 		for (let i = 0; i < req.body.zipFiles.length; i++)
-		{
-			file = await DAO.getZipFileRaw(req.body.zipFiles[i]);
-			if (!file || (file.Owner !== req.session.username))
+		{		
+			file = await DAO.getZipFile(req.body.zipFiles[i]);
+			if (!req.session.admin && (!file || (file.Owner !== req.session.username)))
 			{
 				res.status(403).json(false); // 403 notwithstanding to prevent the existence of a file with the specified ID from being ascertained
 				return;
@@ -489,19 +587,19 @@ app.post("/generateReport", async (req, res) => {
 		files.forEach((file) => {
 			file.Errors.forEach((err) => {
 				numErrors++;
-				if (map.has(err.ErrorType)) {
-					var newObj = map.get(err.ErrorType);
+				if (map.has(err.ErrorType.Name)) {
+					var newObj = map.get(err.ErrorType.Name);
 					newObj.frequency++;
-					map.set(err.ErrorType, newObj);
+					map.set(err.ErrorType.Name, newObj);
 				}
 				else {
 					var newObj = {
-				  	ErrorType: err.ErrorType,
-						Message: err.Message.replace(",", ""),
-						Severity: err.Severity,
+				  		Name: err.ErrorType.Name,
+						Description: ("\"" + err.ErrorType.Description + "\""),
+						Severity: err.ErrorType.Severity,
 						frequency: 1
 					}
-					map.set(err.ErrorType, newObj);
+					map.set(err.ErrorType.Name, newObj);
 				}
 			}	);	
 		});
@@ -510,7 +608,7 @@ app.post("/generateReport", async (req, res) => {
 		var errors = [...map.values()];
 		errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
 		errors.forEach((error) => {
-			response += error.ErrorType + "," + error.Message + "," + error.Severity + "," + error.frequency/files.length + "," + error.frequency/numErrors+"\n";
+			response += error.Name + "," + error.Description + "," + error.Severity + "," + error.frequency/files.length + "," + error.frequency/numErrors+"\n";
 		})
 		res.json(response);
 	}
@@ -539,7 +637,7 @@ app.post("/login", async (req, res) =>
 					res.status(200);
 					if (result)
 					{
-						req.session.username = req.body.username;
+						req.session.username = user._id;
 						if (user.Admin)
 						{
 							req.session.admin = true;
@@ -566,14 +664,16 @@ app.post("/login", async (req, res) =>
 
 app.post("/signup", async (req, res) =>
 {
-	if (req.body.username && req.body.password && /^[a-zA-Z0-9]+$/.test(req.body.username) && /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
+	if (req.body.username && req.body.password 
+		&& /^[a-zA-Z0-9]+$/.test(req.body.username) 
+		&& /^(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(req.body.password))
 	{
 		try
 		{
 			const salt = await bcrypt.genSalt(saltRounds);
 			const hash = await bcrypt.hash(req.body.password, salt);
-			await DAO.addUser(req.body.username, hash, false);
-			req.session.username = req.body.username;
+			var newUser = await DAO.addUser(req.body.username, hash, false);
+			req.session.username = newUser._id;
 			res.status(200).json(true);
 		}
 		catch (err)
@@ -585,6 +685,52 @@ app.post("/signup", async (req, res) =>
 	{
 		console.log(req.body);
 		res.status(400).json(false);
+	}
+});
+
+app.post("/facebookLogin", async (req, res) => {
+	if (req.body.facebookId && req.body.username) {
+		console.log(req.body);
+		var user = await DAO.findFacebookUser(req.body.facebookId);
+		console.log(user);
+		if (user) {
+			res.status(200);
+			req.session.username = user._id;
+			
+	    res.json(true);
+		}
+		else {
+			var response = await DAO.addFacebookUser(req.body.facebookId, req.body.username);
+			if (response) {
+				res.status(200);
+				req.session.username = response._id;
+				res.json(true);
+			}
+			else
+				res.status(400).json(false);
+		}
+	}
+});
+
+app.post("/googleLogin", async (req, res) => {
+	if (req.body.googleId && req.body.username) {
+		var user = await DAO.findGoogleUser(req.body.googleId);
+		if (user) {
+			res.status(200);
+			req.session.username = user._id;
+	    res.json(true);
+		}
+		else {
+			var response = await DAO.addGoogleUser(req.body.googleId, req.body.username);
+			if (response) {
+				res.status(200);
+				req.session.username = response._id;
+				res.json(true);
+			}
+			else
+				res.status(400).json(false);
+		}
+		console.log(req.session);
 	}
 });
 
@@ -607,7 +753,7 @@ app.get("/studentfiles", async (req, res) =>
 	if (req.session.username)
 	{
 		const file = await DAO.getZipFile(req.query.id);
-		if (file.Owner === req.session.username)
+		if (req.session.admin || file.Owner === req.session.username)
 		{
 			res.status(200).json(file);
 		}
@@ -628,6 +774,30 @@ app.get("/ErrorTypes", async (req, res) =>
 	if (req.session.username)
 	{
 		res.status(200).json(ErrorTypeDetail.ReturnErrorTypeInformation(req.query.id));
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
+});
+
+app.get("/PYErrorTypes", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(PYErrorTypeDetail.ReturnPYErrorTypeInformation(req.query.id));
+	}
+	else
+	{
+		res.status(403).json(false);
+	}
+});
+
+app.get("/PYErrorIDs", async (req, res) =>
+{
+	if (req.session.username)
+	{
+		res.status(200).json(PYErrorTypeDetail.getPYErrorIDs());
 	}
 	else
 	{

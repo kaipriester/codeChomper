@@ -24,6 +24,10 @@ else
 	}
 }
 
+const getUser = async () => {
+	return await axios.get((url + "getUser"));
+};
+
 const generateReport = async (zipFiles) => {
 	return await axios.post((url + "generateReport"), { zipFiles: zipFiles });
 };
@@ -34,6 +38,14 @@ const login = async (username, password) => {
 
 const signup = async (username, password) => {
 	return await axios.post((url + "signup"), { username: username, password: password });
+};
+
+const facebookLogin = async (id, username) => {
+	return await axios.post((url + "facebookLogin"), { username: username, facebookId: id });
+};
+
+const googleLogin = async (id, username) => {
+	return await axios.post((url + "googleLogin"), { username: username, googleId: id });
 };
 
 const logout = async () => {
@@ -56,8 +68,16 @@ const getErrorTypes = async (id) => {
 	return await axios.get(url + "ErrorTypes?id=" + id);
 };
 
+const getErrorTypesPY = async (id) => {
+	return await axios.get(url + "PYErrorTypes?id=" + id);
+};
+
 const getErrorTypesNum = async () => {
 	return await axios.get(url + "ErrorTypesNum");
+};
+
+const getPYErrorIDs = async () => {
+	return await axios.get(url + "PYErrorIDs");
 };
 
 const getZipFile = async (id) => {
@@ -82,7 +102,12 @@ export {
 	ping,
 	upload,
 	getErrorTypes,
+	getErrorTypesPY,
 	getErrorTypesNum,
+	getPYErrorIDs,
 	deleteZipFolder,
 	generateReport,
+	getUser,
+	facebookLogin,
+	googleLogin
 };
