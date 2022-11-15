@@ -68,5 +68,9 @@
     "optionalDependencies": {
         "win-node-env": "^0.6.1"
     },
-    "proxy": "http://localhost:8000"
+    "proxy": "http://localhost:8000", 
+    "engines": {
+        "node": "18.9.0", 
+        "npm" : "8.19.2"
+      }
 }
