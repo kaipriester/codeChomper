@@ -184,8 +184,8 @@ app.delete("/deleteZipFolder", async (req, res) =>
 	{
 		if ((await DAO.getZipFile(req.query.id)).Owner === req.session.username)
 		{
-			DAO.deleteZipFolder(req.query.id);
-			res.status(202).json(true);
+			await DAO.deleteZipFolder(req.query.id);
+			res.status(200).json(true);
 		}
 		else
 		{
@@ -202,8 +202,8 @@ app.delete("/deleteAll", async (req, res) =>
 {
 	if (req.session.admin)
 	{
-		DAO.clearDatabase();
-		res.status(202).json(true);
+		await DAO.clearDatabase();
+		res.status(200).json(true);
 	}
 	else
 	{
