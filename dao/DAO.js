@@ -3,7 +3,9 @@ const Student = require("../models/Student.js").Model;
 const ZipFile = require("../models/ZipFile.js").Model;
 const File = require("../models/File.js").Model;
 const Error = require("../models/JSError.js").Model;
+const PYError = require("../models/PYError.js").Model;
 const ErrorList = require("../models/ErrorTypes.js").ErrorList;
+const PYErrorList = require("../models/PYErrorTypes.js").PYErrorList;
 
 exports.getUser = async (username) =>
 {
@@ -83,6 +85,35 @@ exports.addError = async (
 		MessageId,
 		EndLine,
 		EndColumn
+	});
+	return error._id;
+};
+
+exports.addPYError = async (
+	ErrorType
+	Severity
+	FileName
+	Code
+	Confidence
+	Severity
+	CweLink
+	LineNumber
+	LineRange
+	TestName
+	TestID
+) => {
+	const error = await PYError.create({
+		ErrorType
+		Severity
+		FileName
+		Code
+		Confidence
+		Severity
+		CweLink
+		LineNumber
+		LineRange
+		TestName
+		TestID
 	});
 	return error._id;
 };
