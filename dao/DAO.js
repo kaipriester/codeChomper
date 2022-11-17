@@ -210,7 +210,6 @@ exports.getZipFile = async (id) => {
 						EndColumn: error.EndColumn,
 					};
 					zipFile.Students[i].Files[j].Errors[k] = updatedError;
-					console.log(zipFile.Students[i].Files[j].Errors[k]);
 				});
 			}
 			if (file.PyErrors) {
@@ -221,7 +220,6 @@ exports.getZipFile = async (id) => {
 						Message: error.Message
 					};
 					zipFile.Students[i].Files[j].PyErrors[k] = updatedError;
-					console.log(zipFile.Students[i].Files[j].PyErrors[k]);
 				});
 			}
 		});
