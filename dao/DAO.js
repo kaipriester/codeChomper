@@ -1,9 +1,13 @@
+const { PYErrorList } = require("../models/PYErrorTypes.js");
+
 const User = require("../models/User.js").Model;
 const Student = require("../models/Student.js").Model;
 const ZipFile = require("../models/ZipFile.js").Model;
 const File = require("../models/File.js").Model;
 const Error = require("../models/JSError.js").Model;
 const ErrorList = require("../models/ErrorTypes.js").ErrorList;
+const PYError = require("../models/PYError.js").Model;
+
 
 exports.getUser = async (username) =>
 {
@@ -87,6 +91,36 @@ exports.addError = async (
 	return error._id;
 };
 
+exports.addPYError = async (
+	ErrorType,
+	Severity,
+	Filename,
+	Message,
+	Confidence,
+	SeverityText,
+	CweLink,
+	LineNumber,
+	LineRange,
+	TestName,
+	TestID
+) => {
+	const PYerror = await PYError.create({
+		ErrorType,
+		Severity,
+		Filename,
+		Message,
+		Confidence,
+		SeverityText,
+		CweLink,
+		LineNumber,
+		LineRange,
+		TestName,
+		TestID
+	});
+	return PYerror._id;
+};
+
+
 exports.addFile = async (
 	Name,
 	ErrorCount,
@@ -96,7 +130,9 @@ exports.addFile = async (
 	FixableWarningCount,
 	Source,
 	Errors,
-	SeverityScore
+	PyErrors,
+	SeverityScore,
+	isPyFile
 ) => {
 	return await File.create({
 		Name,
@@ -107,7 +143,9 @@ exports.addFile = async (
 		FixableWarningCount,
 		Source,
 		Errors,
-		SeverityScore
+		PyErrors,
+		SeverityScore,
+		isPyFile
 	});
 };
 
@@ -151,26 +189,39 @@ exports.getZipFile = async (id) => {
 			populate: {
 				path: "Files",
 				model: "File",
-				populate: { path: "Errors", model: "Error" },
+				populate: [
+					{ path: "Errors", model: "Error" }, 
+					{ path: "PyErrors", model: "PYError" }
+				]
 			}
 		});
 
 	zipFile.Students.forEach((student, i) => {
 		student.Files.forEach((file, j) => {
-			file.Errors.forEach((error, k) => {
-				console.log(error);
-				const updatedError = {
-					ErrorType: ErrorList[error["ErrorType"]],
-					Line: error.Line,
-					Column: error.Column,
-					NodeType: error.NodeType,
-					MessageId: error.MessageId,
-					EndLine: error.EndLine,
-					EndColumn: error.EndColumn,
-				};
-
-				zipFile.Students[i].Files[j].Errors[k] = updatedError;
-			});
+			if (file.Errors) {
+				file.Errors.forEach((error, k) => {
+					const updatedError = {
+						ErrorType: ErrorList[error["ErrorType"]],
+						Line: error.Line,
+						Column: error.Column,
+						NodeType: error.NodeType,
+						MessageId: error.MessageId,
+						EndLine: error.EndLine,
+						EndColumn: error.EndColumn,
+					};
+					zipFile.Students[i].Files[j].Errors[k] = updatedError;
+				});
+			}
+			if (file.PyErrors) {
+				file.PyErrors.forEach((error, k) => {
+					const updatedError = {
+						ErrorType: PYErrorList[error["ErrorType"]],
+						Line: error.LineNumber,
+						Message: error.Message
+					};
+					zipFile.Students[i].Files[j].PyErrors[k] = updatedError;
+				});
+			}
 		});
 	});
 	return zipFile;
