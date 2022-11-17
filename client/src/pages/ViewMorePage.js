@@ -275,11 +275,37 @@ function ViewMorePage(props) {
 																.Description
 														}
 													</Card.Description>
+													<Card.Description>
+														<span
+															style={{
+																fontWeight:
+																	"bolder",
+															}}
+														>
+															CWE:
+														</span>{" "}
+														<a> { err.data.ErrorType.CWE } </a>
+													</Card.Description>
+													<Card.Description>
+														<span
+															style={{
+																fontWeight:
+																	"bolder",
+															}}
+														>
+															More Info:
+														</span>{" "}
+														<a> { err.data.ErrorType.MoreInfo } </a>
+													</Card.Description>
 												</Card.Content>
+												{(err.data.ErrorType.Group) 
+												&& <Card.Content extra>
+													<Icon name="bug" />
+													{err.data.ErrorType.Group}
+												</Card.Content>}
 												<Card.Content extra>
 													<Icon name="file code" />
-													line {err.data.Line}, column{" "}
-													{err.data.Column}
+													line {err.data.Line}
 												</Card.Content>
 												<Card.Content extra>
 													<Icon
