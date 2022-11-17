@@ -98,15 +98,28 @@ function ViewMorePage(props) {
 												var allErrors = [];
 												student.Files.forEach(
 													(currFile) => {
-														currFile.Errors.forEach(
-															(error) => {
-																allErrors.push({
-																	data: error,
-																	fileName:
-																		currFile.Name,
-																});
-															}
-														);
+														if (currFile.Errors) {
+															currFile.Errors.forEach(
+																(error) => {
+																	allErrors.push({
+																		data: error,
+																		fileName: currFile.Name,
+																		type: "JS"
+																	});
+																}
+															);
+														}
+														if (currFile.PyErrors) {
+															currFile.PyErrors.forEach(
+																(error) => {
+																	allErrors.push({
+																		data: error,
+																		fileName: currFile.Name,
+																		type: "PY"
+																	});
+																}
+															);
+														}
 													}
 												);
 												setErrors(allErrors);
