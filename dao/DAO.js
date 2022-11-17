@@ -1,3 +1,5 @@
+const { PYErrorList } = require("../models/PYErrorTypes.js");
+
 const User = require("../models/User.js").Model;
 const Student = require("../models/Student.js").Model;
 const ZipFile = require("../models/ZipFile.js").Model;
@@ -198,7 +200,6 @@ exports.getZipFile = async (id) => {
 		student.Files.forEach((file, j) => {
 			if (file.Errors) {
 				file.Errors.forEach((error, k) => {
-					console.log(error);
 					const updatedError = {
 						ErrorType: ErrorList[error["ErrorType"]],
 						Line: error.Line,
@@ -210,6 +211,17 @@ exports.getZipFile = async (id) => {
 					};
 					zipFile.Students[i].Files[j].Errors[k] = updatedError;
 					console.log(zipFile.Students[i].Files[j].Errors[k]);
+				});
+			}
+			if (file.PyErrors) {
+				file.PyErrors.forEach((error, k) => {
+					const updatedError = {
+						ErrorType: PYErrorList[error["ErrorType"]],
+						Line: error.LineNumber,
+						Message: error.Message
+					};
+					zipFile.Students[i].Files[j].PyErrors[k] = updatedError;
+					console.log(zipFile.Students[i].Files[j].PyErrors[k]);
 				});
 			}
 		});
