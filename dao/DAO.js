@@ -187,26 +187,31 @@ exports.getZipFile = async (id) => {
 			populate: {
 				path: "Files",
 				model: "File",
-				populate: { path: "Errors", model: "Error" },
+				populate: [
+					{ path: "Errors", model: "Error" }, 
+					{ path: "PyErrors", model: "PYError" }
+				]
 			}
 		});
 
 	zipFile.Students.forEach((student, i) => {
 		student.Files.forEach((file, j) => {
-			file.Errors.forEach((error, k) => {
-				console.log(error);
-				const updatedError = {
-					ErrorType: ErrorList[error["ErrorType"]],
-					Line: error.Line,
-					Column: error.Column,
-					NodeType: error.NodeType,
-					MessageId: error.MessageId,
-					EndLine: error.EndLine,
-					EndColumn: error.EndColumn,
-				};
-
-				zipFile.Students[i].Files[j].Errors[k] = updatedError;
-			});
+			if (file.Errors) {
+				file.Errors.forEach((error, k) => {
+					console.log(error);
+					const updatedError = {
+						ErrorType: ErrorList[error["ErrorType"]],
+						Line: error.Line,
+						Column: error.Column,
+						NodeType: error.NodeType,
+						MessageId: error.MessageId,
+						EndLine: error.EndLine,
+						EndColumn: error.EndColumn,
+					};
+					zipFile.Students[i].Files[j].Errors[k] = updatedError;
+					console.log(zipFile.Students[i].Files[j].Errors[k]);
+				});
+			}
 		});
 	});
 	return zipFile;
