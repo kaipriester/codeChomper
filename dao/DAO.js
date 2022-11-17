@@ -7,7 +7,7 @@ const File = require("../models/File.js").Model;
 const Error = require("../models/JSError.js").Model;
 const PYError = require("../models/PYError.js").Model;
 const ErrorList = require("../models/ErrorTypes.js").ErrorList;
-const PYErrorList = require("../models/PYErrorTypes.js").PYErrorList;
+// const PYErrorList = require("../models/PYErrorTypes.js").PYErrorList;
 
 exports.getUser = async (username) =>
 {
