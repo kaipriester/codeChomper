@@ -684,33 +684,73 @@ app.post("/generateReport", async (req, res) => {
 		}
 
 		const map =  new Map();
-		var numErrors = 0;
+		const pyMap = new Map();
+		var numJSErrors = 0;
+		var numPYErrors = 0;
+		var numJSFiles = 0;
+		var numPYFiles = 0;
 		files.forEach((file) => {
-			file.Errors.forEach((err) => {
-				numErrors++;
-				if (map.has(err.ErrorType.Name)) {
-					var newObj = map.get(err.ErrorType.Name);
-					newObj.frequency++;
-					map.set(err.ErrorType.Name, newObj);
-				}
-				else {
-					var newObj = {
-				  		Name: err.ErrorType.Name,
-						Description: ("\"" + err.ErrorType.Description + "\""),
-						Severity: err.ErrorType.Severity,
-						frequency: 1
+			if (file.Errors) {
+				numJSFiles++;
+				file.Errors.forEach((err) => {
+					numJSErrors++;
+					if (map.has(err.ErrorType.Name)) {
+						var newObj = map.get(err.ErrorType.Name);
+						newObj.frequency++;
+						map.set(err.ErrorType.Name, newObj);
 					}
-					map.set(err.ErrorType.Name, newObj);
-				}
-			}	);	
+					else {
+						var newObj = {
+								Name: err.ErrorType.Name,
+							Description: ("\"" + err.ErrorType.Description + "\""),
+							Severity: err.ErrorType.Severity,
+							frequency: 1
+						}
+						map.set(err.ErrorType.Name, newObj);
+					}
+				}	);	
+			}
+			if (file.PyErrors) {
+				numPYFiles++;
+				file.PyErrors.forEach((err) => {
+					numPYErrors++;
+					if (pyMap.has(err.ErrorType.Name)) {
+						var newObj = pyMap.get(err.ErrorType.Name);
+						newObj.frequency++;
+						pyMap.set(err.ErrorType.Name, newObj);
+					}
+					else {
+						var newObj = {
+								Name: err.ErrorType.Name,
+							Description: ("\"" + err.ErrorType.Description + "\""),
+							Severity: err.ErrorType.Severity,
+							frequency: 1
+						}
+						pyMap.set(err.ErrorType.Name, newObj);
+					}
+				}	);	
+			}
 		});
-		var response = "Most Common Vulnerabilities in JavaScript Files\n"+
-					"Error Type, Message, Severity, Frequency per file, Percentage of all vulnerabilities\n";
-		var errors = [...map.values()];
-		errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
-		errors.forEach((error) => {
-			response += error.Name + "," + error.Description + "," + error.Severity + "," + error.frequency/files.length + "," + error.frequency/numErrors+"\n";
-		})
+		var response = "";
+		if (numJSErrors > 0) {
+			response += "Most Common Vulnerabilities in JavaScript Files\n"+
+						"Error Type, Message, Severity, Total Occurrencies, Frequency per file, Percentage of all vulnerabilities\n";
+			var errors = [...map.values()];
+			errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
+			errors.forEach((error) => {
+				response += error.Name + "," + error.Description + "," + error.Severity + "," + error.frequency + "," + error.frequency/numJSFiles + "," + error.frequency/numJSErrors+"\n";
+			})
+			response += "\n";
+		}
+		if (numPYErrors > 0) {
+			response += "Most Common Vulnerabilities in Python Files\n"+
+						"Error Type, Message, Severity, Total Occurrencies, Frequency per file, Percentage of all vulnerabilities\n";
+			var errors = [...pyMap.values()];
+			errors = errors.sort((a,b) => (a.frequency > b.frequency) ? -1 : ((b.frequency > a.frequency) ? 1 : 0));
+			errors.forEach((error) => {
+				response += error.Name + "," + error.Description + "," + error.Severity + "," + error.frequency + "," + error.frequency/numPYFiles + "," + error.frequency/numPYErrors+"\n";
+			})
+		}
 		res.json(response);
 	}
 	else
