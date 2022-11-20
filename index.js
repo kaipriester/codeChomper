@@ -338,7 +338,6 @@ app.post("/upload", async (req, res) => {
 					console.log(relativePath);
 
 					
-
 					//get numerical PYError type				
 					const currentErrorType = parseInt(result.test_id.substring(1));
 
@@ -392,6 +391,8 @@ app.post("/upload", async (req, res) => {
 					//
 					console.log()
 					const fileSeverity = getSeverityScore(severityScores, -1);
+					console.log("absolute path:");
+					console.log(key.filePath)
 					const relativePath = getRelativePath(key, true);
 					//Stores file on the database
 					const fileRecord = await DAO.addFile(
@@ -407,6 +408,7 @@ app.post("/upload", async (req, res) => {
 						fileSeverity,
 						true
 					);
+					console.log("relative path:");
 					console.log(relativePath);
 					const currentStudentID = getStudentIDFromRelPath(
 						relativePath,
@@ -501,6 +503,8 @@ app.post("/upload", async (req, res) => {
 			//Go tThrough ESlint detected errors
 			await Promise.all(
 				results.map(async (result) => {
+					console.log("absolute path:");
+					console.log(result.filePath)
 					const relativePath = getRelativePath(result.filePath, false);
 					console.log("relative path:");
 					console.log(relativePath);
@@ -973,6 +977,9 @@ app.listen(port, () => {
 
 const getRelativePath = (absolutePath, isPY) => {
 	const extractedFolderName = ("extracted" + path.sep);
+	// return absolutePath.substring(
+	// 			absolutePath.indexOf(extractedFolderName) + extractedFolderName.length + 3
+	// 		);
 	if(!isPY){
 	return absolutePath.substring(
 		absolutePath.indexOf(extractedFolderName) + extractedFolderName.length
