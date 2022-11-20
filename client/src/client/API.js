@@ -1,5 +1,5 @@
 import axios from "axios";
-let devmode = true;
+let devmode = false;
 let url;
 const development_url = "http://localhost";
 const development_port = 8080;
