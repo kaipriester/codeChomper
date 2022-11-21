@@ -393,7 +393,11 @@ app.post("/upload", async (req, res) => {
 					const fileSeverity = getSeverityScore(severityScores, -1);
 					// console.log("absolute path:");
 					// console.log(key.filePath)
-					const relativePath = getRelativePath(key, true);
+					//CHANGES here
+					// const relativePath = getRelativePath(key, true);
+					var path1 = require('path');
+					const relativePath = path1.basename(key);
+					// const relativePath = key;
 					//Stores file on the database
 					const fileRecord = await DAO.addFile(
 						relativePath,
@@ -991,3 +995,4 @@ const getRelativePath = (absolutePath, isPY) => {
 	// 	);
 	// }
 };
+
