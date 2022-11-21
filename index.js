@@ -982,7 +982,7 @@ app.listen(port, () => {
 const getRelativePath = (absolutePath, isPY) => {
 	const extractedFolderName = ("extracted" + path.sep);
 	return absolutePath.substring(
-				absolutePath.indexOf(extractedFolderName) + extractedFolderName.length + 3
+				absolutePath.indexOf(extractedFolderName) + extractedFolderName.length
 			);
 	// if(!isPY){
 	// return absolutePath.substring(
