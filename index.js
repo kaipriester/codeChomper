@@ -391,8 +391,8 @@ app.post("/upload", async (req, res) => {
 					//
 					console.log()
 					const fileSeverity = getSeverityScore(severityScores, -1);
-					console.log("absolute path:");
-					console.log(key.filePath)
+					// console.log("absolute path:");
+					// console.log(key.filePath)
 					const relativePath = getRelativePath(key, true);
 					//Stores file on the database
 					const fileRecord = await DAO.addFile(
@@ -977,17 +977,17 @@ app.listen(port, () => {
 
 const getRelativePath = (absolutePath, isPY) => {
 	const extractedFolderName = ("extracted" + path.sep);
-	// return absolutePath.substring(
-	// 			absolutePath.indexOf(extractedFolderName) + extractedFolderName.length + 3
-	// 		);
-	if(!isPY){
 	return absolutePath.substring(
-		absolutePath.indexOf(extractedFolderName) + extractedFolderName.length
-	);
-	}
-	else{
-		return absolutePath.substring(
-			absolutePath.indexOf(extractedFolderName) + extractedFolderName.length + 3
-		);
-	}
+				absolutePath.indexOf(extractedFolderName) + extractedFolderName.length + 3
+			);
+	// if(!isPY){
+	// return absolutePath.substring(
+	// 	absolutePath.indexOf(extractedFolderName) + extractedFolderName.length
+	// );
+	// }
+	// else{
+	// 	return absolutePath.substring(
+	// 		absolutePath.indexOf(extractedFolderName) + extractedFolderName.length + 3
+	// 	);
+	// }
 };
