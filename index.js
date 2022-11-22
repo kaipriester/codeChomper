@@ -29,6 +29,7 @@ const saltRounds = 12;
 const corsOptions = {
 	origin: origin,
 	optionsSuccessStatus: 200,
+	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 	credentials: true
 };
 
