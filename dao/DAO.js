@@ -255,28 +255,41 @@ exports.getAllStudentFiles = async () => {
 	return await Student.find({}).exec();
 };
 exports.deleteZipFolder= async (zipFolderID) => {
-	console.log("database deleter here!")
-	const zipFile = await ZipFile.findById(zipFolderID)
-	.lean()
-	.populate({
+	console.log("database deleter here!");
+
+	//const zFile = await ZipFile.findById(zipFolderID);
+	//console.log(zFile);
+		const zipFile = await ZipFile.findById(zipFolderID).lean().populate({
 		path: "Students",
 		populate: {
 			path: "Files",
 			model: "File",
-			populate: { path: "Errors", model: "Error" },
+			populate: { 
+				path: "Errors", 
+				model: "Error" ,
+
+				path: "PyErrors",
+				model: "PYError"
+			},
 		}
 	});
-	console.log("database deleter: I found the zipfile")
 	zipFile.Students.forEach((student, i) => {
 		student.Files.forEach((file, j) => {
-			file.Errors.forEach((error, k) => {
-                Error.deleteOne({id: error._id}).exec();
-			});
+			if(file.isPyFile){
+				file.PyErrors.forEach((err, k) => {
+					PYError.deleteOne({id: err._id}).exec();
+				});
+			}
+			else{
+				file.Errors.forEach((error, k) => {
+               	 	Error.deleteOne({id: error._id}).exec();
+				});
+			}
 			File.deleteOne({id: file._id}).exec();
 		});
 		Student.deleteOne({id: student._id}).exec();
 	});
-	ZipFile.deleteOne({id: zipFile._id}).exec();
+	ZipFile.deleteOne({id: zipFile._id}).exec();	
 	console.log("database deleter: I deleted everything I am out Peace")
 };
 exports.clearDatabase= async () => {
