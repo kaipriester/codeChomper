@@ -22,8 +22,8 @@ import DateRangePicker from "@wojtekmaj/react-daterange-picker";
 function MainPage(props) {
 	const [filenameFilter, setFilenameFilter] = useState("");
 	const [dateFilter, setDateFilter] = useState([
-		new Date("1/1/22"),
-		new Date("12/1/22"),
+		new Date("9/1/22"),
+		new Date("5/1/23"),
 	]);
 	const [severityFilter, setSeverityFilter] = useState(0);
 	const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
