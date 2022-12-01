@@ -845,7 +845,12 @@ app.post("/facebookLogin", async (req, res) => {
 	    res.json(true);
 		}
 		else {
+			try {
 			var response = await DAO.addFacebookUser(req.body.facebookId, req.body.username);
+			}
+			catch (err) {
+				res.status(409).json(false);
+			}
 			if (response) {
 				res.status(200);
 				req.session.username = response._id;
@@ -866,7 +871,12 @@ app.post("/googleLogin", async (req, res) => {
 	    res.json(true);
 		}
 		else {
-			var response = await DAO.addGoogleUser(req.body.googleId, req.body.username);
+			try {
+				var response = await DAO.addGoogleUser(req.body.googleId, req.body.username);
+			}
+			catch (err) {
+				res.status(409).json(false);
+			}
 			if (response) {
 				res.status(200);
 				req.session.username = response._id;
