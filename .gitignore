@@ -47,4 +47,3 @@ client/yarn-error.log*
 /.idea/dataSources.local.xml
 
 /.env
-/extracted/

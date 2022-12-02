@@ -113,12 +113,22 @@ function getLineData(xArray, yArray) {
 function getErrors(students) {
 	var errorList = [];
 	students.map((student) =>
-		student.Files.map((file) =>
-			file.Errors.map((error) => {
-				if (error.ErrorType.Severity != 0) {
-					errorList.push(error)
-				}
-			})
+		student.Files.map((file) => {
+			if (file.Errors) {
+				file.Errors.map((error) => {
+					if (error.ErrorType.Severity != 0) {
+						errorList.push(error)
+					}
+				});
+			}
+			if (file.PyErrors) {
+				file.PyErrors.map((error) => {
+					if (error.ErrorType.Severity != 0) {
+						errorList.push(error)
+					}
+				});
+			}
+		}
 		)
 	);
 	return errorList;
