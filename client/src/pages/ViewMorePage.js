@@ -25,6 +25,7 @@ function ViewMorePage(props) {
 	const [file, setFile] = useState({ Students: [] });
 	const [open, setOpen] = useState(false);
 	const [errors, setErrors] = useState([]);
+	const [studentNameFilter, setStudentNameFilter] = useState("");
 
 	function getColor(value) {
 		//value from 0 to 1
@@ -38,104 +39,131 @@ function ViewMorePage(props) {
 		setFile(results);
 	}, []);
 
+	const getStudents = () => {
+		let filteredStudents = [...file.Students];
+		if (studentNameFilter !== "") {
+			filteredStudents = filteredStudents.filter((student) =>
+				student.Name.startsWith(studentNameFilter)
+			);
+		}
+		return filteredStudents;
+	};
+
+
 	const panes = [
 		{
 			menuItem: "Students",
 			render: () => (
-				<Card.Group>
-					{file.Students.map((student) => (
-						<Card>
-							<Card.Content>
-								<Image
-									floated="right"
-									size="mini"
-									src="https://i.ibb.co/vxd7Rwc/abc-123-programmer-software-developer-generated.jpg"
-								/>
-								<Card.Header>{student.Name}</Card.Header>
-								<Card.Meta>
-									Submitted {student.Files.length} files
-								</Card.Meta>
-								{/* <Card.Meta>Submitted 20 files</Card.Meta> */}
-								{/* <Card.Meta>Submitted 20 files</Card.Meta> */}
-								{/* <Card.Description textAlign="center">
-            <Statistic label="detections" value={"4"} />
-            <Statistic label="severity score" value={"9"} />
-          </Card.Description> */}
-							</Card.Content>
-							<Card.Content extra>
-								<Icon color={"blue"} name="user" />
-								<span style={{ color: "blue" }}>
-									{student.Files.reduce(
-										(prev, currFile) =>
-											prev + currFile.ErrorCount,
-										0
-									)}{" "}
-									Detections
-								</span>
-							</Card.Content>
-							<Card.Content extra>
-								<Icon
-									style={{
-										color: getColor(student.SeverityScore),
-									}}
-									name="exclamation triangle"
-								/>
-								<span style={{ color: "black" }}>
-									{student.SeverityScore} Severity Score
-								</span>
-							</Card.Content>
-							<Card.Content extra>
-								<div className="ui two buttons">
-									{student.Files.reduce(
-										(prev, currFile) =>
-											prev + currFile.ErrorCount,
-										0
-									) !== 0 ? (
-										<Button
-											basic
-											color="primary"
-											onClick={() => {
-												var allErrors = [];
-												student.Files.forEach(
-													(currFile) => {
-														if (currFile.Errors) {
-															currFile.Errors.forEach(
-																(error) => {
-																	allErrors.push({
-																		data: error,
-																		fileName: currFile.Name,
-																		type: "JS"
-																	});
-																}
-															);
-														}
-														if (currFile.PyErrors) {
-															currFile.PyErrors.forEach(
-																(error) => {
-																	allErrors.push({
-																		data: error,
-																		fileName: currFile.Name,
-																		type: "PY"
-																	});
-																}
-															);
-														}
-													}
-												);
-												setErrors(allErrors);
-												setOpen(true);
+				<Grid>
+					<Grid.Row>
+					<Grid.Column style={{ width: "80%" }}>
+						<Input
+							style={{ width: "100%" }}
+							placeholder="Search for student"
+							onChange={(e) => setStudentNameFilter(e.target.value)}
+						/>
+					</Grid.Column>
+					<Grid.Column>
+						<Button icon="sort"></Button>
+					</Grid.Column>
+					</Grid.Row>
+					<Grid.Row>
+						<Card.Group>
+							{getStudents().map((student) => (
+								<Card>
+									<Card.Content>
+										<Image
+											floated="right"
+											size="mini"
+											src="https://i.ibb.co/vxd7Rwc/abc-123-programmer-software-developer-generated.jpg"
+										/>
+										<Card.Header>{student.Name}</Card.Header>
+										<Card.Meta>
+											Submitted {student.Files.length} files
+										</Card.Meta>
+										{/* <Card.Meta>Submitted 20 files</Card.Meta> */}
+										{/* <Card.Meta>Submitted 20 files</Card.Meta> */}
+										{/* <Card.Description textAlign="center">
+								<Statistic label="detections" value={"4"} />
+								<Statistic label="severity score" value={"9"} />
+							</Card.Description> */}
+									</Card.Content>
+									<Card.Content extra>
+										<Icon color={"blue"} name="user" />
+										<span style={{ color: "blue" }}>
+											{student.Files.reduce(
+												(prev, currFile) =>
+													prev + currFile.ErrorCount,
+												0
+											)}{" "}
+											Detections
+										</span>
+									</Card.Content>
+									<Card.Content extra>
+										<Icon
+											style={{
+												color: getColor(student.SeverityScore),
 											}}
-										>
-											view more
-										</Button>
-									) : (
-										<></>
-									)}
-								</div>
-							</Card.Content>
-						</Card>
-					))}
-				</Card.Group>
+											name="exclamation triangle"
+										/>
+										<span style={{ color: "black" }}>
+											{student.SeverityScore} Severity Score
+										</span>
+									</Card.Content>
+									<Card.Content extra>
+										<div className="ui two buttons">
+											{student.Files.reduce(
+												(prev, currFile) =>
+													prev + currFile.ErrorCount,
+												0
+											) !== 0 ? (
+												<Button
+													basic
+													color="primary"
+													onClick={() => {
+														var allErrors = [];
+														student.Files.forEach(
+															(currFile) => {
+																if (currFile.Errors) {
+																	currFile.Errors.forEach(
+																		(error) => {
+																			allErrors.push({
+																				data: error,
+																				fileName: currFile.Name,
+																				type: "JS"
+																			});
+																		}
+																	);
+																}
+																if (currFile.PyErrors) {
+																	currFile.PyErrors.forEach(
+																		(error) => {
+																			allErrors.push({
+																				data: error,
+																				fileName: currFile.Name,
+																				type: "PY"
+																			});
+																		}
+																	);
+																}
+															}
+														);
+														setErrors(allErrors);
+														setOpen(true);
+													}}
+												>
+													view more
+												</Button>
+											) : (
+												<></>
+											)}
+										</div>
+									</Card.Content>
+								</Card>
+							))}
+						</Card.Group>
+					</Grid.Row>
+				</Grid>
 			),
 		},
 		{ menuItem: "Graphs", render: () => <ChartsPage file={file} /> },
@@ -210,18 +238,6 @@ function ViewMorePage(props) {
 						</Card.Content>
 					</Card>
 				</Card.Group>
-			</Grid.Row>
-			<Grid.Row>
-				{/* alphabetical, date, number of files, detections, severity score, reverse alphabetical (jk)) */}
-				<Grid.Column style={{ width: "80%" }}>
-					<Input
-						style={{ width: "100%" }}
-						placeholder="Search for student"
-					/>
-				</Grid.Column>
-				<Grid.Column>
-					<Button icon="sort"></Button>
-				</Grid.Column>
 			</Grid.Row>
 			<Grid.Row>
 				<Tab menu={{ text: true, attached: false }} panes={panes} />
